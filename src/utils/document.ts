@@ -6,7 +6,7 @@ import {
 import { tldrawFileToJson } from "./tldraw-file/tldraw-file-to-json";
 import { PluginManifest } from "obsidian";
 import { createRawTldrawFile } from "./tldraw-file";
-import { replaceBetweenKeywords } from "./utils";
+import { hasKewords, replaceBetweenKeywords } from "./utils";
 import { isValidFrontmatterTag } from "src/obsidian/helpers/front-matter";
 
 export type TldrawPluginMetaData = {
@@ -122,6 +122,10 @@ export async function updateFileData(manifest: PluginManifest, data: string, doc
 		createRawTldrawFile(documentStore.store),
 		documentStore.meta.uuid
 	);
+	
+	if(!hasKewords(data, TLDATA_DELIMITER_START, TLDATA_DELIMITER_END)) {
+		return `${data}\n${codeBlockTemplate(tldrawData)}`;
+	}
 
 	// If you do not use `null, "\t"` as arguments for stringify(),
 	// Obsidian will lag when you try to open the file in markdown view.
