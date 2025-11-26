@@ -20,6 +20,15 @@ export const removeAllChildNodes = (parent: HTMLElement) => {
 	}
 };
 
+export const hasKewords = (
+	input: string,
+	keyword1: string,
+	keyword2: string
+) => {
+	const pattern = new RegExp(`${keyword1}(.*?)${keyword2}`, "s");
+	return pattern.test(input);
+}
+
 export const extractDataBetweenKeywords = (
 	input: string,
 	keyword1: string,
