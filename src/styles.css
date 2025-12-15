@@ -71,6 +71,11 @@
 	padding: inherit;
 }
 
+/* OVERRIDING Obsidian's CSS */
+.tldraw-view-root ol > li::marker, .tldraw-view-root ul > li::marker {
+	color: inherit;
+}
+
 div[data-type="tldraw-view"] .view-content.tldraw-view-content,
 div[data-type="tldraw-read-only"] .view-content.tldraw-view-content {
 	/* gets rid of the padding so the canvas can bleed against the edges */
