@@ -54,6 +54,7 @@ function addCreateNewDrawingCommand(plugin: TldrawPlugin, options: CreateOptions
         ),
         callback: () => createTldrawFile(plugin, {
             inMarkdown,
+            attachTo: plugin.app.workspace.activeEditor?.file || undefined
         }).then(
             tldrawDoc => pane && tldrawDoc?.open(pane)
         ),
@@ -76,8 +77,10 @@ function addCreateNewDrawingAndEmbedCommand(plugin: TldrawPlugin, options: Creat
             }
             const from = editor.getCursor('from');
             const to = editor.getCursor('to');
+
             const newFile = await createTldrawFile(plugin, {
                 inMarkdown,
+                attachTo: file
             });
 
             if (!newFile) return;
