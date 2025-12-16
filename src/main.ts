@@ -61,6 +61,7 @@ import { getTldrawFileDestination } from "./obsidian/plugin/file-destination";
 import { tldrawFileToJson } from "./utils/tldraw-file/tldraw-file-to-json";
 import UserSettingsManager from "./obsidian/settings/UserSettingsManager";
 import { createEmbedTldraw } from "./obsidian/components/markdown-render-child";
+import { formatFilePrefix } from "./obsidian/file/new";
 
 @pluginBuild
 export default class TldrawPlugin extends Plugin {
@@ -114,7 +115,10 @@ export default class TldrawPlugin extends Plugin {
 
 		// this creates an icon in the left ribbon:
 		this.addRibbonIcon(TLDRAW_ICON_NAME, RIBBON_NEW_FILE, async () => {
-			const file = await this.createUntitledTldrFile();
+			const activeFile = this.app.workspace.activeEditor?.file;
+			const file = await this.createUntitledTldrFile({
+				attachTo: activeFile || undefined,
+			});
 			await this.openTldrFile(file, "current-tab");
 		});
 
@@ -460,7 +464,11 @@ export default class TldrawPlugin extends Plugin {
 		return await this.createFile(filename, foldername, fileData);
 	};
 
-	public createDefaultFilename() {
+	public createDefaultFilename({
+		currentFile
+	}: {
+		currentFile?: Pick<TFile, 'basename'>
+	}) {
 		const { newFilePrefix, newFileTimeFormat } = this.settings;
 
 		const date =
@@ -470,7 +478,9 @@ export default class TldrawPlugin extends Plugin {
 
 		// if both the prefix and the date is empty as contentation
 		// then we have to use the defaults to name the file
-		let filename = newFilePrefix + date;
+		let filename = formatFilePrefix(newFilePrefix, {
+			currentFileBasename: currentFile?.basename
+		}) + date;
 		if (filename.trim() === "")
 			filename =
 				DEFAULT_SETTINGS.newFilePrefix +
@@ -493,7 +503,7 @@ export default class TldrawPlugin extends Plugin {
 		 */
 		inMarkdown?: boolean
 	} = {}) => {
-		const filename = this.createDefaultFilename();
+		const filename = this.createDefaultFilename({ currentFile: attachTo });
 		const res = await getTldrawFileDestination(this, filename, attachTo);
 		return this.createTldrFile(res.filename, {
 			tlStore,

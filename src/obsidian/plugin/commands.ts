@@ -1,28 +1,28 @@
-import { Notice, TFile } from "obsidian";
+import { Editor, EditorPosition, Notice, TFile } from "obsidian";
 import TldrawPlugin from "src/main";
+import { TldrawDocument } from "src/obsidian/plugin/document";
 import { FILE_EXTENSION, PANE_TARGETS, PaneTarget, VIEW_TYPE_MARKDOWN, VIEW_TYPE_TLDRAW } from "src/utils/constants";
 import { importTldrawFile } from "src/utils/file";
 import { TLDRAW_FILE_EXTENSION } from "tldraw";
 
 async function createTldrawFile(plugin: TldrawPlugin, {
-    attachTo, inMarkdown, pane
+    attachTo, inMarkdown,
 }: {
     inMarkdown: boolean,
-    pane?: PaneTarget,
     attachTo?: TFile
 }) {
     try {
-        const file = await plugin.createUntitledTldrFile({ inMarkdown, attachTo, });
-        if (pane) {
-            await plugin.openTldrFile(file, pane, VIEW_TYPE_TLDRAW)
-        }
-        return file;
+        return await TldrawDocument.create(plugin, { inMarkdown, attachTo, });
     } catch (e) {
         new Notice(e instanceof Error ? e.message : (() => {
             console.error(e);
             return 'An unknown error occurred while creating a new tldraw file.';
         })())
     }
+}
+
+function editorInsert(tldrawDocument: TldrawDocument, editor: Editor, from: EditorPosition, to: EditorPosition) {
+    editor.replaceRange(`![[${tldrawDocument.path}]]`, from, to);
 }
 
 const paneTargetNameRecord = {
@@ -53,9 +53,11 @@ function addCreateNewDrawingCommand(plugin: TldrawPlugin, options: CreateOptions
                 : `, then open in ${paneTargetNameRecord[pane]}`
         ),
         callback: () => createTldrawFile(plugin, {
-            pane,
             inMarkdown,
-        })
+            attachTo: plugin.app.workspace.activeEditor?.file || undefined
+        }).then(
+            tldrawDoc => pane && tldrawDoc?.open(pane)
+        ),
     });
 }
 
@@ -75,14 +77,20 @@ function addCreateNewDrawingAndEmbedCommand(plugin: TldrawPlugin, options: Creat
             }
             const from = editor.getCursor('from');
             const to = editor.getCursor('to');
+
             const newFile = await createTldrawFile(plugin, {
-                pane,
                 inMarkdown,
+                attachTo: file
             });
 
             if (!newFile) return;
 
-            editor.replaceRange(`![[${newFile.path}]]`, from, to)
+            // Insert the link to the new file into the editor before opening it in case the current editor is closed as a result of opening the new file.
+            editorInsert(newFile, editor, from, to);
+
+            if (pane) {
+                await newFile.open(pane);
+            }
         },
     });
 }
@@ -145,7 +153,7 @@ export function registerCommands(plugin: TldrawPlugin) {
             const from = editor.getCursor('from');
             const to = editor.getCursor('to');
             const tFile = await importTldrawFile(plugin, file);
-            editor.replaceRange(`![[${tFile.path}]]`, from, to)
+            editorInsert(new TldrawDocument(plugin, tFile), editor, from, to);
         },
     });
 }

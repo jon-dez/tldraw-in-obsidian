@@ -71,6 +71,11 @@
 	padding: inherit;
 }
 
+/* OVERRIDING Obsidian's CSS */
+.tldraw-view-root ol > li::marker, .tldraw-view-root ul > li::marker {
+	color: inherit;
+}
+
 div[data-type="tldraw-view"] .view-content.tldraw-view-content,
 div[data-type="tldraw-read-only"] .view-content.tldraw-view-content {
 	/* gets rid of the padding so the canvas can bleed against the edges */
@@ -382,6 +387,20 @@ div[data-type="tldraw-read-only"] .view-content.tldraw-view-content {
 	gap: var(--size-4-2);
 }
 
+.ptl-new-file-prefix-template-main .ptl-new-file-prefix-template-code {
+	font-weight: var(--bold-weight);
+	user-select: text;
+}
+
+.ptl-new-file-prefix-templates .ptl-new-file-prefix-template-children {
+	padding: var(--size-4-1);
+}
+
+.ptl-new-file-prefix-templates .ptl-new-file-prefix-template-item {
+	border: 1px solid var(--background-modifier-border);
+	border-radius: var(--radius-m);
+	padding: var(--size-4-2);
+}
 
 /* Copied from tldraw.com */
 .tl-shape[data-shape-type="arrow"] .tl-text {
