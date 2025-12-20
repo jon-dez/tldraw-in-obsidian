@@ -27,13 +27,13 @@ Tldraw in Obsidian is now available on the official community plugins list!
 
 - Download `Obsidian42 - BRAT` from the community plugins.
 - Go into the settings for `Obsidian42 - Brat` and select `Add Beta Plugin`
-- Copy and paste this repo: `https://github.com/holxsam/tldraw-in-obsidian`
+- Copy and paste this repo: `https://github.com/tldraw-in-obsidian/tldraw-in-obsidian`
 - Go back `Community plugins` and make sure to enable `Tldraw`
 - This is also the only way to get Tldraw in Obsidian on the mobile app as far as I know.
 
 ### Manual
 
--   Head over to [releases](https://github.com/holxsam/tldraw-in-obsidian/releases) and download a release (latest is recommended).
+-   Head over to [releases](https://github.com/tldraw-in-obsidian/tldraw-in-obsidian/releases) and download a release (latest is recommended).
 -   Navigate to your plugin folder in your prefered vault: `VaultFolder/.obsidian/plugins/`
 -   Create a new folder called `tldraw-in-obsidian`
 -   Copy and paste over `main.js`, `styles.css`, `manifest.json` into the newly created `/tldraw-in-obsidian` folder.
@@ -41,8 +41,8 @@ Tldraw in Obsidian is now available on the official community plugins list!
 
 ## Guides
 
-- [Custom icons and fonts](https://github.com/holxsam/tldraw-in-obsidian/issues/58#issue-2571070259)
-- [Customizing embeds](https://github.com/holxsam/tldraw-in-obsidian/issues/59)
+- [Custom icons and fonts](https://github.com/tldraw-in-obsidian/tldraw-in-obsidian/issues/58#issue-2571070259)
+- [Customizing embeds](https://github.com/tldraw-in-obsidian/tldraw-in-obsidian/issues/59)
 
 ## Development
 
@@ -56,8 +56,10 @@ Tldraw in Obsidian is now available on the official community plugins list!
 
 ## Contributions
 
--   This plugin is open to contributions. If you have a feature idea or want to report a bug, you can create an issue. If you are a developer wanting to fix a bug or add a feature to feel free to submit pull requests.
+This plugin was created by [Sam Alhaqab](https://github.com/szamsolo), the original author whose initial contributions kickstarted the beginning of using tldraw within Obsidian. So a huge shoutout to him!
+
+-   This plugin is open to contributions. If you have a feature idea or want to report a bug, you can create an issue. If you are a developer wanting to fix a bug or add a feature to feel free to submit pull requests.!
 
 ## License and Attribution
 
-All [Tldraw's](https://github.com/tldraw/tldraw) code is theirs and I did not change any of it. Also shout out to the [Excalidraw plugin](https://github.com/zsviczian/obsidian-excalidraw-plugin) for inspiration on how I should structure this Tldraw plugin.
+All [Tldraw's](https://github.com/tldraw/tldraw) code is theirs, a few patches were made to address issues when using pop-out windows within Obsidian. Also shout out to the [Excalidraw plugin](https://github.com/zsviczian/obsidian-excalidraw-plugin) for inspiration on how I should structure this Tldraw plugin.
