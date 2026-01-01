@@ -2,7 +2,7 @@ import { CachedMetadata, Notice, TFile } from "obsidian";
 import TldrawPlugin from "src/main";
 import { TldrawFileListener } from "src/obsidian/plugin/TldrawFileListenerMap";
 import { createAttachmentFilepath } from "src/utils/utils";
-import { DEFAULT_SUPPORTED_IMAGE_TYPES, TLAsset, TLAssetContext, TLAssetStore, TLImageAsset } from "tldraw";
+import { DEFAULT_SUPPORTED_IMAGE_TYPES, TLAsset, TLAssetContext, TLAssetId, TLAssetStore, TLImageAsset } from "tldraw";
 import { TldrawStoreIndexedDB } from "./indexeddb-store";
 import { vaultFileToBlob } from "src/obsidian/helpers/vault";
 import { createImageAsset } from "./helpers/create-asset";
@@ -290,6 +290,12 @@ export class ObsidianTLAssetStore implements TLAssetStore {
         }
 
         return this.proxy.getCached(assetId as BlockRefAssetId)
+    }
+
+    remove(_: TLAssetId[]): Promise<void> {
+        // TODO: Implement this. For now, we just log a warning and return a resolved promise.
+        console.warn(`${ObsidianTLAssetStore.name}.remove: Not implemented yet.`);
+        return Promise.resolve();
     }
 
     async getFromMarkdown(assetSrc: BlockRefAssetId) {

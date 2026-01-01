@@ -64,7 +64,7 @@ export default class PreviewImageImpl implements PreviewImage {
      * The observer that observes changes to the img src attribute.
      */
     #observer?: MutationObserver;
-    #placeHolderSizeInterval?: Timeout;
+    #placeHolderSizeInterval?: Timer;
     #snapshot?: TldrawImageSnapshot;
     #rendered?: HTMLElement;
     #size: PreviewImageInit['size'];
@@ -72,7 +72,7 @@ export default class PreviewImageImpl implements PreviewImage {
     /**
      * The timeout that is used to update the preview.
      */
-    #refreshTimeout?: Timeout;
+    #refreshTimeout?: Timer;
     #refreshTimeoutDelay?: PreviewImageInit['refreshTimeoutDelay'];
     #placeHolderCallback?: Callback;
 

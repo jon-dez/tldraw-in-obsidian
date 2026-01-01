@@ -80,6 +80,7 @@ export class TldrawMarkdownRenderChild extends MarkdownRenderChild {
                     else if (themeMode === "light") return false;
                     else return isObsidianThemeDark();
                 })(),
+                // @ts-expect-error - NOTE: This is a temporary workaround to suppress errors from yarn build. The `targetDocument` property exists only in the patched tldraw package https://github.com/jon-dez/tldraw/tree/tldraw-in-obsidian-patches.
                 targetDocument: embed.containerEl.ownerDocument,
             },
         }, {
@@ -467,6 +468,7 @@ export class TldrawMarkdownRenderChild extends MarkdownRenderChild {
         }, false);
         this.#previewImage.setOptions({
             ...this.#previewImage.options,
+            // @ts-expect-error - NOTE: This is a temporary workaround to suppress errors from yarn build. The `assets` property exists only in the patched tldraw package https://github.com/jon-dez/tldraw/tree/tldraw-in-obsidian-patches.
             assets: this.#storeInstance.documentStore.store.props.assets,
         });
         return this.#storeInstance;
@@ -621,7 +623,7 @@ function createTldrawEmbedView(internalEmbedDiv: HTMLElement, {
 
 
     {// Mobile
-        let longPressTimer: Timeout | undefined;
+        let longPressTimer: Timer | undefined;
         tldrawEmbedViewContent.addEventListener('touchstart', (ev) => {
             clearTimeout(longPressTimer)
             longPressTimer = setTimeout(() => showMenu(ev, tldrawEmbedView), 500)

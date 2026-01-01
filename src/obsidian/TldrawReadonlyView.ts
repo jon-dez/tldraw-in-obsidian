@@ -1,13 +1,14 @@
-import { FileView, Menu, Notice, TFile, WorkspaceLeaf } from "obsidian";
+import { Menu, Notice, TFile, WorkspaceLeaf } from "obsidian";
 import { TldrawAppProps } from "src/components/TldrawApp";
 import TldrawPlugin from "src/main";
 import { PaneTarget, TLDRAW_ICON_NAME, VIEW_TYPE_TLDRAW, VIEW_TYPE_TLDRAW_READ_ONLY, ViewType } from "src/utils/constants";
-import { TldrawLoadableMixin } from "./TldrawMixins";
+import { BaseTldrawFileView } from "./BaseTldrawFileView";
 import { TLDRAW_FILE_EXTENSION } from "tldraw";
 import { migrateTldrawFileDataIfNecessary } from "src/utils/migrate/tl-data-to-tlstore";
 import { pluginMenuLabel } from "./menu";
+import { TLDataDocumentStore } from "src/utils/document";
 
-export class TldrawReadonly extends TldrawLoadableMixin(FileView) {
+export class TldrawReadonlyView extends BaseTldrawFileView {
     plugin: TldrawPlugin;
 
     constructor(leaf: WorkspaceLeaf, plugin: TldrawPlugin) {
@@ -31,21 +32,18 @@ export class TldrawReadonly extends TldrawLoadableMixin(FileView) {
         });
     }
 
-    async onLoadFile(file: TFile): Promise<void> {
-        const fileData = await this.app.vault.read(file);
-        if (!file.path.endsWith(TLDRAW_FILE_EXTENSION)) {
-            const storeInstance = this.plugin.tlDataDocumentStoreManager.register(file, () => fileData, () => { }, false);
-            this.registerOnUnloadFile(() => storeInstance.unregister());
-            await this.setStore({
-                plugin: storeInstance.documentStore
-            });
-        } else {
-            await this.setStore({
-                tldraw: {
-                    store: migrateTldrawFileDataIfNecessary(fileData)
-                }
-            })
-        }
+    isReadOnly() {
+        // We don't want to sync to the main store because we don't want to accidentally modify the file.
+        return false;
+    }
+
+    override onUpdated() {
+        // Do nothing (read-only)
+    }
+
+    override async processStore(documentStore: TLDataDocumentStore): Promise<TLDataDocumentStore> {
+        // Read-only doesn't need to process the store.
+        return documentStore;
     }
 
     override onPaneMenu(menu: Menu, source: "more-options" | "tab-header" | string): void {
@@ -66,14 +64,14 @@ export class TldrawReadonly extends TldrawLoadableMixin(FileView) {
             )
     }
 
-    protected override getTldrawOptions(): TldrawAppProps['options'] {
+    override getTldrawOptions(): TldrawAppProps['options'] {
         return {
             ...super.getTldrawOptions(),
             isReadonly: true,
         }
     }
 
-    protected override viewAsMarkdownClicked(): void {
+    override viewAsMarkdownClicked(): void {
         const { file } = this;
         if (file !== null && file.path.endsWith(TLDRAW_FILE_EXTENSION)) {
             this.createAndOpen(file, 'new-tab', 'markdown');

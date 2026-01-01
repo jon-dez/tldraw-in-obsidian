@@ -46,7 +46,7 @@ import {
 	tlFileTemplate,
 } from "./utils/document";
 import { around } from "monkey-around";
-import { TldrawReadonly } from "./obsidian/TldrawReadonly";
+import { TldrawReadonlyView } from "./obsidian/TldrawReadonlyView";
 import { pluginBuild } from "./utils/decorators/plugin";
 import { markdownPostProcessor } from "./obsidian/plugin/markdown-post-processor";
 import { processFontOverrides, processIconOverrides } from "./obsidian/plugin/settings";
@@ -99,7 +99,7 @@ export default class TldrawPlugin extends Plugin {
 
 		this.registerView(
 			VIEW_TYPE_TLDRAW_READ_ONLY,
-			(leaf) => new TldrawReadonly(leaf, this)
+			(leaf) => new TldrawReadonlyView(leaf, this)
 		);
 
 		// settings:
