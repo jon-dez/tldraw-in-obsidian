@@ -7,8 +7,7 @@
 		"dev": "node esbuild.config.mjs",
 		"build": "tsc -noEmit -skipLibCheck && node esbuild.config.mjs production",
 		"dist": "node esbuild.config.mjs production",
-		"version": "node version-bump.mjs && git add manifest.json versions.json",
-		"postinstall": "patch-package"
+		"version": "node version-bump.mjs && git add manifest.json versions.json"
 	},
 	"keywords": [
 		"obsidian",
@@ -31,7 +30,6 @@
 		"builtin-modules": "3.3.0",
 		"esbuild": "^0.23.1",
 		"obsidian": "^1.10.0",
-		"patch-package": "^8.0.0",
 		"tslib": "2.6.3",
 		"typescript": "^5.5.4"
 	},
