@@ -60,6 +60,8 @@ const context = await esbuild.context({
 		TLDRAW_COMPONENT_LOGGING: `${!prod}`,
 		MARKDOWN_POST_PROCESSING_LOGGING: `${!prod}`,
 		TLDRAW_VERSION: `"${TLDRAW_VERSION}"`,
+		// Workaround for import.meta in CommonJS builds
+		'import.meta': JSON.stringify({ env: {} }),
 	},
 	// plugins: [svgr({ typescript: true })],
 })
