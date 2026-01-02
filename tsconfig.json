@@ -15,10 +15,8 @@
 		"lib": ["DOM", "ESNext"],
 		"jsx": "react",
 		"composite": true,
-		"skipDefaultLibCheck": true,
+		"skipDefaultLibCheck": true
 	},
 	"include": ["**/*.ts", "**/*.tsx", "**/*.css"],
-	"references": [
-		{ "path": "../../packages/tldraw" }
-	]
+	"references": [{ "path": "../../packages/tldraw" }]
 }

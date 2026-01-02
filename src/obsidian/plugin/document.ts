@@ -1,32 +1,32 @@
-import { TFile } from "obsidian";
-import TldrawPlugin from "src/main";
+import { TFile } from 'obsidian'
+import TldrawPlugin from 'src/main'
 
-type Tail<T> = T extends [unknown, ...infer U] ? U : never;
-type OpenArgs =  Tail<Parameters<TldrawPlugin['openTldrFile']>>;
+type Tail<T> = T extends [unknown, ...infer U] ? U : never
+type OpenArgs = Tail<Parameters<TldrawPlugin['openTldrFile']>>
 
 export class TldrawDocument {
-    #plugin: TldrawPlugin;
-    #tFile: TFile;
+	#plugin: TldrawPlugin
+	#tFile: TFile
 
-    constructor(
-        plugin: TldrawPlugin,
-        tFile: TFile,
-    ) {
-        this.#plugin = plugin;
-        this.#tFile = tFile;
-    }
+	constructor(plugin: TldrawPlugin, tFile: TFile) {
+		this.#plugin = plugin
+		this.#tFile = tFile
+	}
 
-    static async create(plugin: TldrawPlugin, ...args: Parameters<TldrawPlugin['createUntitledTldrFile']>): Promise<TldrawDocument> {
-        const tFile = await plugin.createUntitledTldrFile(...args);
+	static async create(
+		plugin: TldrawPlugin,
+		...args: Parameters<TldrawPlugin['createUntitledTldrFile']>
+	): Promise<TldrawDocument> {
+		const tFile = await plugin.createUntitledTldrFile(...args)
 
-        return new TldrawDocument(plugin, tFile);
-    }
+		return new TldrawDocument(plugin, tFile)
+	}
 
-    get path() {
-        return this.#tFile.path;
-    }
+	get path() {
+		return this.#tFile.path
+	}
 
-    open(...args: OpenArgs) {
-        return this.#plugin.openTldrFile(this.#tFile, ...args)
-    }
+	open(...args: OpenArgs) {
+		return this.#plugin.openTldrFile(this.#tFile, ...args)
+	}
 }

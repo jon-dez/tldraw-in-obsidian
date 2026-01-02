@@ -10,15 +10,15 @@ TIP: You can toggle between the view modes, using the command palette, keyboard 
 
 The main goals of this plugin and repo is to keep up to date with the Tldraw's latest version and to add these features:
 
--   Preview the drawing when a tldraw file is referenced in markdown.
--   Add markdown notes into tldraw.
--   Export and import tools.
+- Preview the drawing when a tldraw file is referenced in markdown.
+- Add markdown notes into tldraw.
+- Export and import tools.
 
 ## Installation
 
 ### Community Plugins (Recommended)
 
-Tldraw in Obsidian is now available on the official community plugins list! 
+Tldraw in Obsidian is now available on the official community plugins list!
 
 - Here's a link that will take you to the plugin page: `obsidian://show-plugin?id=tldraw` (paste in your browser's address bar).
 - You can also find it by going into `Settings` > `Community plugins` > `Browse` > `Type 'tldraw'` > `Install`.
@@ -33,11 +33,11 @@ Tldraw in Obsidian is now available on the official community plugins list!
 
 ### Manual
 
--   Head over to [releases](https://github.com/tldraw-in-obsidian/tldraw-in-obsidian/releases) and download a release (latest is recommended).
--   Navigate to your plugin folder in your prefered vault: `VaultFolder/.obsidian/plugins/`
--   Create a new folder called `tldraw-in-obsidian`
--   Copy and paste over `main.js`, `styles.css`, `manifest.json` into the newly created `/tldraw-in-obsidian` folder.
--   Make sure you enable the plugin by going into Settings > Community plugins > Installed plugins > toggle 'Tldraw'.
+- Head over to [releases](https://github.com/tldraw-in-obsidian/tldraw-in-obsidian/releases) and download a release (latest is recommended).
+- Navigate to your plugin folder in your prefered vault: `VaultFolder/.obsidian/plugins/`
+- Create a new folder called `tldraw-in-obsidian`
+- Copy and paste over `main.js`, `styles.css`, `manifest.json` into the newly created `/tldraw-in-obsidian` folder.
+- Make sure you enable the plugin by going into Settings > Community plugins > Installed plugins > toggle 'Tldraw'.
 
 ## Guides
 
@@ -46,19 +46,19 @@ Tldraw in Obsidian is now available on the official community plugins list!
 
 ## Development
 
--   Clone this repo or a fork to a local development folder.
--   Place this folder in your `.obsidian/plugins` folder.
--   Install NodeJS, then run `npm i` in the command line under your repo folder.
--   Run `npm run dev` to compile your plugin from `main.ts` to `main.js`.
--   Make changes to the files in `/src`. Those changes should be automatically compiled into `main.js` and `styles.css`.
--   To refresh your changes, go to Settings > Community Plugins > disable and enable the plugin. You can also close your vault and then reopen it but that's more bothersome.
--   Do not edit the `styles.css` file at the root of the repo. Edit the one in `/src/styles.css` and the changes will be reflected automatically.
+- Clone this repo or a fork to a local development folder.
+- Place this folder in your `.obsidian/plugins` folder.
+- Install NodeJS, then run `npm i` in the command line under your repo folder.
+- Run `npm run dev` to compile your plugin from `main.ts` to `main.js`.
+- Make changes to the files in `/src`. Those changes should be automatically compiled into `main.js` and `styles.css`.
+- To refresh your changes, go to Settings > Community Plugins > disable and enable the plugin. You can also close your vault and then reopen it but that's more bothersome.
+- Do not edit the `styles.css` file at the root of the repo. Edit the one in `/src/styles.css` and the changes will be reflected automatically.
 
 ## Contributions
 
 This plugin was created by [Sam Alhaqab](https://github.com/szamsolo), the original author whose initial contributions kickstarted the beginning of using tldraw within Obsidian. So a huge shoutout to him!
 
--   This plugin is open to contributions. If you have a feature idea or want to report a bug, you can create an issue. If you are a developer wanting to fix a bug or add a feature to feel free to submit pull requests.!
+- This plugin is open to contributions. If you have a feature idea or want to report a bug, you can create an issue. If you are a developer wanting to fix a bug or add a feature to feel free to submit pull requests.!
 
 ## License and Attribution
 
