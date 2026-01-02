@@ -1,6 +1,6 @@
 import builtins from 'builtin-modules'
 import esbuild from 'esbuild'
-import { readFileSync } from 'fs'
+import { readFileSync, copyFileSync, mkdirSync } from 'fs'
 import process from 'process'
 // import svgr from "esbuild-plugin-svgr";
 
@@ -10,14 +10,24 @@ if you want to view the source, please visit the github repository of this plugi
 */
 `
 
-const prod = process.argv[2] === 'production'
+const NODE_ENV = process.env.NODE_ENV
+const prod = NODE_ENV === 'production'
 
 const TLDRAW_VERSION = (() => {
 	const json = JSON.parse(readFileSync(`${import.meta.dirname}/../../packages/tldraw/package.json`))
 	return json.version
 })()
 
-console.log({ TLDRAW_VERSION })
+const outdir = `${import.meta.dirname}/dist/${prod ? 'production' : 'development'}`
+
+// Log specific build information about the build environment
+console.log({
+	prod,
+	TLDRAW_VERSION,
+	outdir,
+	NODE_ENV: process.env.NODE_ENV
+})
+
 
 const context = await esbuild.context({
 	banner: {
@@ -46,7 +56,6 @@ const context = await esbuild.context({
 	logLevel: 'info',
 	sourcemap: prod ? false : 'inline',
 	treeShaking: true,
-	// outfile: "main.js",
 	loader: {
 		'.js': 'jsx',
 		'.woff2': 'dataurl',
@@ -55,7 +64,7 @@ const context = await esbuild.context({
 		'.png': 'file',
 		'.json': 'file',
 	},
-	outdir: '.',
+	outdir,
 	define: {
 		TLDRAW_COMPONENT_LOGGING: `${!prod}`,
 		MARKDOWN_POST_PROCESSING_LOGGING: `${!prod}`,
@@ -64,6 +73,20 @@ const context = await esbuild.context({
 		'import.meta': JSON.stringify({ env: {} }),
 	},
 	// plugins: [svgr({ typescript: true })],
+	plugins: [
+		{
+			name: 'copy-plugin-manifest',
+			setup(build) {
+				build.onEnd(() => {
+					const manifestSrc = `${import.meta.dirname}/manifest.json`
+					const manifestDest = `${outdir}/manifest.json`
+					console.log('Copying manifest.json from', manifestSrc, 'to', manifestDest)
+					mkdirSync(outdir, { recursive: true })
+					copyFileSync(manifestSrc, manifestDest)
+				})
+			}
+		}
+	]
 })
 
 if (prod) {
