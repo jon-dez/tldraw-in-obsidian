@@ -47,7 +47,6 @@ function PluginTldrawImage({
 	}
 }) {
 	return (
-		// @ts-expect-error - NOTE: This is a temporary workaround to suppress errors from yarn build.
 		<div className="ptl-tldraw-image" {...{ ...props }}>
 			<TldrawImageContext.Consumer>
 				{(value) => (!value ? <></> : <TldrawImage snapshot={snapshot} {...value.props} />)}
@@ -75,7 +74,6 @@ function PluginTldrawImageContainer({
 		imagePlaceHolderStore.getPlaceHolder
 	)
 	return (
-		// @ts-expect-error - NOTE: This is a temporary workaround to suppress errors from yarn build.
 		<div className="ptl-tldraw-image-container" {...{ ...props }}>
 			<PluginTldrawImageContext.Consumer>
 				{(value) =>
@@ -86,7 +84,6 @@ function PluginTldrawImageContainer({
 							<PluginTldrawImage snapshot={snapshot} props={value?.props} />
 						)
 					) : (
-						// @ts-expect-error - NOTE: This is a temporary workaround to suppress errors from yarn build.
 						<div
 							className="ptl-tldraw-image ptl-tldraw-image-placeholder"
 							{...value?.props}
