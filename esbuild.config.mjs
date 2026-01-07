@@ -70,7 +70,11 @@ const context = await esbuild.context({
 		MARKDOWN_POST_PROCESSING_LOGGING: `${!prod}`,
 		TLDRAW_VERSION: `"${TLDRAW_VERSION}"`,
 		// Workaround for import.meta in CommonJS builds
-		'import.meta': JSON.stringify({ env: {} }),
+		'import.meta': JSON.stringify({
+			env: {
+				TLDRAW_LICENSE_KEY: process.env.TLDRAW_LICENSE_KEY || '',
+			}
+		}),
 	},
 	// plugins: [svgr({ typescript: true })],
 	plugins: [
