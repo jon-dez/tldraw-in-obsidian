@@ -46,13 +46,42 @@ Tldraw in Obsidian is now available on the official community plugins list!
 
 ## Development
 
--   Clone this repo or a fork to a local development folder.
--   Place this folder in your `.obsidian/plugins` folder.
--   Install NodeJS, then run `npm i` in the command line under your repo folder.
--   Run `npm run dev` to compile your plugin from `main.ts` to `main.js`.
--   Make changes to the files in `/src`. Those changes should be automatically compiled into `main.js` and `styles.css`.
--   To refresh your changes, go to Settings > Community Plugins > disable and enable the plugin. You can also close your vault and then reopen it but that's more bothersome.
--   Do not edit the `styles.css` file at the root of the repo. Edit the one in `/src/styles.css` and the changes will be reflected automatically.
+**NOTE:** The original source code was moved over to the tldraw monorepo under [`apps/obsidian`](./tldraw/apps/obsidian/).
+
+- Clone this repo or a fork to a local development folder:
+  ```bash
+  git clone --recurse-submodules <repo-url>
+  ```
+  If you've already cloned without submodules, initialize them with:
+  ```bash
+  git submodule update --init --recursive
+  ```
+
+- Navigate to the tldraw submodule directory:
+  ```bash
+  cd tldraw
+  ```
+
+- Set up yarn by enabling [corepack](https://nodejs.org/api/corepack.html) to ensure you have the right version:
+  ```bash
+  npm i -g corepack
+  ```
+
+- Install dependencies:
+  ```bash
+  yarn
+  ```
+
+- Start developing:
+  ```bash
+  yarn dev-obsidian
+  ```
+
+- The output files in `apps/obsidian/dist/development/` can be copied into a folder within `.obsidian/plugins` directory to test the plugin in Obsidian.
+
+- Make changes to the files in `apps/obsidian/src`. Those changes should be automatically compiled.
+
+- To refresh your changes, go to Settings > Community Plugins > disable and enable the plugin. You can also close your vault and then reopen it but that's more bothersome.
 
 ## Contributions
 

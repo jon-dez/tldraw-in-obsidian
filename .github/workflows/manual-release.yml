@@ -1,48 +1,74 @@
-# This is a basic workflow that is manually triggered
+name: Manual Release
 
-name: Manual workflow
-
-# Controls when the action will run. Workflow runs when manually triggered using the UI
-# or API.
 on:
   workflow_dispatch:
-    # Inputs the workflow accepts.
     inputs:
       tag:
-        # Friendly description to be shown in the UI instead of 'name'
-        description: 'Existing tag to create release from.'
-        # Default value if no value is explicitly provided
-        default: '0.0.0'
-        # Input has to be provided for the workflow to run
+        description: 'Version tag to create release from (e.g., 1.26.3)'
+        default: ''
         required: true
-        # The data type of the input
         type: string
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+env:
+  CI: 1
+  PRINT_GITHUB_ANNOTATIONS: 1
+
+defaults:
+  run:
+    shell: bash
+
 jobs:
-  build:
+  release:
+    name: Create Release
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
-      - uses: actions/checkout@v3
-
-      - name: Use Node.js
-        uses: actions/setup-node@v3
+      - name: Check out plugin repository
+        uses: actions/checkout@v6
         with:
-          node-version: "24.x"
+          submodules: recursive
+
+      - uses: ./tldraw/.github/actions/setup
+        with:
+          working-directory: tldraw
+
+      - name: Build types
+        working-directory: tldraw
+        run: yarn build-types
 
       - name: Build plugin
+        working-directory: tldraw/apps/obsidian
+        run: yarn build
+
+      - name: Verify build outputs
         run: |
-          npm install
-          npm run dist
+          cd tldraw/apps/obsidian/dist/production
+          if [ ! -f "main.js" ] || [ ! -f "styles.css" ] || [ ! -f "manifest.json" ]; then
+            echo "❌ Required build files not found"
+            exit 1
+          fi
+          echo "✅ Build files verified"
 
       - name: Create release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          tag="${{inputs.tag}}"
-
+          cd tldraw/apps/obsidian/dist/production
+          tag="${{ github.event.inputs.tag }}"
+          
+          # Check if release already exists
+          if gh release view "$tag" &>/dev/null; then
+            echo "Release $tag already exists, skipping"
+            exit 0
+          fi
+          
+          # Create draft release
           gh release create "$tag" \
             --title="$tag" \
+            --notes="Manual release of tldraw-in-obsidian plugin version $tag" \
             --draft \
             main.js manifest.json styles.css
+          
+          echo "✅ Draft release created: $tag"
