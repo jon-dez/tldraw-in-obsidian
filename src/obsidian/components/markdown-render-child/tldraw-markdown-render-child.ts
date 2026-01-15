@@ -81,7 +81,6 @@ export class TldrawMarkdownRenderChild extends MarkdownRenderChild {
 						else if (themeMode === 'light') return false
 						else return isObsidianThemeDark()
 					})(),
-					// @ts-expect-error - NOTE: This is a temporary workaround to suppress errors from yarn build. The `targetDocument` property exists only in the patched tldraw package https://github.com/jon-dez/tldraw/tree/tldraw-in-obsidian-patches.
 					targetDocument: embed.containerEl.ownerDocument,
 				},
 			},
