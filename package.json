@@ -3,11 +3,13 @@
 	"version": "1.26.2",
 	"description": "Integrates Tldraw into Obsidian, allowing users to draw and edit content on a virtual whiteboard.",
 	"main": "main.js",
+	"private": true,
 	"scripts": {
 		"dev": "node esbuild.config.mjs",
 		"build": "tsc -noEmit -skipLibCheck && node esbuild.config.mjs production",
 		"dist": "node esbuild.config.mjs production",
-		"version": "node version-bump.mjs && git add manifest.json versions.json"
+		"version": "node version-bump.mjs && git add manifest.json versions.json",
+		"lint": "yarn run -T tsx ../../internal/scripts/lint.ts"
 	},
 	"keywords": [
 		"obsidian",
@@ -37,7 +39,11 @@
 		"monkey-around": "^2.3.0",
 		"react": "^18.3.1",
 		"react-dom": "^18.3.1",
-		"tldraw": "^3.15.3",
+		"tldraw": "workspace:*",
 		"zustand": "^4.3.9"
+	},
+	"peerDependencies": {
+		"react": "^18.2.0 || ^19.0.0",
+		"react-dom": "^18.2.0 || ^19.0.0"
 	}
 }
