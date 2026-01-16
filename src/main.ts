@@ -47,7 +47,6 @@ import {
 } from "./utils/document";
 import { around } from "monkey-around";
 import { TldrawReadonly } from "./obsidian/TldrawReadonly";
-import { pluginBuild } from "./utils/decorators/plugin";
 import { markdownPostProcessor } from "./obsidian/plugin/markdown-post-processor";
 import { processFontOverrides, processIconOverrides } from "./obsidian/plugin/settings";
 import { createRawTldrawFile } from "./utils/tldraw-file";
@@ -62,10 +61,11 @@ import { tldrawFileToJson } from "./utils/tldraw-file/tldraw-file-to-json";
 import UserSettingsManager from "./obsidian/settings/UserSettingsManager";
 import { createEmbedTldraw } from "./obsidian/components/markdown-render-child";
 import { formatFilePrefix } from "./obsidian/file/new";
+import TldrawInObsidianPluginInstance from "./obsidian/plugin/instance";
+import createMain from "./components/plugin/TldrawInObsidian";
 
-@pluginBuild
 export default class TldrawPlugin extends Plugin {
-	#instance?: TldrawPlugin;
+	#instance?: TldrawInObsidianPluginInstance;
 	// status bar stuff:
 	statusBarRoot: HTMLElement;
 	statusBarViewModeReactRoot: Root;
@@ -91,7 +91,15 @@ export default class TldrawPlugin extends Plugin {
 	}
 
 	async onload() {
-		this.#instance = this;
+		const instance = this.#instance = new TldrawInObsidianPluginInstance(this.app);
+
+		this.register(() => {
+			if (this.#instance === instance) {
+				this.#instance = undefined;
+			}
+			instance.dispose();
+		});
+
 		this.registerView(
 			VIEW_TYPE_TLDRAW,
 			(leaf) => new TldrawView(leaf, this)
@@ -165,6 +173,11 @@ export default class TldrawPlugin extends Plugin {
 		this.register(() => this.app.embedRegistry.unregisterExtension('tldr'));
 
 		this.registerExtensions(['tldr'], VIEW_TYPE_TLDRAW)
+
+		const unmount = createMain(this, this.app.dom.statusBarEl)
+		this.register(() => {
+			unmount()
+		})
 	}
 
 	onunload() {
@@ -176,7 +189,8 @@ export default class TldrawPlugin extends Plugin {
 	}
 
 	private registerEvents() {
-		const plugin = this.instance;
+		// eslint-disable-next-line @typescript-eslint/no-this-alias
+		const plugin = this;
 		// Monkey patch WorkspaceLeaf to open Tldraw drawings with TldrawView by default
 		// inspired from https://github.com/zsviczian/obsidian-excalidraw-plugin/blob/f79181c76a9d6ef9f17ecdfd054aa0e6d7564d1f/src/main.ts#L1649C9-L1649C9
 		this.register(
@@ -296,7 +310,7 @@ export default class TldrawPlugin extends Plugin {
 				const fileFromState = leafViewState.state?.file;
 				const file = this.app.workspace.getActiveFile();
 
-				if(typeof fileFromState !== 'string') return;
+				if (typeof fileFromState !== 'string') return;
 
 				// even more guard clauses:
 				if (!file || !fileFromState) return;

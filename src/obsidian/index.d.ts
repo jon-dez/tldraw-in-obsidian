@@ -37,6 +37,9 @@ declare module "obsidian" {
          */
         openWithDefaultApp(path: string): void
         embedRegistry: App.EmbedRegistry
+        dom: {
+            statusBarEl: HTMLElement
+        }
     }
 
     interface Menu {

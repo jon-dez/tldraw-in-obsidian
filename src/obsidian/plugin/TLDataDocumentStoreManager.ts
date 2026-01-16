@@ -1,13 +1,15 @@
 import { TFile, debounce, Notice, Workspace, EventRef } from "obsidian";
-import { ObsidianMarkdownFileTLAssetStoreProxy, ObsidianTLAssetStore } from "src/tldraw/asset-store";
+import { BlockRefAssetId, ObsidianMarkdownFileTLAssetStoreProxy, ObsidianTLAssetStore } from "src/tldraw/asset-store";
 import { processInitialData } from "src/tldraw/helpers";
 import { getTLMetaTemplate, makeFileDataTldr, TLDataDocumentStore, updateFileData } from "src/utils/document";
 import { safeSecondsToMs } from "src/utils/utils";
 import TldrawStoresManager, { MainStore, StoreGroup, StoreListenerContext, StoreInstanceInfo } from "src/tldraw/TldrawStoresManager";
 import { parseTLDataDocument } from "src/utils/parse";
 import TldrawPlugin from "src/main";
-import { loadSnapshot, TLDRAW_FILE_EXTENSION } from "tldraw";
+import { loadSnapshot, TLAsset, TLDRAW_FILE_EXTENSION, TLImageAsset, TLImageShape, TLStore, TLUnknownShape } from "tldraw";
 import { migrateTldrawFileDataIfNecessary } from "src/utils/migrate/tl-data-to-tlstore";
+import TLDataDocumentMessages from "./TLDataDocumentMessages";
+import { createRecordStore } from "src/lib/stores";
 
 const formats = {
     markdown: 'markdown',
@@ -16,12 +18,28 @@ const formats = {
 
 type Format = typeof formats[keyof typeof formats];
 
+interface DocumentMessage {
+    getMessage(): string
+    dismiss(): void,
+}
+
 type MainData = {
     documentStore: TLDataDocumentStore,
     fileData: string,
     tFile: TFile,
     format: Format,
+    /**
+     * Messages associated with the main document.
+     */
+    messages: {
+        getAll(): DocumentMessage[],
+        addListener(listener: () => void): () => void,
+        getCount(): number,
+        dismissAll(): void,
+    }
 }
+
+export type MainDataMessages = MainData['messages']
 
 type InstanceData = {
     tFile: TFile,
@@ -51,6 +69,8 @@ export default class TLDataDocumentStoreManager {
      */
     register(tFile: TFile, getData: () => string, onUpdatedData: (data: string) => void, syncToMain: boolean): {
         documentStore: TLDataDocumentStore,
+        messages: MainDataMessages,
+        getInstanceId(): string
         unregister: () => void,
     } & Pick<ReturnType<typeof this.storesManager.registerInstance>['instance'], 'syncToMain' | 'isSynchronizingToMain'> {
         const instanceInfo: InstanceInfo = {
@@ -69,6 +89,7 @@ export default class TLDataDocumentStoreManager {
             }
         );
 
+        // Ensure the instance's data is up to date.
         instanceInfo.data.onUpdatedData(storeContext.storeGroup.main.data.fileData);
 
         return {
@@ -76,6 +97,8 @@ export default class TLDataDocumentStoreManager {
                 meta: storeContext.storeGroup.main.data.documentStore.meta,
                 store: storeContext.instance.store
             },
+            messages: storeContext.storeGroup.main.data.messages,
+            getInstanceId: () => instanceInfo.instanceId,
             unregister: () => {
                 storeContext.instance.unregister();
             },
@@ -102,6 +125,10 @@ export default class TLDataDocumentStoreManager {
         let onFileDeletedRef: undefined | EventRef;
         let onQuickPreviewRef: undefined | EventRef;
         let assetStore: undefined | ObsidianTLAssetStore;
+        let removeAssetChanges: undefined | ReturnType<typeof listenAssetChanges>
+
+        const documentMessages = new TLDataDocumentMessages();
+
         return {
             store: documentStore.store,
             data: {
@@ -109,6 +136,21 @@ export default class TLDataDocumentStoreManager {
                 tFile,
                 documentStore,
                 format,
+                messages: {
+                    getCount: () => documentMessages.getErrorCount(),
+                    getAll: () => [
+                        ...documentMessages.getBlockRefError().map((e) => ({
+                            getMessage: () => e.getMessage(),
+                            dismiss: () => e.remove()
+                        }))
+                    ],
+                    addListener: (listener: () => void) => {
+                        return documentMessages.addListener(listener);
+                    },
+                    dismissAll: () => {
+                        documentMessages.removeAll()
+                    }
+                },
             },
             init: (storeGroup) => {
                 onExternalModificationsRef = vault.on('modify', async (file) => {
@@ -137,16 +179,81 @@ export default class TLDataDocumentStoreManager {
                     return;
                 }
 
+                const triggers = documentMessages.getTriggers()
+
                 const assetStoreProxy = new ObsidianMarkdownFileTLAssetStoreProxy(this.plugin, tFile,
-                    (fileContents, _, assetFile) => {
-                        new Notice(`Added asset: ${assetFile.path}`);
-                        this.propagateData(workspace, storeGroup, fileContents);
+                    {
+                        contents: {
+                            addedAsset: (fileContents, _, assetFile) => {
+                                new Notice(`Added asset: ${assetFile.path}`);
+                                this.propagateData(workspace, storeGroup, fileContents);
+                            },
+                        },
+                        blockRef: {
+                            removed: (block, contents, newData) => {
+                                this.propagateData(workspace, storeGroup, newData)
+                                new Notice(`Removed ${contents} from ${tFile.path}`)
+                                triggers.blockRef.asset.deleted.trigger(block.id)
+                            },
+                            resolveAsset: {
+                                loaded: (block) => {
+                                    triggers.blockRef.asset.loaded.trigger(block)
+                                },
+                                errorLoading: (block, link, error) => {
+                                    triggers.blockRef.asset.errorLoading.trigger(block, link, error)
+                                },
+                                notFound: (ref) => {
+                                    // senders.blockRef({
+                                    //     id: makeAssetBlockRefNoticeId({
+                                    //         kind: 'refNotFound',
+                                    //         blockRef: {
+                                    //             ref
+                                    //         }
+                                    //     }),
+                                    //     message: ,
+                                    // });
+                                    // senders.blockRef({
+                                    //     ref,
+                                    //     error: `Asset block reference not found: ${ref}`
+                                    // })
+                                    triggers.blockRef.asset.notFound.trigger(ref)
+                                },
+                                notALink: (block) => {
+                                    // senders.notice({
+                                    //     id: makeAssetBlockRefNoticeId({
+                                    //         kind: 'noLink',
+                                    //         blockRef: {
+                                    //             ref
+                                    //         }
+                                    //     }),
+                                    //     message: `Asset block did not reference a link: ${ref}`
+                                    // });
+                                    triggers.blockRef.asset.notALink.trigger(block)
+                                },
+                                linkToUnknownFile: (block, link) => {
+                                    // senders.notice({
+                                    //     id: makeAssetBlockRefNoticeId({
+                                    //         kind: 'fileNotFound',
+                                    //         blockRef: {
+                                    //             ref
+                                    //         }
+                                    //     }),
+                                    //     message: `[${Date.now()}] Asset block did not link to a known file: ${link}`,
+                                    // })
+                                    // senders.unknown('huh?')
+                                    triggers.blockRef.asset.unknownFile.trigger(block, link)
+                                }
+                            }
+                        }
                     }
                 );
                 assetStore = new ObsidianTLAssetStore(documentStore.meta.uuid, assetStoreProxy);
                 documentStore.store.props.assets = assetStore;
+
+                removeAssetChanges = listenAssetChanges(documentStore.store)
             },
             dispose: () => {
+                removeAssetChanges?.dispose()
                 assetStore?.dispose();
                 if (onExternalModificationsRef) {
                     vault.offref(onExternalModificationsRef);
@@ -260,5 +367,67 @@ export default class TLDataDocumentStoreManager {
         throw new Error('Unsupported update format', {
             cause: { format }
         });
+    }
+}
+
+function isShapeOfType<T extends TLUnknownShape>(shape: TLUnknownShape, type: T['type']): shape is T {
+    return shape.type === type;
+}
+
+function isAssetOfType<T extends TLAsset>(asset: TLAsset, type: T['type']): asset is T {
+    return asset.type === type;
+}
+
+function listenAssetChanges(store: TLStore) {
+    const assets = store.props.assets
+    console.log({ assets })
+    if (!(assets instanceof ObsidianTLAssetStore)) return;
+    const deleteStore = createRecordStore<BlockRefAssetId, TLImageAsset>()
+    const removeAfterDelete = store.sideEffects.registerAfterDeleteHandler('shape',
+        (shape) => {
+            if (!isShapeOfType<TLImageShape>(shape, 'image')) return
+
+            console.log({ shape })
+
+            const { assetId } = shape.props
+
+            if (!assetId) return
+
+            // Check if the asset belongs to an obsidian blockref
+            const asset = store.get(assetId)
+
+            if (!asset || !isAssetOfType<TLImageAsset>(asset, 'image') || !asset.props.src) return
+
+            const id = asset.props.src.split(':').at(1)
+
+            if (!id || !ObsidianMarkdownFileTLAssetStoreProxy.isBlockRefId(id)) return
+
+            deleteStore.add(id, asset)
+        }
+    )
+
+    const removeDeleteStoreListener = deleteStore.addListener(() => {
+        const all = deleteStore.getAll()
+
+        for (const [id, asset] of all) {
+            // Check if asset being used by some more shapes
+            const someMatching = store.query.records('shape').get().some((e) => isShapeOfType<TLImageShape>(e, 'image') && e.props.assetId === asset.id)
+
+            if (someMatching) return;
+
+            assets.proxy.removeBlockRef(id).then(() => {
+                deleteStore.remove(id)
+            }).catch((error) => {
+                console.error('Unable to remove block ref', { error })
+            })
+        }
+    })
+
+    return {
+        deleteStore,
+        dispose: () => {
+            removeAfterDelete()
+            removeDeleteStoreListener()
+        }
     }
 }

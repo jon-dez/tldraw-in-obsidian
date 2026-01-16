@@ -24,7 +24,7 @@ export function TldrawInObsidianPluginProvider({
     plugin: TldrawPlugin,
 }) {
     const instance = useMemo(() => {
-        return new TldrawInObsidianPluginInstance(plugin.app)
+        return plugin.instance
     }, [plugin])
     return (
         <PluginContext.Provider value={instance}>

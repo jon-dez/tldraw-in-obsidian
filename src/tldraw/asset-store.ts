@@ -1,14 +1,36 @@
-import { CachedMetadata, Notice, TFile } from "obsidian";
+import { BlockCache, CachedMetadata, TFile } from "obsidian";
 import TldrawPlugin from "src/main";
 import { TldrawFileListener } from "src/obsidian/plugin/TldrawFileListenerMap";
 import { createAttachmentFilepath } from "src/utils/utils";
-import { DEFAULT_SUPPORTED_IMAGE_TYPES, TLAsset, TLAssetContext, TLAssetStore, TLImageAsset } from "tldraw";
+import { DEFAULT_SUPPORTED_IMAGE_TYPES, TLAsset, TLAssetContext, TLAssetId, TLAssetStore, TLImageAsset } from "tldraw";
 import { TldrawStoreIndexedDB } from "./indexeddb-store";
 import { vaultFileToBlob } from "src/obsidian/helpers/vault";
 import { createImageAsset } from "./helpers/create-asset";
 
 const blockRefAssetPrefix = 'obsidian.blockref.';
-type BlockRefAssetId = `${typeof blockRefAssetPrefix}${string}`;
+export type BlockRefAssetId = `${typeof blockRefAssetPrefix}${string}`;
+
+interface ObsidianMarkdownFileTLAssetStoreProxyEvents {
+    contents: {
+        addedAsset(fileContents: string, assetId: BlockRefAssetId, assetFile: TFile): void
+    }
+    blockRef: {
+        /**
+         * 
+         * @param block The block that was used
+         * @param contents Contents that were removed
+         * @param newData The new file data
+         */
+        removed(block: BlockCache, contents: string, newData: string): void
+        resolveAsset: {
+            loaded(block: BlockCache): void;
+            errorLoading(block: BlockCache, link: string, error: unknown): void;
+            notFound(ref: string): void;
+            notALink(block: BlockCache): void;
+            linkToUnknownFile(block: BlockCache, link: string): void;
+        }
+    }
+}
 
 /**
  * Use a markdown file as an assets proxy for {@linkcode TLAssetStore}
@@ -24,13 +46,17 @@ export class ObsidianMarkdownFileTLAssetStoreProxy {
 
     #cachedMetadata: CachedMetadata | null;
 
+    static isBlockRefId(id: string): id is BlockRefAssetId {
+        return id.startsWith(blockRefAssetPrefix)
+    }
+
     constructor(
         private readonly plugin: TldrawPlugin,
         /**
          * The markdown file 
          */
         private readonly tFile: TFile,
-        private readonly onContentsChanged?: (fileContents: string, assetId: BlockRefAssetId, assetFile: TFile) => void
+        private readonly events?: Partial<ObsidianMarkdownFileTLAssetStoreProxyEvents>,
     ) {
         this.#cachedMetadata = this.plugin.app.metadataCache.getFileCache(tFile);
         this.#metadataListener = this.plugin.tldrawFileMetadataListeners.addListener(tFile, () => {
@@ -102,11 +128,34 @@ export class ObsidianMarkdownFileTLAssetStoreProxy {
             const frontmatter = data.slice(start.offset, end.offset)
             const rest = data.slice(end.offset);
             const contents = `${frontmatter}\n${linkBlock}\n${rest}`;
-            this.onContentsChanged?.(contents, assetSrc, assetFile);
+            this.events?.contents?.addedAsset(contents, assetSrc, assetFile);
             return contents;
         });
 
         return assetSrc;
+    }
+
+    async removeBlockRef(blockRefAssetId: BlockRefAssetId) {
+        const blockId = blockRefAssetId.slice(blockRefAssetPrefix.length)
+        const block = this.cachedMetadata.blocks?.[blockId]
+        if (block === undefined) {
+            return
+        }
+        let removed: string = '';
+        const newData = await this.plugin.app.vault.process(this.tFile, (data) => {
+            console.log('removing block ref')
+            const before = data.substring(0, block.position.start.offset)
+            removed = data.substring(block.position.start.offset, block.position.end.offset)
+            if(!removed.endsWith(`^${blockId}`)) {
+                throw new Error('Unable to remove asset block ref', {
+                    cause: `Block does not end with ^${blockId}`
+                })
+            }
+            const after = data.substring(block.position.end.offset)
+            return `${before}${after}`
+        });
+
+        this.events?.blockRef?.removed(block, removed, newData)
     }
 
     private cacheAsset(assetSrc: BlockRefAssetId, blob: Blob) {
@@ -116,34 +165,39 @@ export class ObsidianMarkdownFileTLAssetStoreProxy {
     }
 
     async getAsset(blockRefAssetId: BlockRefAssetId): Promise<Blob | null> {
-        const blocks = this.cachedMetadata.blocks;
-        if (!blocks) return null;
-
+        const blocks = this.cachedMetadata.blocks || {};
         const id = blockRefAssetId.slice(blockRefAssetPrefix.length)
         const assetBlock = blocks[id];
         if (!assetBlock) {
-            new Notice(`Asset block not found: ${id}`);
+            this.events?.blockRef?.resolveAsset.notFound(id);
             return null;
         }
 
         const assetBlockContents = (await this.plugin.app.vault.cachedRead(this.tFile))
             .substring(assetBlock.position.start.offset, assetBlock.position.end.offset);
         const insideBrackets = /\[\[(.*?)\]\]/;
+        `${insideBrackets}`;
         const link = assetBlockContents.match(insideBrackets)?.at(1);
 
         if (!link) {
-            new Notice(`Asset block does not reference a link: ${id}`);
+            this.events?.blockRef?.resolveAsset.notALink(assetBlock);
             return null;
         }
 
         const assetFile = this.plugin.app.metadataCache.getFirstLinkpathDest(link, this.tFile.path);
 
         if (!assetFile) {
-            new Notice(`Asset block link did not reference a known file: ${id} (${link})`);
+            this.events?.blockRef?.resolveAsset.linkToUnknownFile(assetBlock, link);
             return null;
         }
 
-        return vaultFileToBlob(assetFile);
+        return vaultFileToBlob(assetFile).then((blob) => {
+            this.events?.blockRef?.resolveAsset.loaded(assetBlock)
+            return blob;
+        }).catch((error) => {
+            this.events?.blockRef?.resolveAsset.errorLoading(assetBlock, link, error);
+            throw new Error('Unable to load file from vault')
+        });
     }
 
     /**
@@ -181,7 +235,7 @@ export class ObsidianMarkdownFileTLAssetStoreProxy {
         immediatelyCache?: boolean,
     } = {}): Promise<TLImageAsset> {
         const assetBlob = await vaultFileToBlob(assetFile);
-        
+
         if (!(DEFAULT_SUPPORTED_IMAGE_TYPES as readonly string[]).includes(assetBlob.type)) {
             throw new Error(`Expected an image mime-type, got ${assetBlob.type}`, {
                 cause: {
@@ -221,7 +275,7 @@ export class ObsidianMarkdownFileTLAssetStoreProxy {
                 },
             });
         } finally {
-            if(!immediatelyCache) {
+            if (!immediatelyCache) {
                 // We only needed the object url for getting the width and height.
                 URL.revokeObjectURL(assetUri);
             }
@@ -285,11 +339,16 @@ export class ObsidianTLAssetStore implements TLAssetStore {
 
         if (!assetId) return null;
 
-        if (!assetId.startsWith(blockRefAssetPrefix)) {
+        if (!ObsidianMarkdownFileTLAssetStoreProxy.isBlockRefId(assetId)) {
             return this.getFromIndexedDB(assetSrc as `asset:${string}`);
         }
 
-        return this.proxy.getCached(assetId as BlockRefAssetId)
+        return this.proxy.getCached(assetId)
+    }
+
+    remove(assetIds: TLAssetId[]): Promise<void> {
+        // We don't remove assets from the markdown file or indexedDB for now.
+        return Promise.resolve();
     }
 
     async getFromMarkdown(assetSrc: BlockRefAssetId) {

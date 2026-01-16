@@ -30,6 +30,9 @@ export function TldrawLoadableMixin<T extends abstract new (...args: any[]) => F
         #unregisterViewAssetsActionCallback?: () => void;
         #unregisterOnWindowMigrated?: () => void;
 
+        messagesEl?: HTMLElement
+        onMessagesClick?: (evt: MouseEvent) => void
+
         protected get tldrawContainer() { return this.contentEl; }
 
         /**
@@ -46,6 +49,7 @@ export function TldrawLoadableMixin<T extends abstract new (...args: any[]) => F
             })
 
             this.addAction(MARKDOWN_ICON_NAME, "View as markdown", () => this.viewAsMarkdownClicked());
+            this.messagesEl = this.addAction('message-square', 'View messages', (evt) => this.onMessagesClick?.(evt))
         }
 
         /**

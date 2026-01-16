@@ -46,6 +46,21 @@ export class TldrawView extends TldrawLoadableMixin(TextFileView) {
 			},
 			true
 		);
+		
+		const registration = this.plugin.instance.registerDocumentMessagesAction({
+			key: storeInstance.getInstanceId(),
+			actionEl: this.messagesEl!,
+			messages: storeInstance.messages,
+		});
+
+		this.onMessagesClick = (evt) => {
+			registration.onMessagesClicked(evt)
+		}
+
+		this.registerOnUnloadFile(() => {
+			this.onMessagesClick = undefined
+			registration.unregister();
+		});
 
 		this.registerOnUnloadFile(() => storeInstance.unregister());
 
@@ -87,7 +102,7 @@ export class TldrawView extends TldrawLoadableMixin(TextFileView) {
 	 * @returns A promise that resolves with undefined, or a snapshot that can be used to replace the contents of the store in {@linkcode documentStore}
 	 */
 	private async checkConflictingData(tFile: TFile, documentStore: TLDataDocumentStore) {
-		if(TldrawStoreExistsIndexedDBModal.ignoreIndexedDBStoreModal(this.app.metadataCache, tFile)) {
+		if (TldrawStoreExistsIndexedDBModal.ignoreIndexedDBStoreModal(this.app.metadataCache, tFile)) {
 			return;
 		}
 		const exists = await TldrawStoreIndexedDB.exists(documentStore.meta.uuid);
