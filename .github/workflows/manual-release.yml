@@ -25,6 +25,15 @@ jobs:
       contents: write
 
     steps:
+      - name: Validate tag format
+        run: |
+          tag="${{ github.event.inputs.tag }}"
+          if ! echo "$tag" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+            echo "❌ Invalid tag format. Must be in x.y.z format (e.g., 1.26.3)"
+            exit 1
+          fi
+          echo "✅ Tag format validated: $tag"
+
       - name: Check out plugin repository
         uses: actions/checkout@v6
         with:
@@ -38,30 +47,77 @@ jobs:
         working-directory: tldraw
         run: yarn build-types
 
-      - name: Build plugin
-        working-directory: tldraw/apps/obsidian
-        run: yarn build
-
-      - name: Verify build outputs
+      - name: Make release files
+        id: make_release_files
         run: |
-          cd tldraw/apps/obsidian/dist/production
-          if [ ! -f "main.js" ] || [ ! -f "styles.css" ] || [ ! -f "manifest.json" ]; then
-            echo "❌ Required build files not found"
+          set -e
+          package_out_dir="$(mktemp -d)"
+          cd tldraw/apps/obsidian
+          yarn make-release-files --package-out-dir="$package_out_dir"
+
+          # Provide the package out directory to the next step
+          echo "package_out_dir=$package_out_dir" >> "$GITHUB_OUTPUT"
+
+      - name: Verify release files outputs
+        working-directory: ${{ steps.make_release_files.outputs.package_out_dir }}
+        run: |
+          if [ ! -f "versions.json" ] || [ ! -f "manifest.json" ] || [ ! -f "main.js" ] || [ ! -f "styles.css" ]; then
+            echo "❌ Required release files not found"
             exit 1
           fi
-          echo "✅ Build files verified"
 
-      - name: Create release
+          # Check if the release files contain the correct version given the input tag
+          tag="${{ github.event.inputs.tag }}"
+
+          # versions.json should have the key for the tag
+          if ! jq -e "has(\"$tag\")" versions.json > /dev/null; then
+            echo "❌ versions.json does not contain the key for the tag"
+            exit 1
+          fi
+
+          # manifest.json should have the version field matching the tag
+          if [[ "$(cat manifest.json | jq -r '.version')" != "$tag" ]]; then
+            echo "❌ manifest.json does not contain the version field matching the tag"
+            exit 1
+          fi
+
+          echo "✅ Release files verified"
+      
+      - name: Copy versions.json and manifest.json to plugin repository
+        run: |
+          set -e
+          package_out_dir="${{ steps.make_release_files.outputs.package_out_dir }}"
+          cp "$package_out_dir/versions.json" versions.json
+          cp "$package_out_dir/manifest.json" manifest.json
+          echo "✅ Copied versions.json and manifest.json from monorepo to plugin repository"
+
+          # Configure git user
+          git config user.name 'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+
+          # Create a commit with the modified files for the Publish step
+          git add versions.json manifest.json
+          
+          # Check if there are changes to commit
+          if git diff --staged --quiet; then
+            echo "❌ No changes to commit. Expected versions.json or manifest.json to be updated."
+            exit 1
+          else
+            git commit -m "Update versions.json and manifest.json for release ${{ github.event.inputs.tag }}"
+            echo "✅ Changes committed"
+          fi
+
+      - name: Create release draft
+        working-directory: ${{ steps.make_release_files.outputs.package_out_dir }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          cd tldraw/apps/obsidian/dist/production
           tag="${{ github.event.inputs.tag }}"
           
           # Check if release already exists
           if gh release view "$tag" &>/dev/null; then
-            echo "Release $tag already exists, skipping"
-            exit 0
+            echo "❌ Release $tag already exists, cannot create a new draft"
+            exit 1
           fi
           
           # Create draft release
@@ -70,5 +126,33 @@ jobs:
             --notes="Manual release of tldraw-in-obsidian plugin version $tag" \
             --draft \
             main.js manifest.json styles.css
+
+          if [ $? -ne 0 ]; then
+            echo "❌ Failed to create draft release"
+            exit 1
+          fi
           
           echo "✅ Draft release created: $tag"
+
+      - name: Publish release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          tag="${{ github.event.inputs.tag }}"
+
+          # push the modified files and publish the release
+          git push
+
+          if [ $? -ne 0 ]; then
+            echo "❌ Failed to push changes"
+            exit 1
+          fi
+
+          gh release publish "$tag"
+
+          if [ $? -ne 0 ]; then
+            echo "❌ Failed to publish release"
+            exit 1
+          fi
+
+          echo "✅ Release published: $tag"
