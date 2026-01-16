@@ -2,6 +2,7 @@ import builtins from 'builtin-modules'
 import esbuild from 'esbuild'
 import { readFileSync, copyFileSync, mkdirSync } from 'fs'
 import process from 'process'
+import path from 'node:path'
 // import svgr from "esbuild-plugin-svgr";
 
 const banner = `/*
@@ -14,11 +15,14 @@ const NODE_ENV = process.env.NODE_ENV
 const prod = NODE_ENV === 'production'
 
 const TLDRAW_VERSION = (() => {
-	const json = JSON.parse(readFileSync(`${import.meta.dirname}/../../packages/tldraw/package.json`))
+	const tldrawPackageJsonPath = path.join(
+		import.meta.dirname, '..', '..', '..', 'packages', 'tldraw', 'package.json'
+	)
+	const json = JSON.parse(readFileSync(tldrawPackageJsonPath, 'utf8'))
 	return json.version
 })()
 
-const outdir = `${import.meta.dirname}/dist/${prod ? 'production' : 'development'}`
+const outdir = path.join(import.meta.dirname, '..', 'dist', prod ? 'production' : 'development')
 
 // Log specific build information about the build environment
 console.log({
@@ -82,8 +86,10 @@ const context = await esbuild.context({
 			name: 'copy-plugin-manifest',
 			setup(build) {
 				build.onEnd(() => {
-					const manifestSrc = `${import.meta.dirname}/manifest.json`
-					const manifestDest = `${outdir}/manifest.json`
+					// Just copy the manifest.json from the release directory to the output directory to make it easier to just
+					// run the plugin by copying the files to the Obsidian plugins directory.
+					const manifestSrc = path.join(import.meta.dirname, '..', 'release', 'manifest.json')
+					const manifestDest = path.join(outdir, 'manifest.json')
 					console.log('Copying manifest.json from', manifestSrc, 'to', manifestDest)
 					mkdirSync(outdir, { recursive: true })
 					copyFileSync(manifestSrc, manifestDest)
