@@ -432,3 +432,89 @@ div[data-type='tldraw-read-only'] .view-content.tldraw-view-content {
 	box-sizing: content-box;
 	border-radius: var(--tl-radius-1);
 }
+
+/* Document Messages Modal */
+.ptl-document-messages-modal {
+	padding: var(--size-4-3);
+}
+
+.ptl-document-messages-modal header {
+	font-size: var(--font-ui-large);
+	font-weight: var(--font-semibold);
+	margin-bottom: var(--size-4-3);
+	padding-bottom: var(--size-4-2);
+	border-bottom: 1px solid var(--background-modifier-border);
+}
+
+.ptl-document-messages-list {
+	display: flex;
+	flex-direction: column;
+	gap: var(--size-4-3);
+	max-height: 60vh;
+	overflow-y: auto;
+	padding: var(--size-4-2) 0;
+}
+
+.ptl-document-message-item {
+	display: flex;
+	flex-direction: column;
+	gap: var(--size-4-2);
+	padding: var(--size-4-3);
+	border: 1px solid var(--background-modifier-border);
+	border-radius: var(--radius-m);
+	background-color: var(--background-secondary);
+}
+
+.ptl-document-message-item[data-with-error] {
+	border-color: var(--text-error);
+	border-width: 2px;
+	background-color: var(--background-secondary);
+}
+
+.ptl-message-detail {
+	font-size: var(--font-small);
+	color: var(--text-muted);
+	font-family: var(--font-monospace);
+}
+
+.ptl-document-message-details {
+	display: flex;
+	flex-direction: column;
+	gap: var(--size-4-2);
+	padding: var(--size-4-2);
+	border: 1px solid var(--background-modifier-border);
+	border-radius: var(--radius-s);
+	background-color: var(--background-primary);
+}
+
+.ptl-document-message-item-error {
+	display: flex;
+	flex-direction: column;
+	gap: var(--size-4-2);
+}
+
+.ptl-message-type-specific {
+	display: flex;
+	flex-direction: column;
+	gap: var(--size-4-2);
+	font-size: var(--font-small);
+	color: var(--text-normal);
+	line-height: var(--line-height-normal);
+}
+
+.ptl-message-type-specific .ptl-button-component {
+	margin-top: var(--size-4-1);
+	align-self: flex-start;
+}
+
+.ptl-document-messages-actions {
+	display: flex;
+	justify-content: flex-end;
+	padding-top: var(--size-4-3);
+	border-top: 1px solid var(--background-modifier-border);
+	margin-top: var(--size-4-2);
+}
+
+.ptl-document-messages-actions button.mod-cta {
+	margin: 0;
+}

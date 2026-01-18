@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState, useSyncExternalStore 
 import { createPortal } from 'react-dom'
 import { useTldrawInObsdianPlugin } from 'src/contexts/plugin'
 import { DocumentMessagesButton } from 'src/obsidian/plugin/instance'
+import { DocumentMessagesModal } from './DocumentMessagesModal'
 
 export default function DocumentMessages() {
 	const instance = useTldrawInObsdianPlugin()
@@ -23,15 +24,16 @@ export default function DocumentMessages() {
 
 function DocumentMessagesButtonPortal({ button }: { button: DocumentMessagesButton }) {
 	const [count, setCount] = useState(() => button.messages.getCount())
+	const [isModalOpen, setIsModalOpen] = useState(false)
+
 	const cb = useCallback((evt: MouseEvent) => {
-		console.log(evt)
-		// TODO: Show a modal with the messages
+		setIsModalOpen(true)
 	}, [])
 
 	useEffect(() => {
 		button.onClicked = cb
 		return () => (button.onClicked = undefined)
-	}, [button])
+	}, [button, cb])
 
 	useEffect(() => {
 		return button.messages.addListener(() => {
@@ -45,6 +47,11 @@ function DocumentMessagesButtonPortal({ button }: { button: DocumentMessagesButt
 				<div className="ptl-document-messages-count">{count || undefined}</div>,
 				button.actionEl
 			)}
+			<DocumentMessagesModal
+				messages={button.messages}
+				open={isModalOpen}
+				onClose={() => setIsModalOpen(false)}
+			/>
 		</>
 	)
 }

@@ -533,6 +533,7 @@ export default class TldrawPlugin extends Plugin {
 
 		await leaf.openFile(file, openState)
 		await this.updateViewMode(viewType, leaf, openState?.eState)
+		return leaf
 	}
 
 	/**

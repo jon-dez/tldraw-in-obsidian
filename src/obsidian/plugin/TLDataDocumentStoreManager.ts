@@ -31,7 +31,7 @@ import {
 	TLStore,
 	TLUnknownShape,
 } from 'tldraw'
-import TLDataDocumentMessages from './TLDataDocumentMessages'
+import TLDataDocumentMessages, { DocumentMessage } from './TLDataDocumentMessages'
 
 const formats = {
 	markdown: 'markdown',
@@ -39,11 +39,6 @@ const formats = {
 } as const
 
 type Format = (typeof formats)[keyof typeof formats]
-
-interface DocumentMessage {
-	getMessage(): string
-	dismiss(): void
-}
 
 type MainData = {
 	documentStore: TLDataDocumentStore
@@ -58,6 +53,7 @@ type MainData = {
 		addListener(listener: () => void): () => void
 		getCount(): number
 		dismissAll(): void
+		getFile(): TFile
 	}
 }
 
@@ -159,6 +155,8 @@ export default class TLDataDocumentStoreManager {
 
 		const documentMessages = new TLDataDocumentMessages()
 
+		const disposableListeners = new Set<() => void>()
+
 		return {
 			store: documentStore.store,
 			data: {
@@ -168,18 +166,14 @@ export default class TLDataDocumentStoreManager {
 				format,
 				messages: {
 					getCount: () => documentMessages.getErrorCount(),
-					getAll: () => [
-						...documentMessages.getBlockRefError().map((e) => ({
-							getMessage: () => e.getMessage(),
-							dismiss: () => e.remove(),
-						})),
-					],
+					getAll: () => [...documentMessages.getBlockRefError()],
 					addListener: (listener: () => void) => {
 						return documentMessages.addListener(listener)
 					},
 					dismissAll: () => {
 						documentMessages.removeAll()
 					},
+					getFile: () => tFile,
 				},
 			},
 			init: (storeGroup) => {
@@ -211,6 +205,35 @@ export default class TLDataDocumentStoreManager {
 
 				const triggers = documentMessages.getTriggers()
 
+				disposableListeners.add(
+					triggers.blockRef.asset.notFound.addListener(({ id, shouldNotify }) => {
+						if (!shouldNotify) return
+						new Notice(`Asset block reference not found: ${id}`)
+					})
+				)
+
+				disposableListeners.add(
+					triggers.blockRef.asset.notALink.addListener(({ shouldNotify, next }) => {
+						if (!shouldNotify) return
+						new Notice(`Asset block did not reference a link: ${next.item.id}`)
+					})
+				)
+
+				disposableListeners.add(
+					triggers.blockRef.asset.unknownFile.addListener(({ shouldNotify, next }) => {
+						if (!shouldNotify) return
+						new Notice(`Asset block did not link to a known file: ${next.link}`)
+					})
+				)
+
+				disposableListeners.add(
+					triggers.blockRef.asset.errorLoading.addListener(({ shouldNotify, next }) => {
+						if (!shouldNotify) return
+						new Notice(`Error loading asset from ${next.link}, see console for more details.`)
+						console.error('Error loading asset', { error: next.error })
+					})
+				)
+
 				const assetStoreProxy = new ObsidianMarkdownFileTLAssetStoreProxy(this.plugin, tFile, {
 					contents: {
 						addedAsset: (fileContents, _, assetFile) => {
@@ -232,44 +255,12 @@ export default class TLDataDocumentStoreManager {
 								triggers.blockRef.asset.errorLoading.trigger(block, link, error)
 							},
 							notFound: (ref) => {
-								// senders.blockRef({
-								//     id: makeAssetBlockRefNoticeId({
-								//         kind: 'refNotFound',
-								//         blockRef: {
-								//             ref
-								//         }
-								//     }),
-								//     message: ,
-								// });
-								// senders.blockRef({
-								//     ref,
-								//     error: `Asset block reference not found: ${ref}`
-								// })
 								triggers.blockRef.asset.notFound.trigger(ref)
 							},
 							notALink: (block) => {
-								// senders.notice({
-								//     id: makeAssetBlockRefNoticeId({
-								//         kind: 'noLink',
-								//         blockRef: {
-								//             ref
-								//         }
-								//     }),
-								//     message: `Asset block did not reference a link: ${ref}`
-								// });
 								triggers.blockRef.asset.notALink.trigger(block)
 							},
 							linkToUnknownFile: (block, link) => {
-								// senders.notice({
-								//     id: makeAssetBlockRefNoticeId({
-								//         kind: 'fileNotFound',
-								//         blockRef: {
-								//             ref
-								//         }
-								//     }),
-								//     message: `[${Date.now()}] Asset block did not link to a known file: ${link}`,
-								// })
-								// senders.unknown('huh?')
 								triggers.blockRef.asset.unknownFile.trigger(block, link)
 							},
 						},
@@ -281,6 +272,9 @@ export default class TLDataDocumentStoreManager {
 				removeAssetChanges = listenAssetChanges(documentStore.store)
 			},
 			dispose: () => {
+				for (const disposableListener of disposableListeners) {
+					disposableListener()
+				}
 				removeAssetChanges?.dispose()
 				assetStore?.dispose()
 				if (onExternalModificationsRef) {

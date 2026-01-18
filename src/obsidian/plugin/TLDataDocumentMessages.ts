@@ -1,49 +1,54 @@
 import { BlockCache } from 'obsidian'
 import { Notifier } from 'src/lib/notifier'
+import { createTrigger } from 'src/lib/trigger'
 import { LOGGING_ENABLED } from 'src/utils/logging'
 
-interface BlockRefErrorState {
-	blockId: string
-	asset?: {
-		message: string
-		item?: BlockCache
-		link?: string
-	}
+interface BaseDocumentMessage<T extends string = string> {
+	type: T
+	dismiss(): void
 }
 
-interface AssetBlockRefError<T extends NonNullable<BlockRefErrorState['asset']>>
-	extends BlockRefErrorState {
-	asset: T
+interface BaseAssetBlockRefError<T extends string> {
+	message: T
+	item?: BlockCache
+	link?: string
 }
 
-interface AssetBlockRefNotFound {
-	message: 'notFound'
+interface AssetBlockRefNotFound extends BaseAssetBlockRefError<'notFound'> {
 	item?: undefined
 }
 
-interface AssetBlockRefNotALink {
-	message: 'notALink'
+interface AssetBlockRefNotALink extends BaseAssetBlockRefError<'notALink'> {
 	item: BlockCache
 }
 
-interface AssetBlockRefUnknownFile {
-	message: 'unknownFile'
+interface AssetBlockRefUnknownFile extends BaseAssetBlockRefError<'unknownFile'> {
 	item: BlockCache
 	link: string
 }
 
-interface AssetBlockRefLoadingError {
-	message: 'errorLoading'
+interface AssetBlockRefLoadingError extends BaseAssetBlockRefError<'errorLoading'> {
 	item: BlockCache
 	link: string
+	error: unknown
 }
 
-type AssetBlockRefErrorTypes = AssetBlockRefError<
+type AssetBlockRefErrorState =
 	| AssetBlockRefNotFound
 	| AssetBlockRefNotALink
 	| AssetBlockRefUnknownFile
 	| AssetBlockRefLoadingError
->
+
+interface BlockRefErrorState {
+	blockId: string
+	asset?: AssetBlockRefErrorState
+}
+
+interface BlockRefErrorDocumentMessage extends BaseDocumentMessage<'blockRefError'> {
+	state: BlockRefErrorState
+}
+
+export type DocumentMessage = BlockRefErrorDocumentMessage
 
 class BlockRefErrors {
 	readonly #notifier = new Notifier()
@@ -53,7 +58,7 @@ class BlockRefErrors {
 		return Boolean(state.asset)
 	}
 
-	#isSameAssetError(a: BlockRefErrorState['asset'], b: AssetBlockRefErrorTypes['asset']) {
+	#isSameAssetError(a: BlockRefErrorState['asset'], b: AssetBlockRefErrorState) {
 		if (a?.message !== b.message) {
 			return false
 		}
@@ -69,7 +74,9 @@ class BlockRefErrors {
 		}
 	}
 
-	setAssetError(blockRefError: AssetBlockRefErrorTypes) {
+	setAssetError<T extends AssetBlockRefErrorState>(
+		blockRefError: BlockRefErrorState & { asset: T }
+	) {
 		let blockRefState = this.#stateMap.get(blockRefError.blockId)
 		let shouldNotify = false
 		if (!blockRefState) {
@@ -81,23 +88,31 @@ class BlockRefErrors {
 			)
 		}
 
-		if (!this.#isSameAssetError(blockRefState.asset, blockRefError.asset)) {
+		const prev = blockRefState.asset
+		const next = blockRefError.asset
+
+		if (!this.#isSameAssetError(prev, next)) {
 			shouldNotify = true
 		} else {
 			LOGGING_ENABLED &&
 				console.info('Same asset error; skipping notifying', {
-					a: blockRefState.asset,
-					b: blockRefError.asset,
+					a: prev,
+					b: next,
 				})
 		}
 
-		blockRefState.asset = blockRefError.asset
+		blockRefState.asset = next
 
 		if (shouldNotify) {
 			this.#notifier.notifyListeners()
 		}
 
-		return blockRefState
+		return {
+			id: blockRefError.blockId,
+			shouldNotify,
+			prev,
+			next,
+		}
 	}
 
 	getCount() {
@@ -136,27 +151,6 @@ class BlockRefErrors {
 		for (const blockId of this.#stateMap.keys()) {
 			this.removeAssetError(blockId)
 		}
-	}
-}
-
-interface AddListener<Callback extends (...args: unknown[]) => void = () => void> {
-	(listener: Callback): () => void
-}
-
-function createTrigger<Params extends unknown[], Return>(
-	fn: (...args: Params) => Return
-): {
-	trigger(...args: Params): Return
-	addListener: AddListener<Return extends void ? () => void : (data: Return) => void>
-} {
-	const notifier = new Notifier<(data: Return) => void>()
-	return {
-		trigger: (...args: Parameters<typeof fn>) => {
-			const res = fn(...args)
-			notifier.notifyListeners(res)
-			return res
-		},
-		addListener: (listener) => notifier.addListener(listener),
 	}
 }
 
@@ -207,6 +201,7 @@ export default class TLDataDocumentMessages {
 							message: 'errorLoading',
 							item: block,
 							link,
+							error,
 						},
 					})
 				}),
@@ -252,14 +247,12 @@ export default class TLDataDocumentMessages {
 		return this.triggers
 	}
 
-	getBlockRefError() {
+	getBlockRefError(): DocumentMessage[] {
 		return this.#blockRefErrors.getAll().map((e) => {
 			return {
+				type: 'blockRefError',
 				state: e,
-				getMessage: () => {
-					return e.asset?.message ?? `There is an error with block ${e.blockId}`
-				},
-				remove: () => {
+				dismiss: () => {
 					this.#blockRefErrors.removeAssetError(e.blockId)
 				},
 			}
