@@ -495,7 +495,6 @@ export class TldrawMarkdownRenderChild extends MarkdownRenderChild {
 		)
 		this.#previewImage.setOptions({
 			...this.#previewImage.options,
-			// @ts-expect-error - NOTE: This is a temporary workaround to suppress errors from yarn build. The `assets` property exists only in the patched tldraw package https://github.com/jon-dez/tldraw/tree/tldraw-in-obsidian-patches.
 			assets: this.#storeInstance.documentStore.store.props.assets,
 		})
 		return this.#storeInstance

@@ -34,6 +34,9 @@ export abstract class BaseTldrawFileView extends FileView {
 	#unregisterViewAssetsActionCallback?: () => void
 	#unregisterOnWindowMigrated?: () => void
 
+	messagesEl?: HTMLElement
+	onMessagesClick?: (evt: MouseEvent) => void
+
 	private getTldrawContainer() {
 		return this.contentEl
 	}
@@ -59,6 +62,9 @@ export abstract class BaseTldrawFileView extends FileView {
 		})
 
 		this.addAction(MARKDOWN_ICON_NAME, 'View as markdown', () => this.viewAsMarkdownClicked())
+		this.messagesEl = this.addAction('message-square', 'View messages', (evt) =>
+			this.onMessagesClick?.(evt)
+		)
 	}
 
 	/**
@@ -93,6 +99,21 @@ export abstract class BaseTldrawFileView extends FileView {
 		)
 
 		this.registerOnUnloadFile(() => storeInstance.unregister())
+
+		const registration = this.plugin.instance.registerDocumentMessagesAction({
+			key: storeInstance.getInstanceId(),
+			actionEl: this.messagesEl!,
+			messages: storeInstance.messages,
+		})
+
+		this.onMessagesClick = (evt) => {
+			registration.onMessagesClicked(evt)
+		}
+
+		this.registerOnUnloadFile(() => {
+			this.onMessagesClick = undefined
+			registration.unregister()
+		})
 
 		const processedStore = await this.processStore(storeInstance.documentStore)
 
