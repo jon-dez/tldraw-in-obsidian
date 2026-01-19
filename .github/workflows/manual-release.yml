@@ -1,5 +1,8 @@
 name: Manual Release
 
+# NOTE: This workflow assumes that the submodule is synced to the tag you want to release.
+# If you want to release a new version, you need to update the submodule so that it contains the correct version of the plugin.
+
 on:
   workflow_dispatch:
     inputs:
@@ -26,26 +29,71 @@ jobs:
 
     steps:
       - name: Validate tag format
+        id: validate_tag
         run: |
           tag="${{ github.event.inputs.tag }}"
-          if ! echo "$tag" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$'; then
-            echo "❌ Invalid tag format. Must be in x.y.z format (e.g., 1.26.3)"
+          # Allow x.y.z or x.y.z-prerelease.label format
+          if ! echo "$tag" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9.-]+)?$'; then
+            echo "❌ Invalid tag format. Must be in x.y.z format (e.g., 1.26.3) or x.y.z-prerelease format (e.g., 1.26.3-alpha.1)"
             exit 1
           fi
-          echo "✅ Tag format validated: $tag"
+          
+          # Check if it's a prerelease
+          if echo "$tag" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+-'; then
+            echo "is_prerelease=true" >> $GITHUB_OUTPUT
+            echo "✅ Tag format validated (prerelease): $tag"
+          else
+            echo "is_prerelease=false" >> $GITHUB_OUTPUT
+            echo "✅ Tag format validated (release): $tag"
+          fi
+          echo "tag=$tag" >> $GITHUB_OUTPUT
 
       - name: Check out plugin repository
         uses: actions/checkout@v6
         with:
           submodules: recursive
 
+      # We create a draft early on to ensure we are able to before actually spending time building the release files
+      - name: Create empty draft release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          tag="${{ steps.validate_tag.outputs.tag }}"
+          is_prerelease="${{ steps.validate_tag.outputs.is_prerelease }}"
+          
+          prerelease_args=""
+          if [ "$is_prerelease" = "true" ]; then
+            prerelease_args="--prerelease"
+          fi
+          
+          # Create empty draft release
+          gh release create "$tag" \
+            --generate-notes \
+            --draft \
+            --verify-tag \
+            $prerelease_args
+          
+          if [ $? -ne 0 ]; then
+            echo "❌ Failed to create empty draft release"
+            exit 1
+          fi
+          
+          echo "✅ Empty draft release created: $tag"
+
+      # We want to reuse the setup for consistency
       - uses: ./tldraw/.github/actions/setup
         with:
           working-directory: tldraw
 
+      # Double check that there are no type errors
       - name: Build types
         working-directory: tldraw
         run: yarn build-types
+
+      # We depend on the packages being built for the release files
+      - name: Build tldraw packages
+        working-directory: tldraw
+        run: yarn build-package
 
       - name: Make release files
         id: make_release_files
@@ -61,19 +109,14 @@ jobs:
       - name: Verify release files outputs
         working-directory: ${{ steps.make_release_files.outputs.package_out_dir }}
         run: |
-          if [ ! -f "versions.json" ] || [ ! -f "manifest.json" ] || [ ! -f "main.js" ] || [ ! -f "styles.css" ]; then
+          if [ ! -f "manifest.json" ] || [ ! -f "main.js" ] || [ ! -f "styles.css" ]; then
             echo "❌ Required release files not found"
             exit 1
           fi
 
           # Check if the release files contain the correct version given the input tag
-          tag="${{ github.event.inputs.tag }}"
-
-          # versions.json should have the key for the tag
-          if ! jq -e "has(\"$tag\")" versions.json > /dev/null; then
-            echo "❌ versions.json does not contain the key for the tag"
-            exit 1
-          fi
+          tag="${{ steps.validate_tag.outputs.tag }}"
+          is_prerelease="${{ steps.validate_tag.outputs.is_prerelease }}"
 
           # manifest.json should have the version field matching the tag
           if [[ "$(cat manifest.json | jq -r '.version')" != "$tag" ]]; then
@@ -81,9 +124,29 @@ jobs:
             exit 1
           fi
 
+          # We only update versions.json for release versions (not prereleases)
+          if [ "$is_prerelease" = "true" ]; then
+            echo "ℹ️  Prerelease version - skipping versions.json verification"
+          else
+            if [ ! -f "versions.json" ]; then
+              echo "❌ versions.json not found (required for release versions)"
+              exit 1
+            fi
+
+            # versions.json should have the key for the tag
+            if ! jq -e "has(\"$tag\")" versions.json > /dev/null; then
+              echo "❌ versions.json does not contain the key for the tag"
+              exit 1
+            fi
+          fi
+
           echo "✅ Release files verified"
       
       - name: Copy versions.json and manifest.json to plugin repository
+        #  We only overwrite the manifest.json and versions.json for release versions (not prereleases)
+        #  - Obsidian only looks at x.y.z in the version field for plugin updates
+        #  - Prerelease labels are ignored by Obsidian
+        if: steps.validate_tag.outputs.is_prerelease != 'true'
         run: |
           set -e
           package_out_dir="${{ steps.make_release_files.outputs.package_out_dir }}"
@@ -103,52 +166,70 @@ jobs:
             echo "❌ No changes to commit. Expected versions.json or manifest.json to be updated."
             exit 1
           else
-            git commit -m "Update versions.json and manifest.json for release ${{ github.event.inputs.tag }}"
+            git commit -m "Update versions.json and manifest.json for release ${{ steps.validate_tag.outputs.tag }}"
             echo "✅ Changes committed"
           fi
 
-      - name: Create release draft
-        working-directory: ${{ steps.make_release_files.outputs.package_out_dir }}
+      - name: Skip copying files for prerelease
+        if: steps.validate_tag.outputs.is_prerelease == 'true'
+        run: |
+          echo "ℹ️  Prerelease detected - skipping manifest.json and versions.json copy to plugin repository"
+
+      - name: Update release draft
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          tag="${{ github.event.inputs.tag }}"
-          
-          # Check if release already exists
-          if gh release view "$tag" &>/dev/null; then
-            echo "❌ Release $tag already exists, cannot create a new draft"
-            exit 1
-          fi
-          
-          # Create draft release
-          gh release create "$tag" \
-            --title="$tag" \
-            --notes="Manual release of tldraw-in-obsidian plugin version $tag" \
-            --draft \
-            main.js manifest.json styles.css
+          tag="${{ steps.validate_tag.outputs.tag }}"
+          package_out_dir="${{ steps.make_release_files.outputs.package_out_dir }}"
+
+          release_files=(
+            "$package_out_dir/main.js"
+            "$package_out_dir/styles.css"
+            "$package_out_dir/manifest.json"
+          )
+
+          for file in "${release_files[@]}"; do
+            if [ ! -f "$file" ]; then
+              echo "❌ Release file $file not found"
+              exit 1
+            fi
+          done
+
+          echo "✅ Release files found"
+
+          # Upload files to the existing draft release
+          gh release upload "$tag" \
+            ${release_files[@]} \
+            --clobber
 
           if [ $? -ne 0 ]; then
-            echo "❌ Failed to create draft release"
+            echo "❌ Failed to update draft release with files"
             exit 1
           fi
           
-          echo "✅ Draft release created: $tag"
+          echo "✅ Draft release updated with files: $tag"
 
       - name: Publish release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          tag="${{ github.event.inputs.tag }}"
+          tag="${{ steps.validate_tag.outputs.tag }}"
+          is_prerelease="${{ steps.validate_tag.outputs.is_prerelease }}"
 
-          # push the modified files and publish the release
-          git push
+          # Only push changes for non-prerelease versions
+          if [ "$is_prerelease" = "true" ]; then
+            # We are not adding any new files
+            echo "ℹ️  Prerelease version - skipping git push"
+          else
+            git push
 
-          if [ $? -ne 0 ]; then
-            echo "❌ Failed to push changes"
-            exit 1
+            if [ $? -ne 0 ]; then
+              echo "❌ Failed to push changes"
+              exit 1
+            fi
           fi
 
-          gh release publish "$tag"
+          gh release edit "$tag" --draft=false
 
           if [ $? -ne 0 ]; then
             echo "❌ Failed to publish release"

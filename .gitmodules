@@ -1,4 +1,4 @@
 [submodule "tldraw"]
 	path = tldraw
 	url = git@github.com:jon-dez/tldraw.git
-	branch = tldraw-in-obsidian/1.26.2/monorepo-integration/3.15.3--with-rich-text-arrows
+	branch = tldraw-in-obsidian/1.27.x/tldraw/3.15.3--patches--with-rich-text-arrows
