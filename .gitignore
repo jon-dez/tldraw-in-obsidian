@@ -9,9 +9,16 @@
 node_modules
 
 # ==============================
-# Package files
+# Build output
 # ==============================
-# These files are created by `yarn package` by default and should not be committed.
+# These directory are created by `build` script
+
+dist/
+
+# ==============================
+# Generated package files
+# ==============================
+# These files are created by `package` script by default and should not be committed.
 
 /manifest.json
 /versions.json

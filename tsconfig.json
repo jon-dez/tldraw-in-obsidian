@@ -19,6 +19,5 @@
 		"skipDefaultLibCheck": true,
 		"noEmit": true
 	},
-	"include": ["src", "scripts"],
-	"references": [{ "path": "../../packages/tldraw" }]
+	"include": ["src", "scripts"]
 }
