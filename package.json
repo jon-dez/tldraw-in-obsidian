@@ -6,11 +6,11 @@
 	"private": true,
 	"scripts": {
 		"clean": "rm -rf dist && rm -rf node_modules && npm install",
-		"dev": "NODE_ENV=development node ./scripts/esbuild.config.mjs",
-		"build": "NODE_ENV=production node ./scripts/esbuild.config.mjs",
-		"version": "node ./scripts/version-bump.mjs",
+		"dev": "NODE_ENV=development tsx ./scripts/build.mts",
+		"build": "NODE_ENV=production tsx ./scripts/build.mts",
+		"version": "tsx ./scripts/version-bump.mts",
 		"postinstall": "patch-package",
-		"package": "node ./scripts/package.mjs",
+		"package": "tsx ./scripts/package.mts",
 		"make-release-files": "tsx ./scripts/make-release-files.ts",
 		"lint": "tsx ./scripts/lint.ts"
 	},
@@ -28,6 +28,9 @@
 		"Sam Alhaqab"
 	],
 	"devDependencies": {
+		"@eslint/eslintrc": "^3.3.3",
+		"@eslint/js": "^9.39.2",
+		"@types/node": "^24.10.9",
 		"@types/react": "^18.3.5",
 		"@types/react-dom": "^18.3.0",
 		"@typescript-eslint/eslint-plugin": "7.12.0",
@@ -37,6 +40,7 @@
 		"obsidian": "^1.10.0",
 		"patch-package": "^8.0.0",
 		"tslib": "2.6.3",
+		"tsx": "^4.21.0",
 		"typescript": "^5.5.4"
 	},
 	"dependencies": {

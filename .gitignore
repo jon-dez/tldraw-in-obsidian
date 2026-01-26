@@ -9,6 +9,11 @@
 node_modules
 
 # ==============================
+# TypeScript
+# ==============================
+*.tsbuildinfo
+
+# ==============================
 # Build output
 # ==============================
 # These directory are created by `build` script
@@ -19,10 +24,6 @@ dist/
 # Generated package files
 # ==============================
 # These files are created by `package` script by default and should not be committed.
-
-/manifest.json
-/versions.json
-
 # Don't include the compiled main.js file in the repo.
 # They should be uploaded to GitHub releases instead.
 /main.js

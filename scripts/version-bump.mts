@@ -25,7 +25,7 @@ const isPrerelease = /^[0-9]+\.[0-9]+\.[0-9]+-/.test(targetVersion)
 
 console.log('Reading manifest.json...')
 // read minAppVersion from manifest.json and bump version to target version
-let manifest = JSON.parse(readFileSync(releaseManifestJsonPath, 'utf8'))
+const manifest = JSON.parse(readFileSync(releaseManifestJsonPath, 'utf8'))
 const { minAppVersion } = manifest
 
 if (manifest.version !== targetVersion) {
@@ -44,7 +44,7 @@ if (isPrerelease) {
   console.log('Reading versions.json...')
 
   // update versions.json with target version and minAppVersion from manifest.json
-  let versions = JSON.parse(readFileSync(releaseVersionsJsonPath, 'utf8'))
+  const versions = JSON.parse(readFileSync(releaseVersionsJsonPath, 'utf8'))
 
   if (versions[targetVersion] !== minAppVersion) {
     console.log('Updating versions.json...', versions[targetVersion], '->', minAppVersion)

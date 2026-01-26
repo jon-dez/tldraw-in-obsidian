@@ -1,5 +1,5 @@
 import { ChildProcess, execFile } from 'child_process'
-import * as util from 'util'
+import util from 'util'
 import { createPrefixer } from './utils/pipe'
 import fs from 'fs'
 
@@ -27,15 +27,15 @@ async function main() {
 
   console.log('Making release files...')
 
-  const versionProcess = execFileAsync('yarn', ['run', 'version'])
+  const versionProcess = execFileAsync('npm', ['run', 'version'])
   logWithLabel('version', versionProcess.child)
   await versionProcess
 
-  const buildProcess = execFileAsync('yarn', ['build'])
+  const buildProcess = execFileAsync('npm', ['run', 'build'])
   logWithLabel('build', buildProcess.child)
   await buildProcess
 
-  const packageProcess = execFileAsync('yarn', ['package', `--out-dir=${packageOutDirectory}`])
+  const packageProcess = execFileAsync('npm', ['run', 'package', '--', `--out-dir=${packageOutDirectory}`])
   logWithLabel('package', packageProcess.child)
   await packageProcess
 

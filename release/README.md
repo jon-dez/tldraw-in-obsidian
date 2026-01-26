@@ -36,7 +36,7 @@ This command will:
 
 > The `--package-out-dir` argument is forwarded to `npm run package` as `--out-dir`
 >
-> If `--package-out-dir` is not specified, files will be copied to the plugin directory root
+> If `--package-out-dir` is not specified, files will be copied to `release/package/`
 >
 > The `package` script also supports `--clean` to remove packaged files from a directory:
 > ```bash

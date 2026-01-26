@@ -12,6 +12,8 @@
 		"importHelpers": true,
 		"isolatedModules": true,
 		"strictNullChecks": true,
+		// Set types to empty array to avoid referencing node types within the plugin source code
+		"types": [],
 		"lib": ["DOM", "ESNext"],
 		"jsx": "react",
 		"composite": true,

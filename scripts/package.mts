@@ -23,7 +23,7 @@ const runCleanMode = process.argv.includes('--clean')
 const restArgv = process.argv.filter(arg => arg !== '--clean')
 
 // By default, the package directory will be the root of the plugin directory
-let packageDirectory = path.join(import.meta.dirname, '..')
+let packageDirectory = path.join(releaseDirectory, 'package')
 
 for (const arg of restArgv) {
   if (arg.startsWith('--out-dir=')) {

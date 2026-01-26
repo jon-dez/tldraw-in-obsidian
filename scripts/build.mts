@@ -16,7 +16,7 @@ const prod = NODE_ENV === 'production'
 
 const TLDRAW_VERSION = (() => {
 	const tldrawPackageJsonPath = path.join(
-		import.meta.dirname, '..', '..', '..', 'packages', 'tldraw', 'package.json'
+		import.meta.dirname, '..', 'node_modules', 'tldraw', 'package.json'
 	)
 	const json = JSON.parse(readFileSync(tldrawPackageJsonPath, 'utf8'))
 	return json.version
