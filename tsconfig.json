@@ -13,7 +13,12 @@
 		"isolatedModules": true,
 		"strictNullChecks": true,
 		"lib": ["DOM", "ESNext"],
-		"jsx": "react"
+		"jsx": "react",
+		"composite": true,
+		"skipLibCheck": true,
+		"skipDefaultLibCheck": true,
+		"noEmit": true
 	},
-	"include": ["**/*.ts", "**/*.tsx", "**/*.css"]
+	"include": ["src", "scripts"],
+	"references": [{ "path": "../../packages/tldraw" }]
 }

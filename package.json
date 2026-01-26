@@ -1,15 +1,20 @@
 {
 	"name": "tldraw-in-obsidian",
-	"version": "1.26.3",
+	"version": "1.27.0-preview.1",
+	"description": "Integrates Tldraw into Obsidian, allowing users to draw and edit content on a virtual whiteboard.",
+	"main": "dist/production/main.js",
 	"private": true,
-	"description": "Create whiteboards, diagrams, and drawings with the official tldraw plugin.",
-	"main": "main.js",
 	"scripts": {
-		"dev": "node esbuild.config.mjs",
-		"build": "tsc -noEmit -skipLibCheck && node esbuild.config.mjs production",
-		"dist": "node esbuild.config.mjs production",
-		"version": "node version-bump.mjs && git add manifest.json versions.json",
-		"postinstall": "patch-package"
+		"clean": "rm -rf dist && rm -rf node_modules && yarn package --clean && yarn",
+		"dev": "NODE_ENV=development node ./scripts/esbuild.config.mjs",
+		"build": "NODE_ENV=production node ./scripts/esbuild.config.mjs",
+		"version": "node ./scripts/version-bump.mjs",
+		"package": "node ./scripts/package.mjs",
+		"make-release-files": "yarn run -T tsx ./scripts/make-release-files.ts",
+		"lint": "yarn run -T tsx ../../internal/scripts/lint.ts",
+		"test": "yarn run -T vitest --passWithNoTests",
+		"test-ci": "yarn run -T vitest run --passWithNoTests",
+		"test-coverage": "yarn run -T vitest run --coverage --passWithNoTests"
 	},
 	"keywords": [
 		"obsidian",
@@ -32,7 +37,6 @@
 		"builtin-modules": "3.3.0",
 		"esbuild": "^0.23.1",
 		"obsidian": "^1.10.0",
-		"patch-package": "^8.0.0",
 		"tslib": "2.6.3",
 		"typescript": "^5.5.4"
 	},
@@ -40,7 +44,11 @@
 		"monkey-around": "^2.3.0",
 		"react": "^18.3.1",
 		"react-dom": "^18.3.1",
-		"tldraw": "^3.15.3",
+		"tldraw": "workspace:*",
 		"zustand": "^4.3.9"
+	},
+	"peerDependencies": {
+		"react": "^18.2.0 || ^19.0.0",
+		"react-dom": "^18.2.0 || ^19.0.0"
 	}
 }
