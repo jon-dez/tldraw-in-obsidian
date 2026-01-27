@@ -185,23 +185,22 @@ export class ObsidianMarkdownFileTLAssetStoreProxy {
 			return null
 		}
 
-		const assetBlockContents = (await this.plugin.app.vault.cachedRead(this.tFile)).substring(
-			assetBlock.position.start.offset,
-			assetBlock.position.end.offset
+		const linkCache = this.cachedMetadata.links?.find(
+			(linkCache) => linkCache.position.start.offset === assetBlock.position.start.offset
 		)
-		const insideBrackets = /\[\[(.*?)\]\]/
-		;`${insideBrackets}`
-		const link = assetBlockContents.match(insideBrackets)?.at(1)
 
-		if (!link) {
+		if (!linkCache) {
 			this.events?.blockRef?.resolveAsset.notALink(assetBlock)
 			return null
 		}
 
-		const assetFile = this.plugin.app.metadataCache.getFirstLinkpathDest(link, this.tFile.path)
+		const assetFile = this.plugin.app.metadataCache.getFirstLinkpathDest(
+			linkCache.link,
+			this.tFile.path
+		)
 
 		if (!assetFile) {
-			this.events?.blockRef?.resolveAsset.linkToUnknownFile(assetBlock, link)
+			this.events?.blockRef?.resolveAsset.linkToUnknownFile(assetBlock, linkCache.link)
 			return null
 		}
 
@@ -211,7 +210,7 @@ export class ObsidianMarkdownFileTLAssetStoreProxy {
 				return blob
 			})
 			.catch((error) => {
-				this.events?.blockRef?.resolveAsset.errorLoading(assetBlock, link, error)
+				this.events?.blockRef?.resolveAsset.errorLoading(assetBlock, linkCache.link, error)
 				throw new Error('Unable to load file from vault')
 			})
 	}
@@ -313,7 +312,7 @@ export class ObsidianMarkdownFileTLAssetStoreProxy {
  * Prohibits modifications to the markdown file.
  */
 export class ObsidianReadOnlyMarkdownFileTLAssetStoreProxy extends ObsidianMarkdownFileTLAssetStoreProxy {
-	storeAsset(asset: TLAsset, file: File): Promise<never> {
+	storeAsset(): Promise<never> {
 		throw new Error(
 			`${ObsidianReadOnlyMarkdownFileTLAssetStoreProxy.name}: Storing assets is prohibited in read-only mode.`
 		)
@@ -357,7 +356,7 @@ export class ObsidianTLAssetStore implements TLAssetStore {
 		}
 	}
 
-	async resolve(asset: TLAsset, ctx: TLAssetContext): Promise<null | string> {
+	async resolve(asset: TLAsset, _: TLAssetContext): Promise<null | string> {
 		const assetSrc = asset.props.src
 		if (!assetSrc) return null
 
