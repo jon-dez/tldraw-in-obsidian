@@ -12,7 +12,8 @@
 		"postinstall": "patch-package",
 		"package": "tsx ./scripts/package.mts",
 		"make-release-files": "tsx ./scripts/make-release-files.ts",
-		"lint": "eslint src scripts"
+		"lint": "eslint src scripts",
+		"format-current": "prettier --write --cache $(git diff --name-only --diff-filter d | xargs)"
 	},
 	"keywords": [
 		"obsidian",
