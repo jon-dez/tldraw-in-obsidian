@@ -64,10 +64,24 @@ jobs:
           if [ "$is_prerelease" = "true" ]; then
             prerelease_args="--prerelease"
           fi
+
+          # Ensure the specific tag exists locally; fetch only that tag if needed
+          if ! git rev-parse -q --verify "refs/tags/$tag" >/dev/null; then
+            echo "Tag $tag not found locally; attempting to fetch from origin..."
+            if git ls-remote --exit-code --tags origin "refs/tags/$tag" >/dev/null 2>&1; then
+              git fetch origin "refs/tags/$tag:refs/tags/$tag"
+              echo "Fetched tag $tag from origin"
+            else
+              echo "Tag $tag does not exist on origin"
+              exit 1
+            fi
+          else
+            echo "Tag $tag already present locally"
+          fi
           
           # Create empty draft release
           gh release create "$tag" \
-            --generate-notes \
+            --notes-from-tag \
             --draft \
             --verify-tag \
             $prerelease_args
