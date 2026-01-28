@@ -81,6 +81,7 @@ jobs:
           
           # Create empty draft release
           gh release create "$tag" \
+            --title "$tag" \
             --notes-from-tag \
             --draft \
             --verify-tag \
