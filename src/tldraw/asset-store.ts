@@ -1,4 +1,4 @@
-import { BlockCache, CachedMetadata, TFile } from 'obsidian'
+import { BlockCache, CachedMetadata, ReferenceCache, TFile } from 'obsidian'
 import TldrawPlugin from 'src/main'
 import { vaultFileToBlob } from 'src/obsidian/helpers/vault'
 import { TldrawFileListener } from 'src/obsidian/plugin/TldrawFileListenerMap'
@@ -185,22 +185,25 @@ export class ObsidianMarkdownFileTLAssetStoreProxy {
 			return null
 		}
 
-		const linkCache = this.cachedMetadata.links?.find(
+		// Can either be a link or an embed since they both have a link property
+		const blockRef: ReferenceCache | undefined = this.cachedMetadata.links?.find(
 			(linkCache) => linkCache.position.start.offset === assetBlock.position.start.offset
+		) ?? this.cachedMetadata.embeds?.find(
+			(embed) => embed.position.start.offset === assetBlock.position.start.offset
 		)
 
-		if (!linkCache) {
+		if (!blockRef) {
 			this.events?.blockRef?.resolveAsset.notALink(assetBlock)
 			return null
 		}
 
 		const assetFile = this.plugin.app.metadataCache.getFirstLinkpathDest(
-			linkCache.link,
+			blockRef.link,
 			this.tFile.path
 		)
 
 		if (!assetFile) {
-			this.events?.blockRef?.resolveAsset.linkToUnknownFile(assetBlock, linkCache.link)
+			this.events?.blockRef?.resolveAsset.linkToUnknownFile(assetBlock, blockRef.link)
 			return null
 		}
 
@@ -210,7 +213,7 @@ export class ObsidianMarkdownFileTLAssetStoreProxy {
 				return blob
 			})
 			.catch((error) => {
-				this.events?.blockRef?.resolveAsset.errorLoading(assetBlock, linkCache.link, error)
+				this.events?.blockRef?.resolveAsset.errorLoading(assetBlock, blockRef.link, error)
 				throw new Error('Unable to load file from vault')
 			})
 	}
