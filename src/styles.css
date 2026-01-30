@@ -1,4 +1,5 @@
 @import url('tldraw/tldraw.css');
+@import url('styles/workaround-obsidian-mobile-navbar.css');
 
 /* 
 	!!! Please prefix all custom classes with 'ptl' !!!
