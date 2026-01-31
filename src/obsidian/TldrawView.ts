@@ -1,4 +1,4 @@
-import { TFile, WorkspaceLeaf } from 'obsidian'
+import { EditableFileView, TFile, WorkspaceLeaf } from 'obsidian'
 import { TldrawStoreIndexedDB } from 'src/tldraw/indexeddb-store'
 import { TLDataDocumentStore } from 'src/utils/document'
 import { loadSnapshot } from 'tldraw'
@@ -13,23 +13,10 @@ import TldrawStoreExistsIndexedDBModal, {
 export class TldrawView extends BaseTldrawFileView {
 	plugin: TldrawPlugin
 
-	constructor(leaf: WorkspaceLeaf, plugin: TldrawPlugin) {
-		super(leaf)
+	constructor(fileView: EditableFileView, plugin: TldrawPlugin) {
+		super(fileView)
 		this.plugin = plugin
-		this.navigation = true
 	}
-
-	getViewType() {
-		return VIEW_TYPE_TLDRAW
-	}
-
-	getDisplayText() {
-		return this.file ? this.file.basename : 'NO_FILE'
-	}
-
-	// getViewData(): string {
-	// 	return this.data;
-	// }
 
 	override onUpdated(update: DataUpdate) {
 		// Always save the data to the file.
@@ -45,12 +32,12 @@ export class TldrawView extends BaseTldrawFileView {
 	override async processStore(
 		documentStore: TLDataDocumentStore
 	): Promise<TLDataDocumentStore | null> {
-		if (!this.file) {
+		if (!this.fileView.file) {
 			// Bad state
 			throw new Error('File is not set')
 		}
 
-		return this.checkConflictingData(this.file, documentStore)
+		return this.checkConflictingData(this.fileView.file, documentStore)
 			.then((snapshot) => this.loadStore(documentStore, snapshot))
 			.catch((e) => {
 				if (e instanceof TldrawStoreConflictResolveFileUnloaded) {
@@ -64,8 +51,6 @@ export class TldrawView extends BaseTldrawFileView {
 				throw e
 			})
 	}
-
-	clear(): void {}
 
 	/**
 	 * Sets the view to use the {@linkcode documentStore}, and optionally replaces the data with {@linkcode snapshot}.
@@ -92,7 +77,12 @@ export class TldrawView extends BaseTldrawFileView {
 	 * @returns A promise that resolves with undefined, or a snapshot that can be used to replace the contents of the store in {@linkcode documentStore}
 	 */
 	private async checkConflictingData(tFile: TFile, documentStore: TLDataDocumentStore) {
-		if (TldrawStoreExistsIndexedDBModal.ignoreIndexedDBStoreModal(this.app.metadataCache, tFile)) {
+		if (
+			TldrawStoreExistsIndexedDBModal.ignoreIndexedDBStoreModal(
+				this.fileView.app.metadataCache,
+				tFile
+			)
+		) {
 			return
 		}
 		const exists = await TldrawStoreIndexedDB.exists(documentStore.meta.uuid)
@@ -100,5 +90,22 @@ export class TldrawView extends BaseTldrawFileView {
 			return
 		}
 		return TldrawStoreExistsIndexedDBModal.showResolverModal(this, tFile, documentStore)
+	}
+}
+
+export class EditableTldrawView extends EditableFileView {
+	adapter: TldrawView
+	constructor(leaf: WorkspaceLeaf, plugin: TldrawPlugin) {
+		super(leaf)
+		this.adapter = new TldrawView(this, plugin)
+		this.navigation = true
+	}
+
+	override getViewType() {
+		return VIEW_TYPE_TLDRAW
+	}
+
+	override getDisplayText() {
+		return this.file ? this.file.basename : 'NO_FILE'
 	}
 }

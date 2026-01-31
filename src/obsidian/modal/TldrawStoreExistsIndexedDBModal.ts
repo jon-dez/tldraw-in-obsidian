@@ -58,7 +58,7 @@ export default class TldrawStoreExistsIndexedDBModal extends Modal {
 		private readonly res: (snapshot?: StoreSnapshot<TLRecord>) => void,
 		private readonly rej: (reason?: unknown) => void
 	) {
-		super(view.app)
+		super(view.fileView.app)
 
 		view.registerOnUnloadFile(() => {
 			this.close()

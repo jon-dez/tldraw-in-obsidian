@@ -1,4 +1,4 @@
-import { Menu, Notice, TFile, WorkspaceLeaf } from 'obsidian'
+import { FileView, Menu, Notice, TFile, WorkspaceLeaf } from 'obsidian'
 import { TldrawAppProps } from 'src/components/TldrawApp'
 import TldrawPlugin from 'src/main'
 import {
@@ -17,25 +17,9 @@ import { pluginMenuLabel } from './menu'
 export class TldrawReadonlyView extends BaseTldrawFileView {
 	plugin: TldrawPlugin
 
-	constructor(leaf: WorkspaceLeaf, plugin: TldrawPlugin) {
-		super(leaf)
+	constructor(fileView: FileView, plugin: TldrawPlugin) {
+		super(fileView)
 		this.plugin = plugin
-		this.navigation = true
-	}
-
-	getViewType(): string {
-		return VIEW_TYPE_TLDRAW_READ_ONLY
-	}
-
-	getDisplayText(): string {
-		return `[Preview] ${super.getDisplayText()}`
-	}
-
-	onload() {
-		super.onload()
-		this.addAction(TLDRAW_ICON_NAME, 'Edit', async () => {
-			await this.plugin.updateViewMode(VIEW_TYPE_TLDRAW)
-		})
 	}
 
 	isReadOnly() {
@@ -52,24 +36,6 @@ export class TldrawReadonlyView extends BaseTldrawFileView {
 		return documentStore
 	}
 
-	override onPaneMenu(menu: Menu, source: 'more-options' | 'tab-header' | string): void {
-		super.onPaneMenu(menu, source)
-		const { file } = this
-		if (!file) return
-
-		menu
-			.addItem((item) => pluginMenuLabel(item.setSection('tldraw')))
-			.addItem((item) =>
-				item
-					.setIcon('external-link')
-					.setSection('tldraw')
-					.setTitle('Open in default app')
-					.onClick(async () => {
-						await this.app.openWithDefaultApp(file.path)
-					})
-			)
-	}
-
 	override getTldrawOptions(): TldrawAppProps['options'] {
 		return {
 			...super.getTldrawOptions(),
@@ -78,7 +44,7 @@ export class TldrawReadonlyView extends BaseTldrawFileView {
 	}
 
 	override viewAsMarkdownClicked(): void {
-		const { file } = this
+		const { file } = this.fileView
 		if (file !== null && file.path.endsWith(TLDRAW_FILE_EXTENSION)) {
 			this.createAndOpen(file, 'new-tab', 'markdown')
 			return
@@ -93,9 +59,53 @@ export class TldrawReadonlyView extends BaseTldrawFileView {
 			inMarkdown: true,
 			tlStore:
 				// NOTE: Maybe this should be retreiving the current tlStore from the tldraw editor instead of re-reading the file.
-				migrateTldrawFileDataIfNecessary(await this.app.vault.read(tFile)),
+				migrateTldrawFileDataIfNecessary(await this.fileView.app.vault.read(tFile)),
 		})
 		await this.plugin.openTldrFile(newFile, location, viewType)
 		new Notice(`Created a new file for editing "${newFile.path}"`)
+	}
+}
+
+export class ReadonlyTldrawView extends FileView {
+	adapter: TldrawReadonlyView
+
+	constructor(
+		leaf: WorkspaceLeaf,
+		public plugin: TldrawPlugin
+	) {
+		super(leaf)
+		this.adapter = new TldrawReadonlyView(this, plugin)
+		this.navigation = true
+	}
+
+	override getViewType(): string {
+		return VIEW_TYPE_TLDRAW_READ_ONLY
+	}
+
+	override getDisplayText(): string {
+		return `[Preview] ${super.getDisplayText()}`
+	}
+
+	override onload(): void {
+		super.onload()
+		this.addAction(TLDRAW_ICON_NAME, 'Edit', async () => {
+			await this.plugin.updateViewMode(VIEW_TYPE_TLDRAW)
+		})
+	}
+
+	override onPaneMenu(menu: Menu, source: 'more-options' | 'tab-header' | string): void {
+		super.onPaneMenu(menu, source)
+		const { file } = this
+		if (!file) return
+
+		menu
+			.addItem((item) => pluginMenuLabel(item.setSection('tldraw')))
+			.addItem((item) =>
+				item
+					.setIcon('external-link')
+					.setSection('tldraw')
+					.setTitle('Open in default app')
+					.onClick(() => this.app.openWithDefaultApp(file.path))
+			)
 	}
 }

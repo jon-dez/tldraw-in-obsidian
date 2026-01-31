@@ -16,13 +16,13 @@ import { Root } from 'react-dom/client'
 import { Editor, TLDRAW_FILE_EXTENSION, TLStore } from 'tldraw'
 import { createReactStatusBarViewMode } from './components/StatusBarViewMode'
 import createMain from './components/plugin/TldrawInObsidian'
-import { TldrawReadonlyView } from './obsidian/TldrawReadonlyView'
+import { ReadonlyTldrawView } from './obsidian/TldrawReadonlyView'
 import {
 	DEFAULT_SETTINGS,
 	TldrawPluginSettings,
 	TldrawSettingsTab,
 } from './obsidian/TldrawSettingsTab'
-import { TldrawView } from './obsidian/TldrawView'
+import { EditableTldrawView } from './obsidian/TldrawView'
 import { createEmbedTldraw } from './obsidian/components/markdown-render-child'
 import { formatFilePrefix } from './obsidian/file/new'
 import { pluginMenuLabel } from './obsidian/menu'
@@ -99,9 +99,9 @@ export default class TldrawPlugin extends Plugin {
 			instance.dispose()
 		})
 
-		this.registerView(VIEW_TYPE_TLDRAW, (leaf) => new TldrawView(leaf, this))
+		this.registerView(VIEW_TYPE_TLDRAW, (leaf) => new EditableTldrawView(leaf, this))
 
-		this.registerView(VIEW_TYPE_TLDRAW_READ_ONLY, (leaf) => new TldrawReadonlyView(leaf, this))
+		this.registerView(VIEW_TYPE_TLDRAW_READ_ONLY, (leaf) => new ReadonlyTldrawView(leaf, this))
 
 		// settings:
 		await this.settingsManager.loadSettings()

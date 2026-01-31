@@ -10,6 +10,7 @@ import TldrawPlugin from 'src/main'
 import { MARKDOWN_ICON_NAME, VIEW_TYPE_MARKDOWN } from 'src/utils/constants'
 import { TLDataDocumentStore } from 'src/utils/document'
 import { parseDeepLinkString, TLDeepLink } from 'tldraw'
+import { intercept, Interceptor, MethodKeys } from '../utils/decorators/methods'
 import TldrawAssetsModal from './modal/TldrawAssetsModal'
 
 export interface DataUpdate {
@@ -17,12 +18,21 @@ export interface DataUpdate {
 	saveFile(): Promise<void>
 }
 
+export function interceptFileViewMethod<
+	TMethod extends MethodKeys<FileView>,
+	TMethodArgs extends any[],
+	TMethodReturn,
+>(method: TMethod, interceptor: Interceptor<FileView, TMethod, TMethodArgs, TMethodReturn>) {
+	return intercept((instance: BaseTldrawFileView) => instance.fileView, method, interceptor)
+}
+
 /**
- * Implements overrides for {@linkcode FileView.onload} and {@linkcode FileView.onunload}.
+ * Implements overrides for {@linkcode FileView} by intercepting its methods.
+ * We do this to mixin specific behavior into subclasses of FileView.
  *
  * #NOTE: may need to embed the react root in an iframe so that the right click context menus are positioned within the frame, and not partially hidden.
  */
-export abstract class BaseTldrawFileView extends FileView {
+export abstract class BaseTldrawFileView<View extends FileView = FileView> {
 	abstract plugin: TldrawPlugin
 
 	#reactRoot?: Root
@@ -37,8 +47,10 @@ export abstract class BaseTldrawFileView extends FileView {
 	messagesEl?: HTMLElement
 	onMessagesClick?: (evt: MouseEvent) => void
 
+	constructor(public fileView: View) {}
+
 	private getTldrawContainer() {
-		return this.contentEl
+		return this.fileView.contentEl
 	}
 
 	protected abstract isReadOnly(): boolean
@@ -52,17 +64,24 @@ export abstract class BaseTldrawFileView extends FileView {
 	 * Adds the entry point `tldraw-view-content` for the {@linkcode #reactRoot},
 	 * and the "View as markdown" action button.
 	 */
-	override onload(): void {
-		super.onload()
-		this.contentEl.addClass('tldraw-view-content')
+	@interceptFileViewMethod('onload', (original, thisMethod) => {
+		return (...args) => {
+			original(...args)
+			thisMethod()
+		}
+	})
+	onload(): void {
+		this.fileView.contentEl.addClass('tldraw-view-content')
 
 		this.#unregisterOnWindowMigrated?.()
-		this.#unregisterOnWindowMigrated = this.contentEl.onWindowMigrated(() => {
+		this.#unregisterOnWindowMigrated = this.fileView.contentEl.onWindowMigrated(() => {
 			this.refreshView()
 		})
 
-		this.addAction(MARKDOWN_ICON_NAME, 'View as markdown', () => this.viewAsMarkdownClicked())
-		this.messagesEl = this.addAction('message-square', 'View messages', (evt) =>
+		this.fileView.addAction(MARKDOWN_ICON_NAME, 'View as markdown', () =>
+			this.viewAsMarkdownClicked()
+		)
+		this.messagesEl = this.fileView.addAction('message-square', 'View messages', (evt) =>
 			this.onMessagesClick?.(evt)
 		)
 	}
@@ -70,15 +89,30 @@ export abstract class BaseTldrawFileView extends FileView {
 	/**
 	 * Removes the previously added entry point `tldraw-view-content`, and unmounts {@linkcode #reactRoot}.
 	 */
-	override onunload(): void {
+	@interceptFileViewMethod('onunload', (original, thisMethod) => {
+		return (...args) => {
+			original(...args)
+			thisMethod()
+		}
+	})
+	onunload(): void {
 		this.#unregisterOnWindowMigrated?.()
-		this.contentEl.removeClass('tldraw-view-content')
+		this.fileView.contentEl.removeClass('tldraw-view-content')
 		this.unmountReactRoot()
-		super.onunload()
 	}
 
+	/**
+	 * Intercepts the {@linkcode FileView.onLoadFile} method to add the ability to load the file and initialize the store.
+	 * @returns
+	 */
+	@interceptFileViewMethod('onLoadFile', (original, thisMethod) => {
+		return async (...args) => {
+			await thisMethod(...args)
+			return original(...args)
+		}
+	})
 	async onLoadFile(file: TFile): Promise<void> {
-		const fileData = await this.app.vault.read(file)
+		const fileData = await this.fileView.app.vault.read(file)
 
 		const storeInstance = this.plugin.tlDataDocumentStoreManager.register(
 			file,
@@ -91,7 +125,7 @@ export abstract class BaseTldrawFileView extends FileView {
 					getData: () => newFileData,
 					saveFile: () => {
 						// TODO: Check if the implementation is similar to TextFileView.save()
-						return this.app.vault.modify(file, newFileData)
+						return this.fileView.app.vault.modify(file, newFileData)
 					},
 				})
 			},
@@ -118,7 +152,7 @@ export abstract class BaseTldrawFileView extends FileView {
 		const processedStore = await this.processStore(storeInstance.documentStore)
 
 		if (!processedStore) {
-			this.unload()
+			this.fileView.unload()
 			return
 		}
 
@@ -136,17 +170,28 @@ export abstract class BaseTldrawFileView extends FileView {
 		documentStore: TLDataDocumentStore
 	): Promise<TLDataDocumentStore | null>
 
-	override onUnloadFile(file: TFile): Promise<void> {
+	@interceptFileViewMethod('onUnloadFile', (original, thisMethod) => {
+		return async (...args) => {
+			await thisMethod()
+			return original(...args)
+		}
+	})
+	async onUnloadFile(): Promise<void> {
 		const callbacks = [...this.#onUnloadCallbacks]
 		this.#onUnloadCallbacks = []
 		callbacks.forEach((e) => e())
-		return super.onUnloadFile(file)
 	}
 
 	public registerOnUnloadFile(cb: () => void) {
 		this.#onUnloadCallbacks.push(cb)
 	}
 
+	@interceptFileViewMethod('setEphemeralState', (original, thisMethod) => {
+		return (...args) => {
+			original(...args)
+			thisMethod(...args)
+		}
+	})
 	setEphemeralState(state: unknown): void {
 		// If a deep link is present when the document is opened, set the deeplink variable so the editor is opened at the deep link.
 		if (
@@ -160,7 +205,7 @@ export abstract class BaseTldrawFileView extends FileView {
 				this.#deepLink = parseDeepLinkString(tldrawDeepLink)
 				return
 			} catch (e) {
-				console.error('Unable to parse deeplink:', tldrawDeepLink)
+				console.error('Unable to parse deeplink:', tldrawDeepLink, e)
 			}
 		}
 	}
@@ -171,7 +216,7 @@ export abstract class BaseTldrawFileView extends FileView {
 				InFrontOfTheCanvas,
 			},
 			onEditorMount: (editor) => {
-				const viewState = this.getEphemeralState()
+				const viewState = this.fileView.getEphemeralState()
 				console.log(this.#deepLink)
 				console.log({ viewState })
 				if (this.#deepLink) {
@@ -211,8 +256,8 @@ export abstract class BaseTldrawFileView extends FileView {
 		this.#unregisterViewAssetsActionCallback?.()
 		if (!storeProps) return
 
-		const viewAssetsAction = this.addAction('library', 'View assets', () => {
-			const assetsModal = new TldrawAssetsModal(this.app, storeProps, this.file)
+		const viewAssetsAction = this.fileView.addAction('library', 'View assets', () => {
+			const assetsModal = new TldrawAssetsModal(this.fileView.app, storeProps, this.fileView.file)
 			assetsModal.open()
 			this.registerOnUnloadFile(() => assetsModal.close())
 		})
