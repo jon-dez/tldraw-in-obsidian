@@ -1,5 +1,5 @@
 import { Notice, TFile, TFolder } from 'obsidian'
-import React, { ComponentProps, memo, useCallback, useMemo, useSyncExternalStore } from 'react'
+import React, { ComponentProps, memo, useCallback, useMemo, useState, useSyncExternalStore } from 'react'
 import useSettingsManager from 'src/hooks/useSettingsManager'
 import useUserPluginSettings from 'src/hooks/useUserPluginSettings'
 import DownloadManagerModal from 'src/obsidian/modal/DownloadManagerModal'
@@ -15,7 +15,9 @@ import FontsSettingsManager from 'src/obsidian/settings/FontsSettingsManager'
 import IconsSettingsManager from 'src/obsidian/settings/IconsSettingsManager'
 import { FontTypes, IconNames } from 'src/types/tldraw'
 import { DownloadInfo } from 'src/utils/fetch/download'
-import Setting from './Setting'
+import { Setting, Group } from '@obsidian-plugin-toolkit/react/components/setting/group'
+import { Container } from '@obsidian-plugin-toolkit/react'
+import { Text, ExtraButton, Button, Modal } from '@obsidian-plugin-toolkit/react/components'
 
 function AssetsSettingsGroup({ downloadAll }: { downloadAll: () => void }) {
 	const settingsManager = useSettingsManager()
@@ -24,7 +26,7 @@ function AssetsSettingsGroup({ downloadAll }: { downloadAll: () => void }) {
 		<>
 			<Setting
 				slots={{
-					name: 'Offline assets',
+					name: 'All assets download',
 					desc: (
 						<>
 							{'Download all assets for offline use'}
@@ -35,7 +37,7 @@ function AssetsSettingsGroup({ downloadAll }: { downloadAll: () => void }) {
 					),
 					control: (
 						<>
-							<Setting.Button onClick={downloadAll}>Download all</Setting.Button>
+							<Button onClick={downloadAll}>Download all</Button>
 						</>
 					),
 				}}
@@ -51,7 +53,7 @@ function FontAssetsSettingsGroup({ downloadAll }: { downloadAll: () => void }) {
 		<>
 			<Setting
 				slots={{
-					name: 'Offline fonts',
+					name: 'Fonts download',
 					desc: (
 						<>
 							{'Download all fonts for offline use'}
@@ -62,7 +64,7 @@ function FontAssetsSettingsGroup({ downloadAll }: { downloadAll: () => void }) {
 					),
 					control: (
 						<>
-							<Setting.Button onClick={downloadAll}>Download all</Setting.Button>
+							<Button onClick={downloadAll}>Download all</Button>
 						</>
 					),
 				}}
@@ -82,7 +84,7 @@ function IconAssetsSettingsGroup({
 		<>
 			<Setting
 				slots={{
-					name: 'Offline icons',
+					name: 'Icons download',
 					desc: (
 						<>
 							{'Download all icons for offline use'}
@@ -93,7 +95,7 @@ function IconAssetsSettingsGroup({
 					),
 					control: (
 						<>
-							<Setting.Button onClick={downloadAll}>Download all</Setting.Button>
+							<Button onClick={downloadAll}>Download all</Button>
 						</>
 					),
 				}}
@@ -103,11 +105,13 @@ function IconAssetsSettingsGroup({
 }
 
 const MemoAssetsSettingsGroup = memo(
-	({ downloadAll }: Pick<ComponentProps<typeof AssetsSettingsGroup>, 'downloadAll'>) => (
-		<Setting.Container>
-			<AssetsSettingsGroup downloadAll={downloadAll} />
-		</Setting.Container>
-	)
+	function MemoAssetsSettingsGroup({ downloadAll }: Pick<ComponentProps<typeof AssetsSettingsGroup>, 'downloadAll'>) {
+		return (
+			<>
+				<AssetsSettingsGroup downloadAll={downloadAll} />
+			</>
+		)
+	}
 )
 
 function FontOverrideSetting({
@@ -166,14 +170,14 @@ function FontOverrideSetting({
 					),
 					control: (
 						<>
-							<Setting.Text value={current ?? ''} placeholder="[ DEFAULT ]" readonly={true} />
-							<Setting.Button icon={'file-search'} onClick={onFileSearchClick} />
-							<Setting.ExtraButton
+							<Text value={current ?? ''} placeholder="[ DEFAULT ]" readonly={true} />
+							<Button icon={'file-search'} onClick={onFileSearchClick} />
+							<ExtraButton
 								icon={'download'}
 								tooltip={`Download from ${fontConfig.url}`}
 								onClick={download}
 							/>
-							<Setting.ExtraButton
+							<ExtraButton
 								icon={'rotate-ccw'}
 								tooltip={'Use default'}
 								disabled={!current}
@@ -214,46 +218,55 @@ const fontOverrideSettingProps = [
 	appearsAs: string
 }[]
 
+// eslint-disable-next-line react/display-name
 const MemoFontAssetsSettingsGroup = memo(
 	({
-		downloadAll,
 		downloadFont,
 		manager,
 	}: {
-		downloadAll: () => void
 		downloadFont: (font: FontTypes, config: DownloadInfo) => void
 		manager: FontsSettingsManager
-	}) => (
-		<>
-			<Setting.Container>
-				<FontAssetsSettingsGroup downloadAll={downloadAll} />
-			</Setting.Container>
-			<h2>Font assets overrides</h2>
-			{fontOverrideSettingProps.map((props) => (
-				<Setting.Container className="ptl-settings-font-group" key={props.group}>
-					<Setting
-						slots={{
-							name: <h3>{props.name}</h3>,
-							desc: `Appears as "${props.appearsAs}" in the style panel.`,
-						}}
-					>
-						{Object.keys(defaultFonts)
-							.filter((key) => key.includes(props.group))
-							.map((key) => (
-								<FontOverrideSetting
-									key={key}
-									downloadFont={downloadFont}
-									manager={manager}
-									font={key as keyof typeof defaultFonts}
-								/>
-							))}
-					</Setting>
-				</Setting.Container>
-			))}
-		</>
-	)
+	}) => {
+		return (
+			<>
+				<Group heading='Font assets overrides'>
+					{fontOverrideSettingProps.map(({ group, name, appearsAs }) => (
+						<Setting
+							key={group}
+							slots={{
+								name: name,
+								desc: `Appears as "${appearsAs}" in the style panel.`,
+								control: <FontOverrideSettingGroup group={group} manager={manager} downloadFont={downloadFont} />,
+							}} />
+					))}
+				</Group>
+			</>
+		)
+	}
 )
 
+function FontOverrideSettingGroup({ group, manager, downloadFont }: { group: FontGroupMatcher, manager: FontsSettingsManager, downloadFont: (font: FontTypes, config: DownloadInfo) => void }) {
+	const [isOpen, setIsOpen] = useState(false)
+	return (
+		<>
+			<Button onClick={() => setIsOpen(true)}>Manage overrides</Button>
+			<Modal key={group} modalProps={manager.plugin} open={isOpen} onClose={() => setIsOpen(false)}>
+				<Group heading={`Font overrides for ${group}`}>
+					{Object.keys(defaultFonts)
+						.filter((key) => key.includes(group))
+						.map((key) => (
+							<FontOverrideSetting
+								key={key}
+								downloadFont={downloadFont}
+								manager={manager}
+								font={key as keyof typeof defaultFonts}
+							/>
+						))}
+				</Group>
+			</Modal>
+		</>
+	)
+}
 function IconSetSetting({ manager }: { manager: IconsSettingsManager }) {
 	const onFileSearchClick = useCallback(() => {
 		new FileSearchModal(manager.plugin, {
@@ -291,8 +304,8 @@ function IconSetSetting({ manager }: { manager: IconsSettingsManager }) {
 					desc: 'Select a folder to load an icon set from. This option will only update an override if an icon name in the provided folder matches one of the names below.',
 					control: (
 						<>
-							<Setting.Button icon={'file-search'} onClick={onFileSearchClick} />
-							<Setting.ExtraButton
+							<Button icon={'file-search'} onClick={onFileSearchClick} />
+							<ExtraButton
 								icon={'rotate-ccw'}
 								tooltip={'Clear all overrides'}
 								onClick={clearAllOverrides}
@@ -362,14 +375,14 @@ function IconOverrideSetting({
 					),
 					control: (
 						<>
-							<Setting.Text value={current ?? ''} placeholder="[ DEFAULT ]" readonly={true} />
-							<Setting.Button icon={'file-search'} onClick={onFileSearchClick} />
-							<Setting.ExtraButton
+							<Text value={current ?? ''} placeholder="[ DEFAULT ]" readonly={true} />
+							<Button icon={'file-search'} onClick={onFileSearchClick} />
+							<ExtraButton
 								icon={'download'}
 								tooltip={`Download from ${iconConfig.url}`}
 								onClick={download}
 							/>
-							<Setting.ExtraButton
+							<ExtraButton
 								icon={'rotate-ccw'}
 								tooltip={'Use default'}
 								disabled={!current}
@@ -384,39 +397,47 @@ function IconOverrideSetting({
 }
 
 const MemoIconAssetsSettingsGroup = memo(
-	({
-		downloadAll,
+	function MemoIconAssetsSettingsGroup({
 		downloadIcon,
 		manager,
 	}: {
-		downloadAll: () => void
 		downloadIcon: (icon: IconNames, config: DownloadInfo) => void
 		manager: IconsSettingsManager
-	}) => (
-		<>
-			<Setting.Container>
-				<IconAssetsSettingsGroup downloadAll={downloadAll} manager={manager} />
-			</Setting.Container>
-			<h2>Icon assets overrides</h2>
-			<Setting.Container>
-				<IconSetSetting manager={manager} />
-			</Setting.Container>
-			<h2>Individual icon overrides</h2>
-			<p>
-				Click an icon name to view the default in your web browser. All of the default icons are
-				available to browse on{' '}
-				<a href={`https://github.com/tldraw/tldraw/tree/v${TLDRAW_VERSION}/assets/icons/icon`}>
-					{"tldraw's GitHub repository"}
-				</a>
-				.
-			</p>
-			<Setting.Container>
-				{iconTypes.map((e) => (
-					<IconOverrideSetting key={e} icon={e} manager={manager} downloadIcon={downloadIcon} />
-				))}
-			</Setting.Container>
-		</>
-	)
+	}) {
+		const [isOpen, setIsOpen] = useState(false)
+		return (
+			<>
+				<Container>
+					<IconSetSetting manager={manager} />
+				</Container>
+				<Setting slots={{
+					name: 'Individual icon overrides',
+					desc: (
+						<>
+							Click an icon name to view the default in your web browser. All of the default icons are
+							available to browse on{' '}
+							<a href={`https://github.com/tldraw/tldraw/tree/v${TLDRAW_VERSION}/assets/icons/icon`}>
+								{"tldraw's GitHub repository"}
+							</a>
+							.
+						</>
+					),
+					control: (
+						<>
+							<Button onClick={() => setIsOpen(true)}>Manage overrides</Button>
+							<Modal modalProps={manager.plugin} open={isOpen} onClose={() => setIsOpen(false)}>
+								<Group heading={`Icon overrides`}>
+									{iconTypes.map((e) => (
+										<IconOverrideSetting key={e} icon={e} manager={manager} downloadIcon={downloadIcon} />
+									))}
+								</Group>
+							</Modal>
+						</>
+					),
+				}} />
+			</>
+		)
+	}
 )
 
 export default function AssetsSettings() {
@@ -468,19 +489,21 @@ export default function AssetsSettings() {
 
 	return (
 		<>
-			<MemoAssetsSettingsGroup downloadAll={downloadAll} />
-			<h2>Fonts</h2>
+			<Group heading='Download assets'>
+				<MemoAssetsSettingsGroup downloadAll={downloadAll} />
+				<FontAssetsSettingsGroup downloadAll={downloadAllFonts} />
+				<IconAssetsSettingsGroup downloadAll={downloadAllIcons} manager={assetManagers.icons} />
+			</Group>
 			<MemoFontAssetsSettingsGroup
-				downloadAll={downloadAllFonts}
 				downloadFont={downloadFont}
 				manager={assetManagers.fonts}
 			/>
-			<h2>Icons</h2>
-			<MemoIconAssetsSettingsGroup
-				downloadAll={downloadAllIcons}
-				downloadIcon={downloadIcon}
-				manager={assetManagers.icons}
-			/>
+			<Group heading='Icons'>
+				<MemoIconAssetsSettingsGroup
+					downloadIcon={downloadIcon}
+					manager={assetManagers.icons}
+				/>
+			</Group>
 		</>
 	)
 }

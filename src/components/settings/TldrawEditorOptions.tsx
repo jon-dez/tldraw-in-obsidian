@@ -3,7 +3,8 @@ import useSettingsManager from 'src/hooks/useSettingsManager'
 import useUserPluginSettings from 'src/hooks/useUserPluginSettings'
 import { defaultTldrawOptions } from 'tldraw'
 import CameraOptionsSettings from './CameraOptionsSettings'
-import Setting from './Setting'
+import { Group, Setting } from '@obsidian-plugin-toolkit/react/components/setting/group'
+import { Text, ExtraButton, Toggle } from '@obsidian-plugin-toolkit/react/components'
 
 function TldrawEditorOptionsGroup() {
 	const settingsManager = useSettingsManager()
@@ -41,12 +42,12 @@ function TldrawEditorOptionsGroup() {
 					desc: 'The delay for the laser tool in milliseconds.',
 					control: (
 						<>
-							<Setting.Text
+							<Text
 								value={`${settings.tldrawOptions?.laserDelayMs ?? ''}`}
 								placeholder={`${defaultTldrawOptions.laserDelayMs}`}
 								onChange={onLaserDelayMsChange}
 							/>
-							<Setting.ExtraButton icon={'reset'} tooltip={'reset'} onClick={resetLaserDelayMs} />
+							<ExtraButton icon={'reset'} tooltip={'reset'} onClick={resetLaserDelayMs} />
 						</>
 					),
 				}}
@@ -57,11 +58,11 @@ function TldrawEditorOptionsGroup() {
 					desc: 'Keep the laser delay lingering after stopping the laser tool.',
 					control: (
 						<>
-							<Setting.Toggle
+							<Toggle
 								value={!!settings.tldrawOptions?.laserKeepDelayAfterStop}
 								onChange={onLaserKeepDelay}
 							/>
-							<Setting.ExtraButton icon={'reset'} tooltip={'reset'} onClick={resetLaserKeepDelay} />
+							<ExtraButton icon={'reset'} tooltip={'reset'} onClick={resetLaserKeepDelay} />
 						</>
 					),
 				}}
@@ -97,11 +98,11 @@ function ClipboardOptionsGroup() {
 					),
 					control: (
 						<>
-							<Setting.Toggle
+							<Toggle
 								value={!!settings.clipboard?.pasteAtCursor}
 								onChange={onPasteAtCursor}
 							/>
-							<Setting.ExtraButton icon={'reset'} tooltip={'reset'} onClick={resetPasteAtCursor} />
+							<ExtraButton icon={'reset'} tooltip={'reset'} onClick={resetPasteAtCursor} />
 						</>
 					),
 				}}
@@ -113,18 +114,15 @@ function ClipboardOptionsGroup() {
 export default function TldrawEditorOptions() {
 	return (
 		<>
-			<h2>Clipboard options</h2>
-			<Setting.Container>
+			<Group heading='Clipboard options'>
 				<ClipboardOptionsGroup />
-			</Setting.Container>
-			<h2>Pointer options</h2>
-			<Setting.Container>
+			</Group>
+			<Group heading='Pointer options'>
 				<TldrawEditorOptionsGroup />
-			</Setting.Container>
-			<h2>Camera options</h2>
-			<Setting.Container>
+			</Group>
+			<Group heading='Camera options'>
 				<CameraOptionsSettings />
-			</Setting.Container>
+			</Group>
 		</>
 	)
 }

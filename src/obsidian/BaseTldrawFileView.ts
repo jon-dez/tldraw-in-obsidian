@@ -22,7 +22,7 @@ export function interceptFileViewMethod<
 	TMethod extends MethodKeys<FileView>,
 	TMethodArgs extends any[],
 	TMethodReturn,
->(method: TMethod, interceptor: Interceptor<FileView, TMethod, TMethodArgs, TMethodReturn>) {
+>(method: TMethod, interceptor: Interceptor<BaseTldrawFileView, FileView, TMethod, TMethodArgs, TMethodReturn>) {
 	return intercept((instance: BaseTldrawFileView) => instance.fileView, method, interceptor)
 }
 

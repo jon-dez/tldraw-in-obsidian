@@ -90,6 +90,7 @@ export default class TldrawPlugin extends Plugin {
 	}
 
 	async onload() {
+		super.onload()
 		const instance = (this.#instance = new TldrawInObsidianPluginInstance(this.app))
 
 		this.register(() => {
@@ -176,6 +177,7 @@ export default class TldrawPlugin extends Plugin {
 		this.statusBarViewModeReactRoot.unmount()
 		URL.revokeObjectURL(this.embedBoundsSelectorIcon)
 		this.#instance = undefined
+		super.onunload()
 	}
 
 	private registerEvents() {

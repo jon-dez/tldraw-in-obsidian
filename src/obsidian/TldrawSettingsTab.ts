@@ -198,9 +198,14 @@ export class TldrawSettingsTab extends PluginSettingTab {
 		this.plugin = plugin
 	}
 
+	#resetRoot() {
+		this.#root?.unmount()
+		this.#root = undefined
+	}
+
 	display(): void {
 		const { containerEl } = this
-		this.#root?.unmount()
+		this.#resetRoot()
 		const root = (this.#root = createRoot(containerEl))
 		root.render(
 			createElement(TldrawSettingsTabView, {
@@ -211,6 +216,6 @@ export class TldrawSettingsTab extends PluginSettingTab {
 
 	hide() {
 		super.hide()
-		this.#root?.unmount()
+		this.#resetRoot()
 	}
 }

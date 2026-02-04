@@ -1,9 +1,10 @@
 import React, { useCallback } from 'react'
 import useSettingsManager from 'src/hooks/useSettingsManager'
 import useUserPluginSettings from 'src/hooks/useUserPluginSettings'
-import Setting from './Setting'
+import { Setting, Group } from '@obsidian-plugin-toolkit/react/components/setting/group'
+import { Text, Toggle } from '@obsidian-plugin-toolkit/react/components'
 
-function EmbedsSettingsGroup() {
+function EmbedsAppearanceGroup() {
 	const settingsManager = useSettingsManager()
 	const settings = useUserPluginSettings(settingsManager)
 
@@ -43,7 +44,7 @@ function EmbedsSettingsGroup() {
 					desc: 'The amount of padding to use by default for each embed image preview. This must be a non-negative number.',
 					control: (
 						<>
-							<Setting.Text value={`${settings.embeds.padding}`} onChange={onPaddingChange} />
+							<Text value={`${settings.embeds.padding}`} onChange={onPaddingChange} />
 						</>
 					),
 				}}
@@ -54,7 +55,7 @@ function EmbedsSettingsGroup() {
 					desc: 'Whether to show the background for a markdown embed by default',
 					control: (
 						<>
-							<Setting.Toggle value={settings.embeds.showBg} onChange={onShowBgChange} />
+							<Toggle value={settings.embeds.showBg} onChange={onShowBgChange} />
 						</>
 					),
 				}}
@@ -65,7 +66,7 @@ function EmbedsSettingsGroup() {
 					desc: 'Whether to show the background dotted pattern for a markdown embed by default',
 					control: (
 						<>
-							<Setting.Toggle value={settings.embeds.showBgDots} onChange={onShowBgDotsChange} />
+							<Toggle value={settings.embeds.showBgDots} onChange={onShowBgDotsChange} />
 						</>
 					),
 				}}
@@ -77,9 +78,9 @@ function EmbedsSettingsGroup() {
 export default function EmbedsSettings() {
 	return (
 		<>
-			<Setting.Container>
-				<EmbedsSettingsGroup />
-			</Setting.Container>
+			<Group heading='Appearance'>
+				<EmbedsAppearanceGroup />
+			</Group>
 		</>
 	)
 }

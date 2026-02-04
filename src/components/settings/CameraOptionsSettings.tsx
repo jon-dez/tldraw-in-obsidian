@@ -1,7 +1,8 @@
 import React, { useCallback, useMemo } from 'react'
 import useSettingsManager from 'src/hooks/useSettingsManager'
 import useUserPluginSettings from 'src/hooks/useUserPluginSettings'
-import Setting from './Setting'
+import { Setting } from '@obsidian-plugin-toolkit/react/components/setting/group'
+import { Dropdown } from '@obsidian-plugin-toolkit/react/components'
 
 export default function CameraOptionsSettings() {
 	const settingsManager = useSettingsManager()
@@ -32,16 +33,19 @@ export default function CameraOptionsSettings() {
 			<Setting
 				slots={{
 					name: <>Pan speed</>,
+					desc: 'Note: This setting is not yet implemented.',
 				}}
 			/>
 			<Setting
 				slots={{
 					name: <>Zoom speed</>,
+					desc: 'Note: This setting is not yet implemented.',
 				}}
 			/>
 			<Setting
 				slots={{
 					name: <>Zoom steps</>,
+					desc: 'Note: This setting is not yet implemented.',
 				}}
 			/>
 			<Setting
@@ -55,7 +59,7 @@ export default function CameraOptionsSettings() {
 					),
 					control: (
 						<>
-							<Setting.Dropdown
+							<Dropdown
 								options={wheelBehaviorOptions}
 								value={settings.cameraOptions?.wheelBehavior ?? 'pan'}
 								onChange={onWheelBehaviorChange}

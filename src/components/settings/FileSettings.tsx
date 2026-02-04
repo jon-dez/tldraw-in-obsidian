@@ -23,7 +23,8 @@ import {
 } from 'src/utils/constants'
 import { pathBasenameNoExt } from 'src/utils/path'
 import { clamp, msToSeconds } from 'src/utils/utils'
-import Setting from './Setting'
+import { Dropdown, Text, Toggle, ExtraButton, MomentFormat } from '@obsidian-plugin-toolkit/react/components'
+import { Setting, Group } from '@obsidian-plugin-toolkit/react/components/setting/group'
 
 const DEFAULT_TAGS = ['tldraw']
 
@@ -112,24 +113,6 @@ function FileSettingsGroup() {
 		[settingsManager]
 	)
 
-	const defaultDelay = msToSeconds(DEFAULT_SAVE_DELAY)
-	const minDelay = msToSeconds(MIN_SAVE_DELAY)
-	const maxDelay = msToSeconds(MAX_SAVE_DELAY)
-
-	const onSaveFileDelayChanged = useCallback(
-		async (value: string) => {
-			const parsedValue = parseFloat(value)
-			if (isNaN(parsedValue) && value) return
-			settingsManager.settings.saveFileDelay = clamp(
-				parsedValue || defaultDelay,
-				minDelay,
-				maxDelay
-			)
-			await settingsManager.updateSettings(settingsManager.settings)
-		},
-		[settingsManager]
-	)
-
 	return (
 		<>
 			<Setting
@@ -138,12 +121,12 @@ function FileSettingsGroup() {
 					desc: <FileDestinationMethodDesc method={settings.fileDestinations.destinationMethod} />,
 					control: (
 						<>
-							<Setting.Dropdown
+							<Dropdown
 								options={destinationMethodsRecord}
 								value={settings.fileDestinations.destinationMethod}
 								onChange={updateDestinationMethod}
 							/>
-							<Setting.ExtraButton icon={'reset'} onClick={resetDestinationMethod} />
+							<ExtraButton icon={'reset'} onClick={resetDestinationMethod} />
 						</>
 					),
 				}}
@@ -154,7 +137,7 @@ function FileSettingsGroup() {
 					desc: 'The folder to use when using the colocation destination. Leave this blank to use the same folder as the current active file.',
 					control: (
 						<>
-							<Setting.Text
+							<Text
 								value={settings.fileDestinations.colocationSubfolder}
 								onChange={onColocationSubfolderChanged}
 							/>
@@ -165,12 +148,11 @@ function FileSettingsGroup() {
 			<Setting
 				slots={{
 					name: 'Default folder',
-					desc: `The folder to create new tldraw files in when the destination method is set to ${
-						destinationMethodsRecord['default-folder']
-					}, and the folder to show when the "Confirm destination" option is toggled.`,
+					desc: `The folder to create new tldraw files in when the destination method is set to ${destinationMethodsRecord['default-folder']
+						}, and the folder to show when the "Confirm destination" option is toggled.`,
 					control: (
 						<>
-							<Setting.Text
+							<Text
 								placeholder="root"
 								value={settings.fileDestinations.defaultFolder}
 								onChange={onDefaultFolderChanged}
@@ -185,31 +167,9 @@ function FileSettingsGroup() {
 					desc: 'Show a pop-up modal that allows confirming or editing the destination and choosing another destination method.',
 					control: (
 						<>
-							<Setting.Toggle
+							<Toggle
 								value={settings.fileDestinations.confirmDestination}
 								onChange={onConfirmDestinationChanged}
-							/>
-						</>
-					),
-				}}
-			/>
-			<Setting
-				slots={{
-					name: 'Save delay',
-					desc: (
-						<>
-							{`The delay in seconds to automatically save after a change has been made to a tlraw drawing. Must be a value between ${minDelay} and ${maxDelay} (1 hour). Requires reloading any tldraw files you may have open in a tab.`}
-							<code className="ptl-default-code">
-								{`DEFAULT: [${DEFAULT_SETTINGS.saveFileDelay}]`}
-							</code>
-						</>
-					),
-					control: (
-						<>
-							<Setting.Text
-								placeholder={`${defaultDelay}`}
-								value={`${settings.saveFileDelay}`}
-								onChange={onSaveFileDelayChanged}
 							/>
 						</>
 					),
@@ -311,7 +271,7 @@ function NewFilePrefix({ settingsManager }: { settingsManager: UserSettingsManag
 					),
 					control: (
 						<>
-							<Setting.Text
+							<Text
 								placeholder="Prefix"
 								value={settings.newFilePrefix}
 								onChange={onPrefixChanged}
@@ -356,14 +316,14 @@ function NewFileTimeFormat({ settingsManager }: { settingsManager: UserSettingsM
 					),
 					control: (
 						<>
-							<Setting.MomentFormat
+							<MomentFormat
 								defaultFormat={DEFAULT_SETTINGS.newFileTimeFormat}
 								placeholder={DEFAULT_SETTINGS.newFileTimeFormat}
 								value={settings.newFileTimeFormat}
 								sampleEl={sampleEl ?? undefined}
 								onChange={onChange}
 							/>
-							<Setting.ExtraButton icon={'reset'} tooltip={'reset'} onClick={onResetClick} />
+							<ExtraButton icon={'reset'} tooltip={'reset'} onClick={onResetClick} />
 						</>
 					),
 				}}
@@ -477,12 +437,6 @@ function FrontmatterSettingsGroup() {
 		<>
 			<Setting
 				slots={{
-					name: 'Frontmatter',
-				}}
-				heading={true}
-			/>
-			<Setting
-				slots={{
 					name: 'Alternative frontmatter key',
 					desc: (
 						<>
@@ -493,12 +447,12 @@ function FrontmatterSettingsGroup() {
 					),
 					control: (
 						<>
-							<Setting.Text
+							<Text
 								value={settings.file?.altFrontmatterKey}
 								placeholder={FRONTMATTER_KEY}
 								onChange={updateFrontmatterKey}
 							/>
-							<Setting.ExtraButton icon={'reset'} onClick={resetFrontmatterKey} />
+							<ExtraButton icon={'reset'} onClick={resetFrontmatterKey} />
 						</>
 					),
 				}}
@@ -516,7 +470,7 @@ function FrontmatterSettingsGroup() {
 					),
 					control: (
 						<>
-							<Setting.Toggle
+							<Toggle
 								value={settings.file?.insertTags ?? DEFAULT_SETTINGS.file.insertTags}
 								onChange={onInsertTags}
 							/>
@@ -554,32 +508,30 @@ function FrontmatterSettingsGroup() {
 					),
 				}}
 			/>
-			<Setting.Container>
-				<Setting
-					slots={{
-						name: 'New tag',
-						desc: (
-							<>
-								{!frontmatterTagValue.length || !isInvalidFrontmatterTag ? undefined : (
-									<>
-										<p style={{ color: 'red' }}>Invalid frontmatter tag</p>
-									</>
-								)}
-							</>
-						),
-						control: (
-							<>
-								<Setting.Text
-									value={frontmatterTagValue}
-									placeholder={'custom-tag'}
-									onChange={setFrontmatterTagValue}
-								/>
-								<Setting.ExtraButton icon={'plus-circle'} onClick={addFrontmatterTag} />
-							</>
-						),
-					}}
-				/>
-			</Setting.Container>
+			<Setting
+				slots={{
+					name: 'New tag',
+					desc: (
+						<>
+							{!frontmatterTagValue.length || !isInvalidFrontmatterTag ? undefined : (
+								<>
+									<p style={{ color: 'red' }}>Invalid frontmatter tag</p>
+								</>
+							)}
+						</>
+					),
+					control: (
+						<>
+							<Text
+								value={frontmatterTagValue}
+								placeholder={'custom-tag'}
+								onChange={setFrontmatterTagValue}
+							/>
+							<ExtraButton icon={'plus-circle'} onClick={addFrontmatterTag} />
+						</>
+					),
+				}}
+			/>
 		</>
 	)
 }
@@ -598,13 +550,66 @@ function IconButton({
 	return <div ref={setRef} {...rest} />
 }
 
+function SaveDelaySettings() {
+	const settingsManager = useSettingsManager()
+	const settings = useUserPluginSettings(settingsManager)
+
+	const defaultDelay = msToSeconds(DEFAULT_SAVE_DELAY)
+	const minDelay = msToSeconds(MIN_SAVE_DELAY)
+	const maxDelay = msToSeconds(MAX_SAVE_DELAY)
+
+	const onSaveFileDelayChanged = useCallback(
+		async (value: string) => {
+			const parsedValue = parseFloat(value)
+			if (isNaN(parsedValue) && value) return
+			settingsManager.settings.saveFileDelay = clamp(
+				parsedValue || defaultDelay,
+				minDelay,
+				maxDelay
+			)
+			await settingsManager.updateSettings(settingsManager.settings)
+		},
+		[settingsManager]
+	)
+
+	return (
+		<Setting
+			slots={{
+				name: 'Save delay',
+				desc: (
+					<>
+						{`The delay in seconds to automatically save after a change has been made to a tlraw drawing. Must be a value between ${minDelay} and ${maxDelay} (1 hour). Requires reloading any tldraw files you may have open in a tab.`}
+						<code className="ptl-default-code">
+							{`DEFAULT: [${DEFAULT_SETTINGS.saveFileDelay}]`}
+						</code>
+					</>
+				),
+				control: (
+					<>
+						<Text
+							placeholder={`${defaultDelay}`}
+							value={`${settings.saveFileDelay}`}
+							onChange={onSaveFileDelayChanged}
+						/>
+					</>
+				),
+			}}
+		/>
+	)
+}
+
 export default function FileSettings() {
 	return (
 		<>
-			<Setting.Container>
+			<Group heading='Saving'>
+				<SaveDelaySettings />
+			</Group>
+			<Group heading='File Creation'>
 				<FileSettingsGroup />
+			</Group>
+			<Group heading='Frontmatter'>
 				<FrontmatterSettingsGroup />
-			</Setting.Container>
+			</Group>
 		</>
 	)
 }

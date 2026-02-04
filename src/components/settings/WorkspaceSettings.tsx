@@ -2,7 +2,8 @@ import React, { useCallback } from 'react'
 import useSettingsManager from 'src/hooks/useSettingsManager'
 import useUserPluginSettings from 'src/hooks/useUserPluginSettings'
 import { DEFAULT_SETTINGS, TldrawPluginSettings } from 'src/obsidian/TldrawSettingsTab'
-import Setting from './Setting'
+import { Group, Setting } from '@obsidian-plugin-toolkit/react/components/setting/group'
+import { Toggle, Dropdown } from '@obsidian-plugin-toolkit/react/components'
 
 const markdownViewOptions = {
 	markdown: 'Markdown editor',
@@ -35,13 +36,7 @@ export default function WorkspaceSettings() {
 
 	return (
 		<>
-			<Setting.Container>
-				<Setting
-					heading={true}
-					slots={{
-						name: 'Markdown view',
-					}}
-				/>
+			<Group heading='Markdown view'>
 				<Setting
 					slots={{
 						name: 'Switch markdown view type',
@@ -56,7 +51,7 @@ export default function WorkspaceSettings() {
 						),
 						control: (
 							<>
-								<Setting.Toggle
+								<Toggle
 									value={settings.workspace.switchMarkdownView}
 									onChange={onSwitchViewTypeChanged}
 								/>
@@ -86,7 +81,7 @@ export default function WorkspaceSettings() {
 						),
 						control: (
 							<>
-								<Setting.Dropdown
+								<Dropdown
 									options={markdownViewOptions}
 									value={settings.workspace.tldrMarkdownViewType}
 									onChange={onMarkdownViewTypeChanged}
@@ -96,7 +91,7 @@ export default function WorkspaceSettings() {
 						),
 					}}
 				/>
-			</Setting.Container>
+			</Group>
 		</>
 	)
 }

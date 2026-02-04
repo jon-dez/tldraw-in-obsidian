@@ -7,12 +7,14 @@ type KeysOfType<T extends object, Type> = keyof {
 export type MethodKeys<T extends object> = KeysOfType<T, CallableFunction>
 
 export type Interceptor<
+	T,
 	TTarget extends object,
 	TTargetMethod extends MethodKeys<TTarget>,
 	TMethodArgs extends any[],
 	TMethodReturn,
 > = TTarget[TTargetMethod] extends (...args: infer Args) => infer Return
 	? (
+			this: T,
 			targetMethod: (...args: Args) => Return,
 			thisMethod: (...args: TMethodArgs) => TMethodReturn
 		) => TTarget[TTargetMethod]
@@ -27,7 +29,7 @@ export function intercept<
 >(
 	selector: (instance: T) => TTarget,
 	method: TTargetMethod,
-	interceptor: Interceptor<TTarget, TTargetMethod, TMethodArgs, TMethodReturn>
+	interceptor: Interceptor<T, TTarget, TTargetMethod, TMethodArgs, TMethodReturn>
 ) {
 	return function <This extends T>(
 		thisMethod: (this: This, ...args: TMethodArgs) => TMethodReturn,
@@ -41,7 +43,7 @@ export function intercept<
 				throw new Error(`Method ${String(method)} is not a function`)
 			}
 
-			targetObject[method] = interceptor(
+			targetObject[method] = interceptor.bind(this)(
 				originalTargetMethod.bind(targetObject),
 				thisMethod.bind(this)
 			)

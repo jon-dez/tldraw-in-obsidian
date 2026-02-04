@@ -1,8 +1,7 @@
-import builtins from 'builtin-modules'
-import esbuild from 'esbuild'
-import { readFileSync, copyFileSync, mkdirSync } from 'fs'
+import { readFileSync } from 'fs'
 import process from 'process'
 import path from 'node:path'
+import { createEsbuildObsidianContext } from '@obsidian-plugin-toolkit/esbuild'
 // import svgr from "esbuild-plugin-svgr";
 
 const banner = `/*
@@ -32,71 +31,50 @@ console.log({
 	NODE_ENV: process.env.NODE_ENV
 })
 
-
-const context = await esbuild.context({
-	banner: {
-		js: banner,
+const context = await createEsbuildObsidianContext({
+	esbuildConfig: {
+		banner: {
+			js: banner,
+		},
+		entryPoints: ['src/main.ts', 'src/styles.css'],
+		format: 'cjs',
+		target: 'es2023',
+		logLevel: 'info',
+		sourcemap: prod ? false : 'inline',
+		treeShaking: true,
+		loader: {
+			'.js': 'jsx',
+		},
+		outdir,
+		define: {
+			TLDRAW_COMPONENT_LOGGING: `${!prod}`,
+			MARKDOWN_POST_PROCESSING_LOGGING: `${!prod}`,
+			TLDRAW_VERSION: `"${TLDRAW_VERSION}"`,
+			// Workaround for import.meta in CommonJS builds
+			'import.meta': JSON.stringify({
+				env: {
+					TLDRAW_LICENSE_KEY: process.env.TLDRAW_LICENSE_KEY || '',
+				}
+			}),
+		},
 	},
-	entryPoints: ['src/main.ts', 'src/styles.css'],
-	bundle: true,
-	external: [
-		'obsidian',
-		'electron',
-		'@codemirror/autocomplete',
-		'@codemirror/collab',
-		'@codemirror/commands',
-		'@codemirror/language',
-		'@codemirror/lint',
-		'@codemirror/search',
-		'@codemirror/state',
-		'@codemirror/view',
-		'@lezer/common',
-		'@lezer/highlight',
-		'@lezer/lr',
-		...builtins,
-	],
-	format: 'cjs',
-	target: 'es2023',
-	logLevel: 'info',
-	sourcemap: prod ? false : 'inline',
-	treeShaking: true,
-	loader: {
-		'.js': 'jsx',
-		'.woff2': 'dataurl',
-		'.woff': 'dataurl',
-		'.svg': 'file',
-		'.png': 'file',
-		'.json': 'file',
-	},
-	outdir,
-	define: {
-		TLDRAW_COMPONENT_LOGGING: `${!prod}`,
-		MARKDOWN_POST_PROCESSING_LOGGING: `${!prod}`,
-		TLDRAW_VERSION: `"${TLDRAW_VERSION}"`,
-		// Workaround for import.meta in CommonJS builds
-		'import.meta': JSON.stringify({
-			env: {
-				TLDRAW_LICENSE_KEY: process.env.TLDRAW_LICENSE_KEY || '',
-			}
-		}),
-	},
-	// plugins: [svgr({ typescript: true })],
-	plugins: [
-		{
-			name: 'copy-plugin-manifest',
-			setup(build) {
-				build.onEnd(() => {
-					// Just copy the manifest.json from the release directory to the output directory to make it easier to just
-					// run the plugin by copying the files to the Obsidian plugins directory.
-					const manifestSrc = path.join(import.meta.dirname, '..', 'release', 'manifest.json')
-					const manifestDest = path.join(outdir, 'manifest.json')
-					console.log('Copying manifest.json from', manifestSrc, 'to', manifestDest)
-					mkdirSync(outdir, { recursive: true })
-					copyFileSync(manifestSrc, manifestDest)
+	obsidianPluginsConfig: {
+		copyManifest: {
+			outdir,
+			manifestSrc: path.join(import.meta.dirname, '..', 'release', 'manifest.json'),
+		},
+		serve: {
+			port: 5173,
+			host: 'localhost',
+			onStartServe: async () => {
+				console.log('Starting serve...')
+				const serve = await context.serve({
+					servedir: outdir,
 				})
-			}
-		}
-	]
+				return serve
+			},
+		},
+	},
 })
 
 if (prod) {
