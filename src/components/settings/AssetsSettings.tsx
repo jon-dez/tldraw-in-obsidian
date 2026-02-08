@@ -1,5 +1,15 @@
+import { Container } from '@obsidian-plugin-toolkit/react'
+import { Button, ExtraButton, Modal, Text } from '@obsidian-plugin-toolkit/react/components'
+import { Group, Setting } from '@obsidian-plugin-toolkit/react/components/setting/group'
 import { Notice, TFile, TFolder } from 'obsidian'
-import React, { ComponentProps, memo, useCallback, useMemo, useState, useSyncExternalStore } from 'react'
+import React, {
+	ComponentProps,
+	memo,
+	useCallback,
+	useMemo,
+	useState,
+	useSyncExternalStore,
+} from 'react'
 import useSettingsManager from 'src/hooks/useSettingsManager'
 import useUserPluginSettings from 'src/hooks/useUserPluginSettings'
 import DownloadManagerModal from 'src/obsidian/modal/DownloadManagerModal'
@@ -15,9 +25,6 @@ import FontsSettingsManager from 'src/obsidian/settings/FontsSettingsManager'
 import IconsSettingsManager from 'src/obsidian/settings/IconsSettingsManager'
 import { FontTypes, IconNames } from 'src/types/tldraw'
 import { DownloadInfo } from 'src/utils/fetch/download'
-import { Setting, Group } from '@obsidian-plugin-toolkit/react/components/setting/group'
-import { Container } from '@obsidian-plugin-toolkit/react'
-import { Text, ExtraButton, Button, Modal } from '@obsidian-plugin-toolkit/react/components'
 
 function AssetsSettingsGroup({ downloadAll }: { downloadAll: () => void }) {
 	const settingsManager = useSettingsManager()
@@ -104,15 +111,15 @@ function IconAssetsSettingsGroup({
 	)
 }
 
-const MemoAssetsSettingsGroup = memo(
-	function MemoAssetsSettingsGroup({ downloadAll }: Pick<ComponentProps<typeof AssetsSettingsGroup>, 'downloadAll'>) {
-		return (
-			<>
-				<AssetsSettingsGroup downloadAll={downloadAll} />
-			</>
-		)
-	}
-)
+const MemoAssetsSettingsGroup = memo(function MemoAssetsSettingsGroup({
+	downloadAll,
+}: Pick<ComponentProps<typeof AssetsSettingsGroup>, 'downloadAll'>) {
+	return (
+		<>
+			<AssetsSettingsGroup downloadAll={downloadAll} />
+		</>
+	)
+})
 
 function FontOverrideSetting({
 	downloadFont,
@@ -229,15 +236,22 @@ const MemoFontAssetsSettingsGroup = memo(
 	}) => {
 		return (
 			<>
-				<Group heading='Font assets overrides'>
+				<Group heading="Font assets overrides">
 					{fontOverrideSettingProps.map(({ group, name, appearsAs }) => (
 						<Setting
 							key={group}
 							slots={{
 								name: name,
 								desc: `Appears as "${appearsAs}" in the style panel.`,
-								control: <FontOverrideSettingGroup group={group} manager={manager} downloadFont={downloadFont} />,
-							}} />
+								control: (
+									<FontOverrideSettingGroup
+										group={group}
+										manager={manager}
+										downloadFont={downloadFont}
+									/>
+								),
+							}}
+						/>
 					))}
 				</Group>
 			</>
@@ -245,7 +259,15 @@ const MemoFontAssetsSettingsGroup = memo(
 	}
 )
 
-function FontOverrideSettingGroup({ group, manager, downloadFont }: { group: FontGroupMatcher, manager: FontsSettingsManager, downloadFont: (font: FontTypes, config: DownloadInfo) => void }) {
+function FontOverrideSettingGroup({
+	group,
+	manager,
+	downloadFont,
+}: {
+	group: FontGroupMatcher
+	manager: FontsSettingsManager
+	downloadFont: (font: FontTypes, config: DownloadInfo) => void
+}) {
 	const [isOpen, setIsOpen] = useState(false)
 	return (
 		<>
@@ -396,27 +418,29 @@ function IconOverrideSetting({
 	)
 }
 
-const MemoIconAssetsSettingsGroup = memo(
-	function MemoIconAssetsSettingsGroup({
-		downloadIcon,
-		manager,
-	}: {
-		downloadIcon: (icon: IconNames, config: DownloadInfo) => void
-		manager: IconsSettingsManager
-	}) {
-		const [isOpen, setIsOpen] = useState(false)
-		return (
-			<>
-				<Container>
-					<IconSetSetting manager={manager} />
-				</Container>
-				<Setting slots={{
+const MemoIconAssetsSettingsGroup = memo(function MemoIconAssetsSettingsGroup({
+	downloadIcon,
+	manager,
+}: {
+	downloadIcon: (icon: IconNames, config: DownloadInfo) => void
+	manager: IconsSettingsManager
+}) {
+	const [isOpen, setIsOpen] = useState(false)
+	return (
+		<>
+			<Container>
+				<IconSetSetting manager={manager} />
+			</Container>
+			<Setting
+				slots={{
 					name: 'Individual icon overrides',
 					desc: (
 						<>
-							Click an icon name to view the default in your web browser. All of the default icons are
-							available to browse on{' '}
-							<a href={`https://github.com/tldraw/tldraw/tree/v${TLDRAW_VERSION}/assets/icons/icon`}>
+							Click an icon name to view the default in your web browser. All of the default icons
+							are available to browse on{' '}
+							<a
+								href={`https://github.com/tldraw/tldraw/tree/v${TLDRAW_VERSION}/assets/icons/icon`}
+							>
 								{"tldraw's GitHub repository"}
 							</a>
 							.
@@ -428,17 +452,22 @@ const MemoIconAssetsSettingsGroup = memo(
 							<Modal modalProps={manager.plugin} open={isOpen} onClose={() => setIsOpen(false)}>
 								<Group heading={`Icon overrides`}>
 									{iconTypes.map((e) => (
-										<IconOverrideSetting key={e} icon={e} manager={manager} downloadIcon={downloadIcon} />
+										<IconOverrideSetting
+											key={e}
+											icon={e}
+											manager={manager}
+											downloadIcon={downloadIcon}
+										/>
 									))}
 								</Group>
 							</Modal>
 						</>
 					),
-				}} />
-			</>
-		)
-	}
-)
+				}}
+			/>
+		</>
+	)
+})
 
 export default function AssetsSettings() {
 	const settingsManager = useSettingsManager()
@@ -489,20 +518,14 @@ export default function AssetsSettings() {
 
 	return (
 		<>
-			<Group heading='Download assets'>
+			<Group heading="Download assets">
 				<MemoAssetsSettingsGroup downloadAll={downloadAll} />
 				<FontAssetsSettingsGroup downloadAll={downloadAllFonts} />
 				<IconAssetsSettingsGroup downloadAll={downloadAllIcons} manager={assetManagers.icons} />
 			</Group>
-			<MemoFontAssetsSettingsGroup
-				downloadFont={downloadFont}
-				manager={assetManagers.fonts}
-			/>
-			<Group heading='Icons'>
-				<MemoIconAssetsSettingsGroup
-					downloadIcon={downloadIcon}
-					manager={assetManagers.icons}
-				/>
+			<MemoFontAssetsSettingsGroup downloadFont={downloadFont} manager={assetManagers.fonts} />
+			<Group heading="Icons">
+				<MemoIconAssetsSettingsGroup downloadIcon={downloadIcon} manager={assetManagers.icons} />
 			</Group>
 		</>
 	)

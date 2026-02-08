@@ -43,3 +43,22 @@ export function createRecordStore<K, V>() {
 		addListener: (cb: () => void) => notifier.addListener(cb),
 	})
 }
+
+export type Store<T> = ReturnType<typeof createStore<T>>
+
+export function createStore<T>(initialState: T) {
+	const notifier = new Notifier()
+	let state = initialState
+
+	return Object.freeze({
+		getState: () => state,
+		setState: (partial: Partial<T> | ((state: T) => Partial<T>)) => {
+			const newState = typeof partial === 'function' ? partial(state) : partial
+			if (newState !== state) {
+				state = { ...state, ...newState }
+				notifier.notifyListeners()
+			}
+		},
+		addListener: (cb: () => void) => notifier.addListener(cb),
+	})
+}

@@ -1,4 +1,4 @@
-import { debounce, EventRef, Notice, TFile, Workspace } from 'obsidian'
+import { BlockCache, debounce, EventRef, Notice, TFile, Workspace } from 'obsidian'
 import { createRecordStore } from 'src/lib/stores'
 import TldrawPlugin from 'src/main'
 import {
@@ -45,6 +45,17 @@ type MainData = {
 	fileData: string
 	tFile: TFile
 	format: Format
+	assets: {
+		/**
+		 * This method can be called to remove unreferenced assets from the store.
+		 *
+		 * If any of the assets are referenced by shapes in the store, they will not be removed.
+		 *
+		 * @param srcs The sources of the assets to prune.
+		 *
+		 */
+		pruneStoreImages(...srcs: BlockCache[]): Promise<void>
+	}
 	/**
 	 * Messages associated with the main document.
 	 */
@@ -93,6 +104,7 @@ export default class TLDataDocumentStoreManager {
 	): {
 		documentStore: TLDataDocumentStore
 		messages: MainDataMessages
+		assets: MainData['assets']
 		getInstanceId(): string
 		unregister: () => void
 	} & Pick<
@@ -122,6 +134,7 @@ export default class TLDataDocumentStoreManager {
 				store: storeContext.instance.store,
 			},
 			messages: storeContext.storeGroup.main.data.messages,
+			assets: storeContext.storeGroup.main.data.assets,
 			getInstanceId: () => instanceInfo.instanceId,
 			unregister: () => {
 				storeContext.instance.unregister()
@@ -164,6 +177,37 @@ export default class TLDataDocumentStoreManager {
 				tFile,
 				documentStore,
 				format,
+				assets: {
+					pruneStoreImages: async (...srcs: BlockCache[]) => {
+						if (srcs.length === 0 || !assetStore?.proxy) {
+							// For now, we only support pruning assets from markdown files.
+							return
+						}
+						// Method:
+						// - Get all image shapes in the store
+						// - Check if assets referenced by image shapes exists in the store
+						// - If exists, remove from the list of ids to remove
+						// - Remove remaining ids from the asset store
+						const srcsToRemove = new Set(srcs.map((s) => `obsidian.blockref.${s.id}` as const))
+						const imageIds = documentStore.store.query
+							.records('shape')
+							.get()
+							.filter((e) => isShapeOfType<TLImageShape>(e, 'image'))
+							.map((e) => e.props.assetId)
+							.filter((e) => typeof e === 'string')
+						for (const image of imageIds) {
+							const asset = documentStore.store.get(image)
+							if (!asset || !isAssetOfType<TLImageAsset>(asset, 'image')) continue
+							if (!asset.props.src)
+								continue
+								// A shape exists with this asset, delete it from the list of srcs to remove if it exists.
+							;(srcsToRemove as Set<string>).delete(asset.props.src)
+						}
+						if (srcsToRemove.size === 0) return
+						// All that remain are assets that are not referenced by any shapes, these are prunable.
+						return assetStore.proxy.removeBlockRef(...Array.from(srcsToRemove))
+					},
+				},
 				messages: {
 					getCount: () => documentMessages.getErrorCount(),
 					getAll: () => [...documentMessages.getBlockRefError()],
@@ -266,8 +310,11 @@ export default class TLDataDocumentStoreManager {
 						},
 					},
 				})
-				assetStore = new ObsidianTLAssetStore(documentStore.meta.uuid, assetStoreProxy)
-				documentStore.store.props.assets = assetStore
+
+				assetStore = documentStore.store.props.assets = new ObsidianTLAssetStore(
+					documentStore.meta.uuid,
+					assetStoreProxy
+				)
 
 				removeAssetChanges = listenAssetChanges(documentStore.store)
 			},
