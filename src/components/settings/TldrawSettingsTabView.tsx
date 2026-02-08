@@ -1,3 +1,6 @@
+import { Container } from '@obsidian-plugin-toolkit/react'
+import { Button, Modal, Text } from '@obsidian-plugin-toolkit/react/components'
+import { Group, Setting } from '@obsidian-plugin-toolkit/react/components/setting/group'
 import React, { useMemo, useState } from 'react'
 import { SettingsManagerContext } from 'src/contexts/setting-manager-context'
 import UserSettingsManager from 'src/obsidian/settings/UserSettingsManager'
@@ -6,10 +9,8 @@ import EmbedsSettings from './EmbedsSettings'
 import FileSettings from './FileSettings'
 import StartUpSettings from './StartUpSettings'
 import TldrawEditorOptions from './TldrawEditorOptions'
+import VaultSettings from './VaultSettings'
 import WorkspaceSettings from './WorkspaceSettings'
-import { Container } from '@obsidian-plugin-toolkit/react'
-import { Button, Modal, Text } from '@obsidian-plugin-toolkit/react/components'
-import { Setting, Group } from '@obsidian-plugin-toolkit/react/components/setting/group'
 
 const TABS = {
 	file: {
@@ -19,6 +20,10 @@ const TABS = {
 	workspace: {
 		label: 'Workspace',
 		Component: WorkspaceSettings,
+	},
+	vault: {
+		label: 'Vault',
+		Component: VaultSettings,
 	},
 	'start-up': {
 		label: 'Start up',
@@ -68,19 +73,21 @@ export default function TldrawSettingsTabView({
 					))}
 				</div>
 			</div>
-			<Container key={activeTabKey} className='ptl-setting-tab-content'>
+			<Container key={activeTabKey} className="ptl-setting-tab-content">
 				<SettingsManagerContext.Provider value={settingsManager}>
 					<activeTab.Component />
 				</SettingsManagerContext.Provider>
 			</Container>
-			<Container className='ptl-settings-footer' style={{ marginTop: '16px' }}>
-				<Group heading='Plugin information'>
-					<Setting slots={{
-						info: 'See the details of the plugin and the tldraw package.',
-						control: <Button onClick={() => setIsOpen(true)}>See details</Button>,
-					}} />
+			<Container className="ptl-settings-footer" style={{ marginTop: '16px' }}>
+				<Group heading="Plugin information">
+					<Setting
+						slots={{
+							info: 'See the details of the plugin and the tldraw package.',
+							control: <Button onClick={() => setIsOpen(true)}>See details</Button>,
+						}}
+					/>
 					<Modal modalProps={settingsManager.plugin} open={isOpen} onClose={() => setIsOpen(false)}>
-						<Group heading='tldraw package information'>
+						<Group heading="tldraw package information">
 							<Setting
 								slots={{
 									name: 'tldraw version',
@@ -89,7 +96,7 @@ export default function TldrawSettingsTabView({
 								}}
 							/>
 						</Group>
-						<Group heading='Plugin information'>
+						<Group heading="Plugin information">
 							{Object.entries(settingsManager.plugin.manifest).map(([key, value]) => (
 								<Setting
 									key={key}

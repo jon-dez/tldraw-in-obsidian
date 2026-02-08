@@ -2,6 +2,7 @@ import React from 'react'
 import { createRoot } from 'react-dom/client'
 import { TldrawInObsidianPluginProvider } from 'src/contexts/plugin'
 import TldrawPlugin from 'src/main'
+import AuditSessionRunner from './AuditSessionRunner'
 import DocumentMessages from './DocumentMessages'
 
 export default function createMain(plugin: TldrawPlugin, el: HTMLElement) {
@@ -28,6 +29,7 @@ function TldrawInObsidian({ plugin }: { plugin: TldrawPlugin }) {
 	return (
 		<TldrawInObsidianPluginProvider plugin={plugin}>
 			<DocumentMessages />
+			<AuditSessionRunner />
 		</TldrawInObsidianPluginProvider>
 	)
 }

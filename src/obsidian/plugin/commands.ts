@@ -28,9 +28,9 @@ async function createTldrawFile(
 			e instanceof Error
 				? e.message
 				: (() => {
-						console.error(e)
-						return 'An unknown error occurred while creating a new tldraw file.'
-					})()
+					console.error(e)
+					return 'An unknown error occurred while creating a new tldraw file.'
+				})()
 		)
 	}
 }
@@ -170,6 +170,17 @@ export function registerCommands(plugin: TldrawPlugin) {
 			const to = editor.getCursor('to')
 			const tFile = await importTldrawFile(plugin, file)
 			editorInsert(new TldrawDocument(plugin, tFile), editor, from, to)
+		},
+	})
+
+	plugin.addCommand({
+		id: 'open-vault-audit-modal',
+		name: '[Vault] Scan for loose assets',
+		checkCallback: (checking: boolean) => {
+			if (checking) {
+				return true
+			}
+			plugin.instance.auditSessionManager.openModal()
 		},
 	})
 }

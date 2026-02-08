@@ -1,11 +1,11 @@
-import { MarkdownView, Notice, TFile } from 'obsidian'
+import { TFile } from 'obsidian'
 import React from 'react'
 import { useTldrawPlugin } from 'src/contexts/plugin'
 import { useStorify } from 'src/hooks/useStorify'
+import { navigateToBlockCache } from 'src/obsidian/file/navigate'
 import { DocumentMessage } from 'src/obsidian/plugin/TLDataDocumentMessages'
 import { MainDataMessages } from 'src/obsidian/plugin/TLDataDocumentStoreManager'
 import { ButtonComponent, Modal } from 'src/obsidian/react-components'
-import { VIEW_TYPE_MARKDOWN } from 'src/utils/constants'
 
 export function DocumentMessagesModal({
 	messages,
@@ -150,23 +150,7 @@ function BlockRefErrorTypeMessage({
 	const navigateToBlock = async () => {
 		if (!asset.item) return
 
-		const leaf = await plugin.openTldrFile(tFile, 'new-tab', VIEW_TYPE_MARKDOWN)
-		if (leaf.view instanceof MarkdownView) {
-			leaf.view.editor.focus()
-			leaf.view.editor.scrollIntoView(
-				{
-					from: leaf.view.editor.offsetToPos(asset.item.position.start.offset),
-					to: leaf.view.editor.offsetToPos(asset.item.position.end.offset),
-				},
-				true
-			)
-			leaf.view.editor.setSelection(
-				leaf.view.editor.offsetToPos(asset.item.position.start.offset),
-				leaf.view.editor.offsetToPos(asset.item.position.end.offset)
-			)
-		} else {
-			new Notice('Cannot navigate to block in this view.')
-		}
+		navigateToBlockCache(plugin, tFile, asset.item)
 	}
 
 	let typeSpecificMessage = ''

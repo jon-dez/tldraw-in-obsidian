@@ -12,12 +12,14 @@ interface ModalProps {
  */
 export function ModalWrapper({
 	open,
+	className,
 	modalProps,
 	children,
 	onClose,
 }: {
 	modalProps: ModalProps
 	open: boolean
+	className?: string
 	children: ReactNode
 	onClose: () => void
 }) {
@@ -39,6 +41,16 @@ export function ModalWrapper({
 			modal.close()
 		}
 	}, [modal, open])
+
+	useEffect(() => {
+		if (className) {
+			modal.modalEl.addClass(className)
+		}
+	}, [modal, className])
+
+	if (!open) {
+		return null
+	}
 
 	return <>{createPortal(children, modal.contentEl)}</>
 }

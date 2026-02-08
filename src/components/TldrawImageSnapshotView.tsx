@@ -177,7 +177,8 @@ type SnapshotImagePlaceHolderSyncStore = {
 }
 
 export interface SnapshotPreviewSyncStore
-	extends SnapshotSyncStore,
+	extends
+		SnapshotSyncStore,
 		SnapshotImagePreviewSizeSyncStore,
 		SnapshotImagePreviewOptionsSyncStore,
 		SnapshotImagePlaceHolderSyncStore {}

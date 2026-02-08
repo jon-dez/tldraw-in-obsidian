@@ -2,6 +2,7 @@ import { BlockCache, CachedMetadata, ReferenceCache, TFile } from 'obsidian'
 import TldrawPlugin from 'src/main'
 import { vaultFileToBlob } from 'src/obsidian/helpers/vault'
 import { TldrawFileListener } from 'src/obsidian/plugin/TldrawFileListenerMap'
+import { deleteRangesFromText } from 'src/utils/text'
 import { createAttachmentFilepath } from 'src/utils/utils'
 import {
 	DEFAULT_SUPPORTED_IMAGE_TYPES,
@@ -55,6 +56,10 @@ export class ObsidianMarkdownFileTLAssetStoreProxy {
 
 	static isBlockRefId(id: string): id is BlockRefAssetId {
 		return id.startsWith(blockRefAssetPrefix)
+	}
+
+	static getBlockIdFromBlockRefId(blockRefId: BlockRefAssetId) {
+		return blockRefId.slice(blockRefAssetPrefix.length)
 	}
 
 	constructor(
@@ -147,27 +152,46 @@ export class ObsidianMarkdownFileTLAssetStoreProxy {
 		return assetSrc
 	}
 
-	async removeBlockRef(blockRefAssetId: BlockRefAssetId) {
-		const blockId = blockRefAssetId.slice(blockRefAssetPrefix.length)
-		const block = this.cachedMetadata.blocks?.[blockId]
-		if (block === undefined) {
-			return
-		}
-		let removed: string = ''
+	async removeBlockRef(...blockRefAssetIds: BlockRefAssetId[]) {
+		if (blockRefAssetIds.length === 0) return
+		let deleteds: { block: BlockCache; deleted: string }[] = []
 		const newData = await this.plugin.app.vault.process(this.tFile, (data) => {
-			console.log('removing block ref')
-			const before = data.substring(0, block.position.start.offset)
-			removed = data.substring(block.position.start.offset, block.position.end.offset)
-			if (!removed.endsWith(`^${blockId}`)) {
-				throw new Error('Unable to remove asset block ref', {
-					cause: `Block does not end with ^${blockId}`,
+			const ranges = blockRefAssetIds
+				.map((e) => {
+					const blockId = e.slice(blockRefAssetPrefix.length)
+					const block = this.cachedMetadata.blocks?.[blockId]
+					if (block === undefined) {
+						return
+					}
+					return {
+						block,
+						get start() {
+							return block.position.start.offset
+						},
+						get end() {
+							return block.position.end.offset
+						},
+					}
 				})
+				// Just ignore block refs that don't exist
+				.filter((range) => range !== undefined)
+
+			const { newText, deleteds: _deleteds } = deleteRangesFromText(data, ranges)
+			// verify that the deleteds are correct
+			for (const { range, deleted } of _deleteds) {
+				if (!deleted.endsWith(`^${range.block.id}`) && deleted.length === range.end - range.start) {
+					throw new Error('Unable to remove asset block ref', {
+						cause: `Block does not end with ^${range.block.id}`,
+					})
+				}
 			}
-			const after = data.substring(block.position.end.offset)
-			return `${before}${after}`
+			deleteds = _deleteds.map(({ range: { block }, deleted }) => ({ block, deleted }))
+			return newText
 		})
 
-		this.events?.blockRef?.removed(block, removed, newData)
+		for (const { block, deleted } of deleteds) {
+			this.events?.blockRef?.removed(block, deleted, newData)
+		}
 	}
 
 	private cacheAsset(assetSrc: BlockRefAssetId, blob: Blob) {
@@ -186,11 +210,13 @@ export class ObsidianMarkdownFileTLAssetStoreProxy {
 		}
 
 		// Can either be a link or an embed since they both have a link property
-		const blockRef: ReferenceCache | undefined = this.cachedMetadata.links?.find(
-			(linkCache) => linkCache.position.start.offset === assetBlock.position.start.offset
-		) ?? this.cachedMetadata.embeds?.find(
-			(embed) => embed.position.start.offset === assetBlock.position.start.offset
-		)
+		const blockRef: ReferenceCache | undefined =
+			this.cachedMetadata.links?.find(
+				(linkCache) => linkCache.position.start.offset === assetBlock.position.start.offset
+			) ??
+			this.cachedMetadata.embeds?.find(
+				(embed) => embed.position.start.offset === assetBlock.position.start.offset
+			)
 
 		if (!blockRef) {
 			this.events?.blockRef?.resolveAsset.notALink(assetBlock)

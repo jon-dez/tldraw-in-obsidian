@@ -1,6 +1,6 @@
-import { App, PluginSettingTab } from 'obsidian'
+import { ReactPluginSettingTab } from '@obsidian-plugin-toolkit/react/utils'
+import { App } from 'obsidian'
 import { createElement } from 'react'
-import { createRoot, Root } from 'react-dom/client'
 import TldrawSettingsTabView from 'src/components/settings/TldrawSettingsTabView'
 import { FontOverrides, IconOverrides } from 'src/types/tldraw'
 import { VIEW_TYPE_TLDRAW, ViewType } from 'src/utils/constants'
@@ -189,33 +189,17 @@ export const DEFAULT_SETTINGS = {
 	},
 } as const satisfies Partial<TldrawPluginSettings>
 
-export class TldrawSettingsTab extends PluginSettingTab {
+export class TldrawSettingsTab extends ReactPluginSettingTab {
 	plugin: TldrawPlugin
-	#root?: Root
 
 	constructor(app: App, plugin: TldrawPlugin) {
 		super(app, plugin)
 		this.plugin = plugin
 	}
 
-	#resetRoot() {
-		this.#root?.unmount()
-		this.#root = undefined
-	}
-
-	display(): void {
-		const { containerEl } = this
-		this.#resetRoot()
-		const root = (this.#root = createRoot(containerEl))
-		root.render(
-			createElement(TldrawSettingsTabView, {
-				settingsManager: this.plugin.settingsManager,
-			})
-		)
-	}
-
-	hide() {
-		super.hide()
-		this.#resetRoot()
+	override render(): React.JSX.Element {
+		return createElement(TldrawSettingsTabView, {
+			settingsManager: this.plugin.settingsManager,
+		})
 	}
 }

@@ -1,5 +1,6 @@
-import { App } from 'obsidian'
+import { App, BlockCache } from 'obsidian'
 import { createSetStore } from 'src/lib/stores'
+import { AuditSessionManager } from './AuditSessionManager'
 import { MainDataMessages } from './TLDataDocumentStoreManager'
 
 export interface DocumentMessagesButton {
@@ -9,12 +10,20 @@ export interface DocumentMessagesButton {
 	onClicked?: (evt: MouseEvent) => void
 }
 
+export interface AssetEntry {
+	blockCache: BlockCache
+}
+
 export default class TldrawInObsidianPluginInstance {
+	readonly auditSessionManager: AuditSessionManager<AssetEntry>
+
 	readonly stores = Object.freeze({
 		documentMessages: createSetStore<DocumentMessagesButton>(),
 	})
 
-	constructor(public readonly app: App) {}
+	constructor(public readonly app: App) {
+		this.auditSessionManager = new AuditSessionManager(app)
+	}
 
 	dispose() {
 		// Cleanup if necessary
