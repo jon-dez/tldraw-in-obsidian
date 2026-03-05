@@ -36,7 +36,7 @@ export function useTldrawAppEffects({
 	React.useEffect(() => {
 		if (!editor) return
 
-		monkeyPatchEditorInstance(editor, settingsManager)
+		// monkeyPatchEditorInstance(editor, settingsManager)
 
 		if (selectNone) {
 			editor.selectNone()

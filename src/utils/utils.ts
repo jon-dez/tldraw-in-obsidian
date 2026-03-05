@@ -1,4 +1,5 @@
 import { FileManager, Notice, TAbstractFile, TFile, TFolder, Vault, normalizePath } from 'obsidian'
+import { ThemePreference } from 'src/obsidian/TldrawSettingsTab'
 import { FILE_EXTENSION, VIEW_TYPES, ViewType } from './constants'
 import { pathBasename } from './path'
 
@@ -71,6 +72,9 @@ export function getNewUniqueFilepath(vault: Vault, filename: string, folderpath:
 }
 
 export const isObsidianThemeDark = () => document.body.classList.contains('theme-dark')
+export const getIsDarkMode = (themeMode: ThemePreference) => {
+	return themeMode === 'match-theme' ? isObsidianThemeDark() : themeMode === 'dark'
+}
 
 export const clamp = (num: number, min: number, max: number) => Math.max(min, Math.min(num, max))
 
