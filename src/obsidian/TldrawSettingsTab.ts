@@ -163,7 +163,7 @@ export const DEFAULT_SETTINGS = {
 	newFilePrefix: 'Tldraw ',
 	newFileTimeFormat: 'YYYY-MM-DD h.mmA',
 	toolSelected: 'select',
-	themeMode: 'light',
+	themeMode: 'match-theme',
 	gridMode: false,
 	snapMode: false,
 	debugMode: false,

@@ -21,7 +21,9 @@ const TLDRAW_VERSION = (() => {
 	return json.version
 })()
 
-const outdir = path.join(import.meta.dirname, '..', 'dist', prod ? 'production' : 'development')
+const outdir = prod
+	? path.join(import.meta.dirname, '..', 'dist', 'production')
+	: path.join(import.meta.dirname, '..')
 
 // Log specific build information about the build environment
 console.log({
@@ -64,7 +66,7 @@ const context = await createEsbuildObsidianContext({
 			manifestSrc: path.join(import.meta.dirname, '..', 'release', 'manifest.json'),
 		},
 		serve: {
-			port: 5173,
+			port: 5174,
 			host: 'localhost',
 			onStartServe: async () => {
 				console.log('Starting serve...')

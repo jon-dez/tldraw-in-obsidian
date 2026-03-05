@@ -1,5 +1,6 @@
 import { Platform } from 'obsidian'
 import * as React from 'react'
+import { useEffect, useMemo } from 'react'
 import { createRoot } from 'react-dom/client'
 import { lockZoomIcon } from 'src/assets/data-icons'
 import { TldrawInObsidianPluginProvider } from 'src/contexts/plugin'
@@ -14,7 +15,7 @@ import {
 	SAVE_FILE_COPY_ACTION,
 	SAVE_FILE_COPY_IN_VAULT_ACTION,
 } from 'src/utils/file'
-import { isObsidianThemeDark } from 'src/utils/utils'
+import { getIsDarkMode, isObsidianThemeDark } from 'src/utils/utils'
 import {
 	DefaultMainMenu,
 	DefaultMainMenuContent,
@@ -29,7 +30,11 @@ import {
 	TLUiAssetUrlOverrides,
 	TLUiEventHandler,
 	TLUiOverrides,
+	TLUserPreferences,
 	useActions,
+	useAtom,
+	useComputed,
+	useValue,
 } from 'tldraw'
 import PluginKeyboardShortcutsDialog from './PluginKeyboardShortcutsDialog'
 import PluginQuickActions from './PluginQuickActions'
@@ -253,9 +258,43 @@ const TldrawApp = ({
 		else return !isObsidianThemeDark() ? undefined : 'tl-theme__dark'
 	}, [plugin])
 
+	const isDarkMode = useAtom('isDarkMode', getIsDarkMode(plugin.settings.themeMode))
+
+	useEffect(() => {
+		const updateTheme = () => {
+			isDarkMode.set(getIsDarkMode(plugin.settings.themeMode))
+		}
+		const eventRef = plugin.app.workspace.on('css-change', updateTheme)
+		return () => plugin.app.workspace.offref(eventRef)
+	}, [plugin, isDarkMode])
+
+	const obsidianThemeOverride = useValue(
+		'obsidianThemeOverride',
+		() => {
+			return isObsidianThemeDark() ? 'theme-dark' : 'theme-light'
+		},
+		[]
+	)
+	const userPreferences = useComputed(
+		'userPreferences',
+		() => {
+			return {
+				id: '',
+				colorScheme: isDarkMode.get() ? 'dark' : 'light',
+			} satisfies TLUserPreferences
+		},
+		[]
+	)
+	const user = useMemo(() => {
+		return {
+			setUserPreferences: () => {},
+			userPreferences,
+		}
+	}, [userPreferences])
+
 	return (
 		<div
-			className="tldraw-view-root"
+			className={`tldraw-view-root ${obsidianThemeOverride}`}
 			// e.stopPropagation(); this line should solve the mobile swipe menus bug
 			// The bug only happens on the mobile version of Obsidian.
 			// When a user tries to interact with the tldraw canvas,
@@ -273,12 +312,15 @@ const TldrawApp = ({
 				hideUi={hideUi}
 				onUiEvent={onUiEvent}
 				overrides={overridesUi.current}
+				options={{ actionShortcutsLocation: 'toolbar' }}
+				user={user}
 				components={overridesUiComponents.current}
 				// Set this flag to false when a tldraw document is embed into markdown to prevent it from gaining focus when it is loaded.
 				autoFocus={false}
 				onMount={setAppState}
 				tools={tools}
 				className={fbWorkAroundClassname}
+				licenseKey="tldraw-tldraw-2026-07-10/WyIyU3h6ZzhTZyIsWyIqLnRsZHJhdy5jb20iLCIqLnRsZHJhdy5kZXYiLCIqLnRsZHJhdy5jbHViIiwiKi50bGRyYXcud29ya2Vycy5kZXYiXSw5LCIyMDI2LTA3LTEwIl0.+21jrvz5ZFmIvvA/DusCcnFV6Ab1iQQYR+INTqw/i/MmZe/5I/lhdLtqm9nprkQ1MfWL2PeyBmQui1+rjoQS1w"
 			/>
 		</div>
 	)
