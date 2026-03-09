@@ -34,24 +34,15 @@ export function useTldrawAppEffects({
 	React.useEffect(() => {
 		if (!editor) return
 
-		// monkeyPatchEditorInstance(editor, settingsManager)
-
 		if (selectNone) {
 			editor.selectNone()
 		}
 
-		const { themeMode, gridMode, debugMode, snapMode, focusMode, toolSelected } =
-			settingsManager.settings
+		const { gridMode, debugMode, snapMode, focusMode, toolSelected } = settingsManager.settings
 
 		editor.setCurrentTool(initialTool ?? toolSelected)
 
-		let darkMode = true
-		if (themeMode === 'dark') darkMode = true
-		else if (themeMode === 'light') darkMode = false
-		else darkMode = isObsidianThemeDark()
-
 		editor.user.updateUserPreferences({
-			colorScheme: darkMode ? 'dark' : 'light',
 			isSnapMode: snapMode,
 		})
 
