@@ -27,11 +27,14 @@ import {
 	DefaultMainMenu,
 	DefaultMainMenuContent,
 	DefaultPageMenu,
+	DefaultZoomMenu,
+	DefaultZoomMenuContent,
 	Editor,
 	TLComponents,
 	Tldraw,
 	TldrawEditorStoreProps,
 	TldrawOptions,
+	TldrawUiMenuCheckboxItem,
 	TldrawUiMenuItem,
 	TLStateNodeConstructor,
 	TLStoreSnapshot,
@@ -39,6 +42,7 @@ import {
 	TLUiEventHandler,
 	TLUiOverrides,
 	TLUserPreferences,
+	track,
 	useActions,
 	useAtom,
 	useComputed,
@@ -133,6 +137,23 @@ const components: TLComponents = {
 	),
 	KeyboardShortcutsDialog: PluginKeyboardShortcutsDialog,
 	QuickActions: PluginQuickActions,
+	ZoomMenu: track(() => {
+		const editor = useEditor()
+		const actions = useActions()
+		const isZoomLocked = editor.getCameraOptions().zoomSteps.length === 1
+		return (
+			<DefaultZoomMenu>
+				<DefaultZoomMenuContent />
+				<TldrawUiMenuCheckboxItem
+					id={PLUGIN_ACTION_TOGGLE_ZOOM_LOCK}
+					label={{ default: 'Lock zoom' }}
+					kbd="!k"
+					checked={isZoomLocked}
+					onSelect={() => actions[PLUGIN_ACTION_TOGGLE_ZOOM_LOCK].onSelect('zoom-menu')}
+				/>
+			</DefaultZoomMenu>
+		)
+	}),
 	PageMenu: () => {
 		const editor = useEditor()
 		const hasMultiplePages = useValue('hasMultiplePages', () => editor.getPages().length > 1, [
