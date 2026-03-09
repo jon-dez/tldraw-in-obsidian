@@ -22,10 +22,8 @@ import {
 import { getIsDarkMode } from 'src/utils/utils'
 import { getViewport, saveViewport } from 'src/utils/viewport-storage'
 import {
-	TldrawUiMenuSubmenu as _TldrawUiMenuSubmenu,
 	DefaultColorThemePalette,
 	DefaultMainMenu,
-	DefaultMainMenuContent,
 	DefaultPageMenu,
 	DefaultZoomMenu,
 	DefaultZoomMenuContent,
@@ -34,8 +32,15 @@ import {
 	Tldraw,
 	TldrawEditorStoreProps,
 	TldrawOptions,
+	EditSubmenu,
+	ExportFileContentSubMenu,
+	ExtrasGroup,
+	PreferencesGroup,
+	TldrawUiMenuActionItem,
 	TldrawUiMenuCheckboxItem,
+	TldrawUiMenuGroup,
 	TldrawUiMenuItem,
+	TldrawUiMenuSubmenu,
 	TLStateNodeConstructor,
 	TLStoreSnapshot,
 	TLUiAssetUrlOverrides,
@@ -49,13 +54,12 @@ import {
 	useEditor,
 	useReactor,
 	useValue,
+	ZoomTo100MenuItem,
+	ZoomToFitMenuItem,
+	ZoomToSelectionMenuItem,
 } from 'tldraw'
 import PluginKeyboardShortcutsDialog from './PluginKeyboardShortcutsDialog'
 import PluginQuickActions from './PluginQuickActions'
-
-// React 18/19 type compat: tldraw is typed against React 19's broader ReactNode
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const TldrawUiMenuSubmenu: React.FC<any> = _TldrawUiMenuSubmenu as any
 
 type TldrawAppOptions = {
 	iconAssetUrls?: TLUiAssetUrlOverrides['icons']
@@ -128,32 +132,63 @@ export type TldrawAppProps = {
 }
 
 // https://github.com/tldraw/tldraw/blob/58890dcfce698802f745253ca42584731d126cc3/apps/examples/src/examples/custom-main-menu/CustomMainMenuExample.tsx
+const LockZoomCheckboxItem = track(() => {
+	const editor = useEditor()
+	const actions = useActions()
+	const isZoomLocked = editor.getCameraOptions().zoomSteps.length === 1
+	return (
+		<TldrawUiMenuCheckboxItem
+			id={PLUGIN_ACTION_TOGGLE_ZOOM_LOCK}
+			label={{ default: 'Lock zoom' }}
+			kbd="!k"
+			checked={isZoomLocked}
+			onSelect={() => actions[PLUGIN_ACTION_TOGGLE_ZOOM_LOCK].onSelect('zoom-menu')}
+		/>
+	)
+})
+
+function PluginViewSubmenu() {
+	return (
+		<TldrawUiMenuSubmenu id="view" label="menu.view">
+			<TldrawUiMenuGroup id="view-actions">
+				<TldrawUiMenuActionItem actionId="zoom-in" />
+				<TldrawUiMenuActionItem actionId="zoom-out" />
+				<ZoomTo100MenuItem />
+				<ZoomToFitMenuItem />
+				<ZoomToSelectionMenuItem />
+			</TldrawUiMenuGroup>
+			<TldrawUiMenuGroup id="zoom-lock">
+				<LockZoomCheckboxItem />
+			</TldrawUiMenuGroup>
+		</TldrawUiMenuSubmenu>
+	)
+}
+
 const components: TLComponents = {
 	MainMenu: () => (
 		<DefaultMainMenu>
 			<LocalFileMenu />
-			<DefaultMainMenuContent />
+			<TldrawUiMenuGroup id="basic">
+				<EditSubmenu />
+				<PluginViewSubmenu />
+				<ExportFileContentSubMenu />
+				<ExtrasGroup />
+			</TldrawUiMenuGroup>
+			<PreferencesGroup />
 		</DefaultMainMenu>
 	),
 	KeyboardShortcutsDialog: PluginKeyboardShortcutsDialog,
 	QuickActions: PluginQuickActions,
-	ZoomMenu: track(() => {
-		const editor = useEditor()
-		const actions = useActions()
-		const isZoomLocked = editor.getCameraOptions().zoomSteps.length === 1
-		return (
-			<DefaultZoomMenu>
+	ZoomMenu: () => (
+		<DefaultZoomMenu>
+			<TldrawUiMenuGroup id="zoom-menu">
 				<DefaultZoomMenuContent />
-				<TldrawUiMenuCheckboxItem
-					id={PLUGIN_ACTION_TOGGLE_ZOOM_LOCK}
-					label={{ default: 'Lock zoom' }}
-					kbd="!k"
-					checked={isZoomLocked}
-					onSelect={() => actions[PLUGIN_ACTION_TOGGLE_ZOOM_LOCK].onSelect('zoom-menu')}
-				/>
-			</DefaultZoomMenu>
-		)
-	}),
+			</TldrawUiMenuGroup>
+			<TldrawUiMenuGroup id="zoom-lock">
+				<LockZoomCheckboxItem />
+			</TldrawUiMenuGroup>
+		</DefaultZoomMenu>
+	),
 	PageMenu: () => {
 		const editor = useEditor()
 		const hasMultiplePages = useValue('hasMultiplePages', () => editor.getPages().length > 1, [
@@ -167,12 +202,15 @@ const components: TLComponents = {
 function LocalFileMenu() {
 	const actions = useActions()
 
+	const actionItem = (id: keyof typeof actions) =>
+		actions[id] as React.ComponentProps<typeof TldrawUiMenuItem>
+
 	return (
 		<TldrawUiMenuSubmenu id="file" label="menu.file">
-			{Platform.isMobile ? <></> : <TldrawUiMenuItem {...actions[SAVE_FILE_COPY_ACTION]} />}
-			<TldrawUiMenuItem {...actions[SAVE_FILE_COPY_IN_VAULT_ACTION]} />
-			<TldrawUiMenuItem {...actions[OPEN_FILE_ACTION]} />
-			<TldrawUiMenuItem {...actions[CREATE_PAGE_ACTION]} />
+			{Platform.isMobile ? <></> : <TldrawUiMenuItem {...actionItem(SAVE_FILE_COPY_ACTION)} />}
+			<TldrawUiMenuItem {...actionItem(SAVE_FILE_COPY_IN_VAULT_ACTION)} />
+			<TldrawUiMenuItem {...actionItem(OPEN_FILE_ACTION)} />
+			<TldrawUiMenuItem {...actionItem(CREATE_PAGE_ACTION)} />
 		</TldrawUiMenuSubmenu>
 	)
 }
