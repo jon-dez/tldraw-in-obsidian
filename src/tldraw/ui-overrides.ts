@@ -29,15 +29,6 @@ export const PLUGIN_ACTION_TOGGLE_ZOOM_LOCK = 'toggle-zoom-lock'
 export function uiOverrides(plugin: TldrawPlugin): TLUiOverrides {
 	const trackEvent = useUiEvents()
 	return {
-		tools(editor, tools, helpers) {
-			// console.log(tools);
-			// // this is how you would override the kbd shortcuts
-			// tools.draw = {
-			// 	...tools.draw,
-			// 	kbd: "!q",
-			// };
-			return tools
-		},
 		actions: (editor, actions, { msg, addDialog, addToast, paste }) => {
 			const defaultDocumentName = msg('document.default-name')
 			if (!Platform.isMobile) {
@@ -51,7 +42,6 @@ export function uiOverrides(plugin: TldrawPlugin): TLUiOverrides {
 			)
 
 			actions[OPEN_FILE_ACTION] = importFileAction(plugin, addDialog)
-
 			;(['jpeg', 'png', 'svg', 'webp'] satisfies TLExportType[]).map((e) =>
 				exportAllAsOverride(editor, actions, plugin, {
 					exportOptions: {
@@ -85,24 +75,6 @@ export function uiOverrides(plugin: TldrawPlugin): TLUiOverrides {
 
 			return actions
 		},
-		// toolbar(editor, toolbar, { tools }) {
-		// 	// console.log(toolbar);
-		// 	// toolbar.splice(4, 0, toolbarItem(tools.card))
-		// 	return toolbar;
-		// },
-		// keyboardShortcutsMenu(editor, keyboardShortcutsMenu, { tools }) {
-		// 	// console.log(keyboardShortcutsMenu);
-		// 	// const toolsGroup = keyboardShortcutsMenu.find(
-		// 	// 	(group) => group.id === 'shortcuts-dialog.tools'
-		// 	// ) as TLUiMenuGroup
-		// 	// toolsGroup.children.push(menuItem(tools.card))
-		// 	return keyboardShortcutsMenu;
-		// },
-		// contextMenu(editor, schema, helpers) {
-		// 	// console.log({ schema });
-		// 	// console.log(JSON.stringify(schema[0]));
-		// 	return schema;
-		// },
 	}
 }
 
