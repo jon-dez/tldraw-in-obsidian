@@ -1,8 +1,6 @@
 import * as React from 'react'
 import TldrawPlugin from 'src/main'
-import monkeyPatchEditorInstance from 'src/tldraw/monkey-patch/editor'
 import { TldrawPluginMetaData } from 'src/utils/document'
-import { isObsidianThemeDark } from 'src/utils/utils'
 import { Editor, TldrawFile } from 'tldraw'
 import useUserPluginSettings from './useUserPluginSettings'
 
