@@ -20,6 +20,7 @@ import {
 	SAVE_FILE_COPY_IN_VAULT_ACTION,
 } from 'src/utils/file'
 import { getIsDarkMode } from 'src/utils/utils'
+import { getViewport, saveViewport } from 'src/utils/viewport-storage'
 import {
 	TldrawUiMenuSubmenu as _TldrawUiMenuSubmenu,
 	DefaultColorThemePalette,
@@ -30,6 +31,7 @@ import {
 	TLComponents,
 	Tldraw,
 	TldrawEditorStoreProps,
+	TldrawOptions,
 	TldrawUiMenuItem,
 	TLStateNodeConstructor,
 	TLStoreSnapshot,
@@ -68,6 +70,10 @@ type TldrawAppOptions = {
 	tools?: readonly TLStateNodeConstructor[]
 	uiOverrides?: TLUiOverrides
 	components?: TLComponents
+	/**
+	 * An explicit deep link to navigate to on mount, taking precedence over saved viewport state.
+	 */
+	initialDeepLink?: string
 	onEditorMount?: (editor: Editor) => void
 	/**
 	 *
@@ -111,6 +117,10 @@ export type TldrawAppProps = {
 	store?: TldrawAppStoreProps
 	options: TldrawAppOptions
 	targetDocument: Document
+	/**
+	 * The vault-relative file path, used for persisting per-document state like camera viewport.
+	 */
+	filePath?: string
 }
 
 // https://github.com/tldraw/tldraw/blob/58890dcfce698802f745253ca42584731d126cc3/apps/examples/src/examples/custom-main-menu/CustomMainMenuExample.tsx
@@ -162,6 +172,7 @@ const TldrawApp = ({
 		focusOnMount = true,
 		hideUi = false,
 		iconAssetUrls,
+		initialDeepLink,
 		initialTool,
 		isReadonly = false,
 		onEditorMount,
@@ -172,7 +183,8 @@ const TldrawApp = ({
 		tools,
 		uiOverrides: otherUiOverrides,
 	},
-	targetDocument: ownerDocument,
+	targetDocument: _ownerDocument,
+	filePath,
 }: TldrawAppProps) => {
 	const assetUrls = React.useRef({
 		fonts: plugin.getFontOverrides(),
@@ -302,6 +314,31 @@ const TldrawApp = ({
 		}
 	}, [userPreferences])
 
+	const vaultName = plugin.app.vault.getName()
+
+	const tldrawOptions = useMemo<Partial<TldrawOptions>>(() => {
+		const deepLinksConfig = filePath
+			? {
+					debounceMs: 100,
+					getUrl() {
+						const url = new URL('https://obsidian.local')
+						const deepLink = initialDeepLink ?? getViewport(vaultName, filePath)
+						if (deepLink) url.searchParams.set('d', deepLink)
+						return url
+					},
+					onChange(url: URL) {
+						const deepLink = url.searchParams.get('d')
+						if (deepLink) saveViewport(vaultName, filePath, deepLink)
+					},
+				}
+			: undefined
+
+		return {
+			actionShortcutsLocation: 'toolbar',
+			deepLinks: deepLinksConfig,
+		}
+	}, [filePath, vaultName, initialDeepLink])
+
 	return (
 		<div
 			className={`tldraw-view-root ${plugin.settings.themeMode === 'match-theme' ? 'tl-obsidian-theme' : ''}`}
@@ -322,7 +359,7 @@ const TldrawApp = ({
 				hideUi={hideUi}
 				onUiEvent={onUiEvent}
 				overrides={overridesUi.current}
-				options={{ actionShortcutsLocation: 'toolbar' }}
+				options={tldrawOptions}
 				user={user}
 				components={overridesUiComponents.current}
 				// Set this flag to false when a tldraw document is embed into markdown to prevent it from gaining focus when it is loaded.
@@ -341,6 +378,7 @@ export const createRootAndRenderTldrawApp = (
 	options: {
 		app?: TldrawAppOptions
 		store?: TldrawAppStoreProps
+		filePath?: string
 	} = {}
 ) => {
 	const root = createRoot(node)
@@ -351,6 +389,7 @@ export const createRootAndRenderTldrawApp = (
 				store={options.store}
 				options={options.app ?? {}}
 				targetDocument={node.ownerDocument}
+				filePath={options.filePath}
 			/>
 		</TldrawInObsidianPluginProvider>
 	)
