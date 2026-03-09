@@ -7,7 +7,11 @@ import { TldrawInObsidianPluginProvider } from 'src/contexts/plugin'
 import { useClickAwayListener } from 'src/hooks/useClickAwayListener'
 import { useTldrawAppEffects } from 'src/hooks/useTldrawAppHook'
 import TldrawPlugin from 'src/main'
-import { PLUGIN_ACTION_TOGGLE_ZOOM_LOCK, uiOverrides } from 'src/tldraw/ui-overrides'
+import {
+	CREATE_PAGE_ACTION,
+	PLUGIN_ACTION_TOGGLE_ZOOM_LOCK,
+	uiOverrides,
+} from 'src/tldraw/ui-overrides'
 import { TLDataDocumentStore } from 'src/utils/document'
 import { PTLEditorBlockBlur } from 'src/utils/dom-attributes'
 import {
@@ -21,6 +25,7 @@ import {
 	DefaultColorThemePalette,
 	DefaultMainMenu,
 	DefaultMainMenuContent,
+	DefaultPageMenu,
 	Editor,
 	TLComponents,
 	Tldraw,
@@ -35,6 +40,7 @@ import {
 	useActions,
 	useAtom,
 	useComputed,
+	useEditor,
 	useReactor,
 	useValue,
 } from 'tldraw'
@@ -108,18 +114,26 @@ export type TldrawAppProps = {
 }
 
 // https://github.com/tldraw/tldraw/blob/58890dcfce698802f745253ca42584731d126cc3/apps/examples/src/examples/custom-main-menu/CustomMainMenuExample.tsx
-const components = (plugin: TldrawPlugin): TLComponents => ({
+const components: TLComponents = {
 	MainMenu: () => (
 		<DefaultMainMenu>
-			<LocalFileMenu plugin={plugin} />
+			<LocalFileMenu />
 			<DefaultMainMenuContent />
 		</DefaultMainMenu>
 	),
 	KeyboardShortcutsDialog: PluginKeyboardShortcutsDialog,
 	QuickActions: PluginQuickActions,
-})
+	PageMenu: () => {
+		const editor = useEditor()
+		const hasMultiplePages = useValue('hasMultiplePages', () => editor.getPages().length > 1, [
+			editor,
+		])
+		if (!hasMultiplePages) return null
+		return <DefaultPageMenu />
+	},
+}
 
-function LocalFileMenu(props: { plugin: TldrawPlugin }) {
+function LocalFileMenu() {
 	const actions = useActions()
 
 	return (
@@ -127,6 +141,7 @@ function LocalFileMenu(props: { plugin: TldrawPlugin }) {
 			{Platform.isMobile ? <></> : <TldrawUiMenuItem {...actions[SAVE_FILE_COPY_ACTION]} />}
 			<TldrawUiMenuItem {...actions[SAVE_FILE_COPY_IN_VAULT_ACTION]} />
 			<TldrawUiMenuItem {...actions[OPEN_FILE_ACTION]} />
+			<TldrawUiMenuItem {...actions[CREATE_PAGE_ACTION]} />
 		</TldrawUiMenuSubmenu>
 	)
 }
@@ -172,7 +187,7 @@ const TldrawApp = ({
 		...otherUiOverrides,
 	})
 	const overridesUiComponents = React.useRef({
-		...components(plugin),
+		...components,
 		...otherComponents,
 	})
 
