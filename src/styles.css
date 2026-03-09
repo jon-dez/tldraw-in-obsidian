@@ -87,13 +87,6 @@ button:not(.clickable-icon) {
 	box-shadow: none;
 }
 
-.tldraw-view-root .ptl-quick-action-button-wrapper[data-selected='true'] .tlui-button::before {
-	content: '';
-	position: absolute;
-	inset: 4px;
-	border-radius: var(--radius-2);
-}
-
 .tldraw-view-root kbd {
 	background: inherit;
 	border-radius: inherit;
