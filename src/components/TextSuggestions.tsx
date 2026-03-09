@@ -52,7 +52,7 @@ function shouldShowSuggestions(suggestionTextShape: TLTextShape) {
 const TextSuggestions = track(() => {
 	const editor = useEditor()
 	const app = useObsidian()
-	const inputSuggestRef = useRef<TldrawTipTapInputSuggest>()
+	const inputSuggestRef = useRef<TldrawTipTapInputSuggest>(undefined)
 	const [portals, setPortals] = useState<ReactPortal[]>([])
 
 	const editingShapeId = editor.getEditingShapeId()
