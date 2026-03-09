@@ -24,7 +24,7 @@ import {
 	Tldraw,
 	TldrawEditorStoreProps,
 	TldrawUiMenuItem,
-	TldrawUiMenuSubmenu,
+	TldrawUiMenuSubmenu as _TldrawUiMenuSubmenu,
 	TLStateNodeConstructor,
 	TLStoreSnapshot,
 	TLUiAssetUrlOverrides,
@@ -37,6 +37,10 @@ import {
 	useValue,
 } from 'tldraw'
 import PluginKeyboardShortcutsDialog from './PluginKeyboardShortcutsDialog'
+
+// React 18/19 type compat: tldraw is typed against React 19's broader ReactNode
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const TldrawUiMenuSubmenu: React.FC<any> = _TldrawUiMenuSubmenu as any
 import PluginQuickActions from './PluginQuickActions'
 
 type TldrawAppOptions = {
