@@ -15,8 +15,10 @@ import {
 	SAVE_FILE_COPY_ACTION,
 	SAVE_FILE_COPY_IN_VAULT_ACTION,
 } from 'src/utils/file'
-import { getIsDarkMode, isObsidianThemeDark } from 'src/utils/utils'
+import { getIsDarkMode } from 'src/utils/utils'
 import {
+	TldrawUiMenuSubmenu as _TldrawUiMenuSubmenu,
+	DefaultColorThemePalette,
 	DefaultMainMenu,
 	DefaultMainMenuContent,
 	Editor,
@@ -24,7 +26,6 @@ import {
 	Tldraw,
 	TldrawEditorStoreProps,
 	TldrawUiMenuItem,
-	TldrawUiMenuSubmenu as _TldrawUiMenuSubmenu,
 	TLStateNodeConstructor,
 	TLStoreSnapshot,
 	TLUiAssetUrlOverrides,
@@ -34,14 +35,15 @@ import {
 	useActions,
 	useAtom,
 	useComputed,
+	useReactor,
 	useValue,
 } from 'tldraw'
 import PluginKeyboardShortcutsDialog from './PluginKeyboardShortcutsDialog'
+import PluginQuickActions from './PluginQuickActions'
 
 // React 18/19 type compat: tldraw is typed against React 19's broader ReactNode
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const TldrawUiMenuSubmenu: React.FC<any> = _TldrawUiMenuSubmenu as any
-import PluginQuickActions from './PluginQuickActions'
 
 type TldrawAppOptions = {
 	iconAssetUrls?: TLUiAssetUrlOverrides['icons']
@@ -249,19 +251,6 @@ const TldrawApp = ({
 		},
 	})
 
-	/**
-	 * "Flashbang" workaround
-	 *
-	 * The editor shows a loading screen which doesn't reflect the user's preference until the editor is loaded.
-	 * This works around it by checking the user's preference ahead of time and passing the dark theme className.
-	 */
-	const fbWorkAroundClassname = React.useMemo(() => {
-		const themeMode = plugin.settings.themeMode
-		if (themeMode === 'dark') return 'tl-theme__dark'
-		else if (themeMode === 'light') return
-		else return !isObsidianThemeDark() ? undefined : 'tl-theme__dark'
-	}, [plugin])
-
 	const isDarkMode = useAtom('isDarkMode', getIsDarkMode(plugin.settings.themeMode))
 
 	useEffect(() => {
@@ -272,13 +261,15 @@ const TldrawApp = ({
 		return () => plugin.app.workspace.offref(eventRef)
 	}, [plugin, isDarkMode])
 
-	const obsidianThemeOverride = useValue(
-		'obsidianThemeOverride',
-		() => {
-			return isObsidianThemeDark() ? 'theme-dark' : 'theme-light'
-		},
-		[]
-	)
+	useReactor('sync bg color with obsidian theme', () => {
+		const palette = isDarkMode.get()
+			? DefaultColorThemePalette.darkMode
+			: DefaultColorThemePalette.lightMode
+		palette.background = getComputedStyle(document.body)
+			.getPropertyValue('--background-primary')
+			.trim()
+	})
+
 	const userPreferences = useComputed(
 		'userPreferences',
 		() => {
@@ -298,7 +289,7 @@ const TldrawApp = ({
 
 	return (
 		<div
-			className={`tldraw-view-root ${obsidianThemeOverride}`}
+			className={`tldraw-view-root ${plugin.settings.themeMode === 'match-theme' ? 'tl-obsidian-theme' : ''}`}
 			// e.stopPropagation(); this line should solve the mobile swipe menus bug
 			// The bug only happens on the mobile version of Obsidian.
 			// When a user tries to interact with the tldraw canvas,
@@ -306,7 +297,7 @@ const TldrawApp = ({
 			// By preventing the event from propagating, we can prevent those actions menus from opening.
 			onTouchStart={(e) => e.stopPropagation()}
 			ref={editorContainerRef}
-			onFocus={(e) => {
+			onFocus={(_e) => {
 				setFocusedEditor(false, editor)
 			}}
 		>
@@ -323,7 +314,6 @@ const TldrawApp = ({
 				autoFocus={false}
 				onMount={setAppState}
 				tools={tools}
-				className={fbWorkAroundClassname}
 				licenseKey="tldraw-tldraw-2026-07-10/WyIyU3h6ZzhTZyIsWyIqLnRsZHJhdy5jb20iLCIqLnRsZHJhdy5kZXYiLCIqLnRsZHJhdy5jbHViIiwiKi50bGRyYXcud29ya2Vycy5kZXYiXSw5LCIyMDI2LTA3LTEwIl0.+21jrvz5ZFmIvvA/DusCcnFV6Ab1iQQYR+INTqw/i/MmZe/5I/lhdLtqm9nprkQ1MfWL2PeyBmQui1+rjoQS1w"
 			/>
 		</div>
