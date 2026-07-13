@@ -4,6 +4,9 @@
 	"description": "Integrates Tldraw into Obsidian, allowing users to draw and edit content on a virtual whiteboard.",
 	"main": "dist/production/main.js",
 	"private": true,
+	"engines": {
+		"node": ">=24"
+	},
 	"scripts": {
 		"clean": "rm -rf dist && rm -rf node_modules && npm install",
 		"dev": "NODE_ENV=development tsx ./scripts/build.mts",
@@ -33,10 +36,10 @@
 	],
 	"devDependencies": {
 		"@eslint/eslintrc": "^3.3.3",
-		"@eslint/js": "^9.39.2",
-		"@obsidian-plugin-toolkit/esbuild": "^0.2.0",
-		"@obsidian-plugin-toolkit/react": "^0.2.0",
-		"@obsidian-plugin-toolkit/vite": "^0.2.0",
+		"@eslint/js": "^10.0.1",
+		"@obsidian-plugin-toolkit/esbuild": "^0.2.1",
+		"@obsidian-plugin-toolkit/react": "^0.2.2",
+		"@obsidian-plugin-toolkit/vite": "^0.3.0",
 		"@types/mocha": "^10.0.10",
 		"@types/node": "^24.12.0",
 		"@types/react": "^19.2.14",
@@ -63,10 +66,11 @@
 		"tsx": "^4.21.0",
 		"typescript": "^5.5.4",
 		"vite": "^8",
-		"wdio-obsidian-reporter": "^2.4.0",
-		"wdio-obsidian-service": "^2.4.0"
+		"wdio-obsidian-reporter": "^3.1.1",
+		"wdio-obsidian-service": "^3.1.1"
 	},
 	"dependencies": {
+		"@obsidian-plugin-toolkit/e2e": "^0.1.0",
 		"monkey-around": "^2.3.0",
 		"react": "^18.3.1",
 		"react-dom": "^18.3.1",

@@ -1,0 +1,8 @@
+{
+	"id": "test-package-modules",
+	"name": "Test package modules",
+	"version": "0.0.1",
+	"minAppVersion": "1.7.7",
+	"description": "E2E helper: opens a tab with <Tldraw /> using tldraw-in-obsidian shared packages.",
+	"isDesktopOnly": false
+}

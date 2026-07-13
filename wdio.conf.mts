@@ -1,4 +1,6 @@
 /// <reference types="wdio-obsidian-service" />
+/// <reference types="webdriverio" />
+import { browser } from '@wdio/globals'
 import { existsSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import * as path from 'path'
@@ -21,10 +23,19 @@ export const config: WebdriverIO.Config = {
 			browserName: 'obsidian',
 			browserVersion: 'latest',
 			'wdio:obsidianOptions': {
-				installerVersion: 'earliest',
-				plugins: [getTldrawPlugin()],
+				installerVersion: 'latest',
+				plugins: [
+					getTldrawPlugin(),
+					path.join(projectRoot, 'test', 'vaults', 'test-package-modules', '.obsidian', 'plugins', 'test-plugin'),
+				],
 				vault: path.join(projectRoot, 'test', 'vaults', 'default'),
 			},
+			"goog:chromeOptions": {
+        args: [
+					...(process.env.OBSIDIAN_LAUNCHER_ARGS?.split(' ') ?? []),
+          "--remote-debugging-port=9333",
+        ],
+      },
 		},
 	],
 	services: ['obsidian'],
@@ -34,7 +45,35 @@ export const config: WebdriverIO.Config = {
 		ui: 'bdd',
 		timeout: 60000,
 	},
-	logLevel: 'warn',
+	// Obsidian's window launches too small to fit some interactions (ribbon overflow, context-menu
+	// flyout direction, viewport-relative drag coordinates in the specs). A launch-time --window-size
+	// arg is racy under Wayland (compositor doesn't always honor the requested size on the first
+	// configure), and WebDriver's setWindowSize / CDP's Browser.setWindowBounds are no-ops against
+	// Electron's own BrowserWindow. So: poll the actual size and, if too small, correct it via
+	// Electron's own renderer-exposed window handle — retrying rather than trusting a single attempt,
+	// since that race can take more than one pass to resolve. Run before EVERY test (not just once
+	// at session start): the window can get recreated mid-session (vault switch, plugin-enable
+	// reload, etc.), silently reverting to the small default, and a one-time `before` hook misses that.
+	beforeTest: async () => {
+		await ensureWindowSize(1600, 1000)
+	},
+}
+
+async function ensureWindowSize(targetWidth: number, targetHeight: number) {
+	for (let attempt = 0; attempt < 5; attempt++) {
+		const [width, height] = await browser.execute(() => [window.innerWidth, window.innerHeight])
+		if (width >= targetWidth && height >= targetHeight) return
+		await browser.execute(async (w, h) => {
+			await (
+				window as unknown as {
+					electron: { remote: { getCurrentWindow(): { setSize(w: number, h: number): void } } }
+				}
+			).electron.remote.getCurrentWindow().setSize(w, h)
+		}, targetWidth, targetHeight)
+	}
+	console.warn(
+		`Could not grow the Obsidian window to ${targetWidth}x${targetHeight} after 5 attempts; specs may be flaky.`
+	)
 }
 
 function getTldrawPlugin() {

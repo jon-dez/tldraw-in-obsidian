@@ -28,6 +28,7 @@
 		"test",
 		"eslint.config.mjs",
 		"vite.config.mts",
+		"obsidian-plugin-toolkit.config.mts",
 		"wdio.conf.mts"
 	]
 }

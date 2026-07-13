@@ -1,4 +1,7 @@
 import { App, BlockCache } from 'obsidian'
+import * as React from 'react'
+import * as ReactDOM from 'react-dom'
+import * as tldraw from 'tldraw'
 import { createSetStore } from 'src/lib/stores'
 import { AuditSessionManager } from './AuditSessionManager'
 import { MainDataMessages } from './TLDataDocumentStoreManager'
@@ -19,6 +22,13 @@ export default class TldrawInObsidianPluginInstance {
 
 	readonly stores = Object.freeze({
 		documentMessages: createSetStore<DocumentMessagesButton>(),
+	})
+
+	/** Exposed for other plugins that need the same `react`, `react-dom`, and `tldraw` references as this plugin. */
+	readonly packages = Object.freeze({
+		react: React,
+		reactDom: ReactDOM,
+		tldraw,
 	})
 
 	constructor(public readonly app: App) {
