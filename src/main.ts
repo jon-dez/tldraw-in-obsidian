@@ -61,6 +61,7 @@ import { useStatusBarState } from './utils/stores'
 import { createRawTldrawFile } from './utils/tldraw-file'
 import { tldrawFileToJson } from './utils/tldraw-file/tldraw-file-to-json'
 import { checkAndCreateFolder, getNewUniqueFilepath, isValidViewType } from './utils/utils'
+import { installObsidianLinkHandler } from './tldraw/open-obsidian-link'
 
 export default class TldrawPlugin extends Plugin {
 	#instance?: TldrawInObsidianPluginInstance
@@ -93,6 +94,7 @@ export default class TldrawPlugin extends Plugin {
 
 	async onload() {
 		super.onload()
+		installObsidianLinkHandler(this.app)
 		const instance = (this.#instance = new TldrawInObsidianPluginInstance(this.app))
 
 		this.register(() => {

@@ -8,6 +8,7 @@ import { useClickAwayListener } from 'src/hooks/useClickAwayListener'
 import { useTldrawAppEffects } from 'src/hooks/useTldrawAppHook'
 import TldrawPlugin from 'src/main'
 import { TLDRAW_LICENSE_KEY } from 'src/tldraw/license'
+import { installObsidianLinkHandler } from 'src/tldraw/open-obsidian-link'
 import {
 	CREATE_PAGE_ACTION,
 	PLUGIN_ACTION_TOGGLE_ZOOM_LOCK,
@@ -271,13 +272,14 @@ const TldrawApp = ({
 	)
 	const setAppState = React.useCallback(
 		(editor: Editor) => {
+			installObsidianLinkHandler(plugin.app)
 			setEditor(editor)
 			if (_onInitialSnapshot) {
 				_onInitialSnapshot(editor.store.getStoreSnapshot())
 				setOnInitialSnapshot(undefined)
 			}
 		},
-		[_onInitialSnapshot]
+		[_onInitialSnapshot, plugin.app]
 	)
 
 	const onUiEvent = React.useCallback<TLUiEventHandler>(
