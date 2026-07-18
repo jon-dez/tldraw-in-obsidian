@@ -5,7 +5,7 @@ import { tldrawStoreIndexedDBName } from 'src/tldraw/indexeddb-store'
 import { TLDataDocumentStore } from 'src/plugin/document/document'
 import { StoreSnapshot, TLRecord } from 'tldraw'
 import { getFrontMatterList } from '../helpers/front-matter'
-import { TldrawView } from '../TldrawView'
+import { TldrawView } from 'src/plugin/views/TldrawView'
 
 export class TldrawStoreConflictResolveFileUnloaded extends Error {}
 export class TldrawStoreConflictResolveCanceled extends Error {

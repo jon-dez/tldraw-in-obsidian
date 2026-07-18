@@ -1,7 +1,7 @@
 import { MarkdownPostProcessorContext, TFile } from 'obsidian'
 import TldrawPlugin from 'src/main'
 import { ConsoleLogParams, logFn } from 'src/utils/logging'
-import { createEmbedTldraw } from '../components/markdown-render-child'
+import { createEmbedTldraw } from 'src/plugin/embed/markdown-render-child'
 
 /**
  * Processes the embed view for a tldraw white when including it in another obsidian note.

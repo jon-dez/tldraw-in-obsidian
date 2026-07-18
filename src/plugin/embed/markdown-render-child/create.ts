@@ -1,6 +1,6 @@
 import { TFile } from 'obsidian'
 import TldrawPlugin from 'src/main'
-import { MarkdownEmbed } from 'src/obsidian/markdown-embed'
+import { MarkdownEmbed } from 'src/plugin/embed/markdown-embed'
 import { TldrawMarkdownRenderChild } from './tldraw-markdown-render-child'
 
 export default function createEmbedTldraw({

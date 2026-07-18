@@ -1,8 +1,8 @@
 import { TFile } from 'obsidian'
 import TldrawPlugin from 'src/main'
 import { InternalEmbedWidget } from 'src/obsidian/helpers/cm-view'
-import { updateEmbedLinkText } from 'src/obsidian/helpers/embeds'
-import { MarkdownEmbed } from 'src/obsidian/markdown-embed'
+import { updateEmbedLinkText } from 'src/plugin/embed/embeds'
+import { MarkdownEmbed } from 'src/plugin/embed/markdown-embed'
 import { TLDeepLinkOptions } from 'tldraw'
 
 export default function deepLinkListener(

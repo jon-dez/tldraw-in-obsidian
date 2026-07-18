@@ -2,7 +2,7 @@ import {
 	SnapshotPreviewSyncStore,
 	TldrawImageSnapshot,
 } from 'src/components/TldrawImageSnapshotView'
-import { ImageViewModeOptions } from '../../helpers/TldrawAppEmbedViewController'
+import { ImageViewModeOptions } from '../TldrawAppEmbedViewController'
 import { PreviewImage } from './preview-image'
 
 type Callback = () => void

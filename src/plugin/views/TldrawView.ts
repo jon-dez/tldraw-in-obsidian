@@ -2,13 +2,13 @@ import { EditableFileView, TFile, WorkspaceLeaf } from 'obsidian'
 import { TldrawStoreIndexedDB } from 'src/tldraw/indexeddb-store'
 import { TLDataDocumentStore } from 'src/plugin/document/document'
 import { loadSnapshot } from 'tldraw'
-import TldrawPlugin from '../main'
-import { VIEW_TYPE_TLDRAW } from '../utils/constants'
+import TldrawPlugin from 'src/main'
+import { VIEW_TYPE_TLDRAW } from 'src/utils/constants'
 import { BaseTldrawFileView, DataUpdate } from './BaseTldrawFileView'
 import TldrawStoreExistsIndexedDBModal, {
 	TldrawStoreConflictResolveCanceled,
 	TldrawStoreConflictResolveFileUnloaded,
-} from './modal/TldrawStoreExistsIndexedDBModal'
+} from 'src/obsidian/modal/TldrawStoreExistsIndexedDBModal'
 
 export class TldrawView extends BaseTldrawFileView {
 	plugin: TldrawPlugin

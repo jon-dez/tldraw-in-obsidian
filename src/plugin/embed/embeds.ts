@@ -1,6 +1,6 @@
 import { Editor } from 'obsidian'
 import { BoxLike } from 'tldraw'
-import { InternalEmbedWidget } from './cm-view'
+import { InternalEmbedWidget } from 'src/obsidian/helpers/cm-view'
 
 function parseAltText(altText: string): Partial<Record<string, string>> {
 	const altSplit = altText.split(';').map((e) => e.trim())

@@ -7,7 +7,7 @@ import React, {
 	useMemo,
 	useSyncExternalStore,
 } from 'react'
-import { ImageViewModeOptions } from 'src/obsidian/helpers/TldrawAppEmbedViewController'
+import { ImageViewModeOptions } from 'src/plugin/embed/TldrawAppEmbedViewController'
 import { logFn } from 'src/utils/logging'
 import { Box, TldrawImage } from 'tldraw'
 

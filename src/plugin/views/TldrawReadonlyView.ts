@@ -12,7 +12,7 @@ import { TLDataDocumentStore } from 'src/plugin/document/document'
 import { migrateTldrawFileDataIfNecessary } from 'src/plugin/document/migrate/tl-data-to-tlstore'
 import { TLDRAW_FILE_EXTENSION } from 'tldraw'
 import { BaseTldrawFileView } from './BaseTldrawFileView'
-import { pluginMenuLabel } from './menu'
+import { pluginMenuLabel } from 'src/obsidian/menu'
 
 export class TldrawReadonlyView extends BaseTldrawFileView {
 	plugin: TldrawPlugin

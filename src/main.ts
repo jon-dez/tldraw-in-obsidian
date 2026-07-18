@@ -16,15 +16,15 @@ import { Root } from 'react-dom/client'
 import { Editor, TLDRAW_FILE_EXTENSION, TLStore } from 'tldraw'
 import { createReactStatusBarViewMode } from './components/StatusBarViewMode'
 import createMain from './components/plugin/TldrawInObsidian'
-import { TldrawOfflineFileView } from './obsidian/TldrawOfflineFileView'
-import { ReadonlyTldrawView } from './obsidian/TldrawReadonlyView'
+import { TldrawOfflineFileView } from 'src/plugin/views/TldrawOfflineFileView'
+import { ReadonlyTldrawView } from 'src/plugin/views/TldrawReadonlyView'
 import {
 	DEFAULT_SETTINGS,
 	TldrawPluginSettings,
 	TldrawSettingsTab,
 } from './obsidian/TldrawSettingsTab'
-import { EditableTldrawView } from './obsidian/TldrawView'
-import { createEmbedTldraw } from './obsidian/components/markdown-render-child'
+import { EditableTldrawView } from 'src/plugin/views/TldrawView'
+import { createEmbedTldraw } from 'src/plugin/embed/markdown-render-child'
 import { formatFilePrefix } from './obsidian/file/new'
 import { pluginMenuLabel } from './obsidian/menu'
 import TLDataDocumentStoreManager from 'src/plugin/stores/TLDataDocumentStoreManager'
@@ -32,7 +32,7 @@ import { TldrawFileListenerMap } from 'src/plugin/stores/TldrawFileListenerMap'
 import { registerCommands } from './obsidian/plugin/commands'
 import { getTldrawFileDestination } from './obsidian/plugin/file-destination'
 import TldrawInObsidianPluginInstance from './obsidian/plugin/instance'
-import { markdownPostProcessor } from './obsidian/plugin/markdown-post-processor'
+import { markdownPostProcessor } from 'src/plugin/embed/markdown-post-processor'
 import { processFontOverrides, processIconOverrides } from './obsidian/plugin/settings'
 import UserSettingsManager from './obsidian/settings/UserSettingsManager'
 import {

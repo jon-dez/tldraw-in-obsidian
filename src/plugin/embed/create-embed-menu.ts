@@ -2,8 +2,8 @@ import { Menu, MenuItem } from 'obsidian'
 import { MARKDOWN_ICON_NAME, PaneTarget, ViewType } from 'src/utils/constants'
 import { PTLEditorBlockBlur } from 'src/utils/dom-attributes'
 import { BoxLike } from 'tldraw'
-import { pluginMenuLabel } from '.'
-import { TldrawAppViewModeController } from '../helpers/TldrawAppEmbedViewController'
+import { pluginMenuLabel } from 'src/obsidian/menu'
+import { TldrawAppViewModeController } from './TldrawAppEmbedViewController'
 
 export type TldrAppControllerForMenu = Pick<
 	TldrawAppViewModeController,

@@ -1,5 +1,5 @@
 import { getCmViewWidget } from 'src/obsidian/helpers/cm-view'
-import { parseEmbedValues, updateEmbed, updateEmbedBounds } from 'src/obsidian/helpers/embeds'
+import { parseEmbedValues, updateEmbed, updateEmbedBounds } from 'src/plugin/embed/embeds'
 import toPageId from 'src/tldraw/helpers/string-to-page-id'
 import { logClass } from 'src/utils/logging'
 import { BoxLike, TLDeepLink } from 'tldraw'
