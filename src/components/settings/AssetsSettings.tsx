@@ -12,7 +12,7 @@ import React, {
 } from 'react'
 import useSettingsManager from 'src/hooks/useSettingsManager'
 import useUserPluginSettings from 'src/hooks/useUserPluginSettings'
-import DownloadManagerModal from 'src/obsidian/modal/DownloadManagerModal'
+import DownloadManagerModal from 'src/obsidian/download/DownloadManagerModal'
 import { FileSearchModal } from 'src/obsidian/modal/FileSearchModal'
 import {
 	defaultFonts,
@@ -25,7 +25,7 @@ import FontsSettingsManager from 'src/obsidian/settings/FontsSettingsManager'
 import IconsSettingsManager from 'src/obsidian/settings/IconsSettingsManager'
 import { tldrawNpmAssetsBrowseUrl } from 'src/obsidian/settings/tldrawNpmAssets'
 import { FontTypes, IconNames } from 'src/types/tldraw'
-import { DownloadInfo } from 'src/utils/fetch/download'
+import { DownloadInfo } from 'src/obsidian/download/download'
 
 function AssetsSettingsGroup({ downloadAll }: { downloadAll: () => void }) {
 	const settingsManager = useSettingsManager()

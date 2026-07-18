@@ -1,6 +1,6 @@
 import { App, ButtonComponent, Modal, normalizePath, Notice, Setting, TFile } from 'obsidian'
 import TldrawPlugin from 'src/main'
-import { getDir, pathBasename } from 'src/utils/path'
+import { getDir, pathBasename } from 'src/obsidian/helpers/path'
 
 type SaveFileModalOptions = NonNullable<unknown>
 

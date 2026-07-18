@@ -1,5 +1,5 @@
 import { normalizePath, TAbstractFile, TFolder, Vault } from 'obsidian'
-import { getDir, pathBasename } from '../path'
+import { getDir, pathBasename } from '../helpers/path'
 
 export class DownloadError extends Error {}
 

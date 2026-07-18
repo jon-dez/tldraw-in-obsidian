@@ -3,7 +3,7 @@ import {
 	DownloadErrorTAbstractFileExists,
 	DownloadInfo,
 	fetchAndSaveDownload,
-} from 'src/utils/fetch/download'
+} from 'src/obsidian/download/download'
 
 type DownloadContext = {
 	info: DownloadInfo

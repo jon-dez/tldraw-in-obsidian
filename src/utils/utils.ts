@@ -1,7 +1,7 @@
 import { FileManager, Notice, TAbstractFile, TFile, TFolder, Vault, normalizePath } from 'obsidian'
 import { ThemePreference } from 'src/obsidian/TldrawSettingsTab'
 import { FILE_EXTENSION, VIEW_TYPES, ViewType } from './constants'
-import { pathBasename } from './path'
+import { pathBasename } from 'src/obsidian/helpers/path'
 
 export const removeAllChildNodes = (parent: HTMLElement) => {
 	while (parent.firstChild) {

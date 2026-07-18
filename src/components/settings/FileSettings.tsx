@@ -21,7 +21,7 @@ import {
 	MAX_SAVE_DELAY,
 	MIN_SAVE_DELAY,
 } from 'src/utils/constants'
-import { pathBasenameNoExt } from 'src/utils/path'
+import { pathBasenameNoExt } from 'src/obsidian/helpers/path'
 import { clamp, msToSeconds } from 'src/utils/utils'
 import { Dropdown, Text, Toggle, ExtraButton, MomentFormat } from '@obsidian-plugin-toolkit/react/components'
 import { Setting, Group } from '@obsidian-plugin-toolkit/react/components/setting/group'

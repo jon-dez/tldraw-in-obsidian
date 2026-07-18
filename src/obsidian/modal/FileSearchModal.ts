@@ -1,6 +1,6 @@
 import { normalizePath, setIcon, SuggestModal, TAbstractFile, TFile, TFolder } from 'obsidian'
 import TldrawPlugin from 'src/main'
-import { getDir } from 'src/utils/path'
+import { getDir } from 'src/obsidian/helpers/path'
 
 type Suggestion = {
 	icon: string

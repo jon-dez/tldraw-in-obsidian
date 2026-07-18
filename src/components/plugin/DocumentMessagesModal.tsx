@@ -5,7 +5,7 @@ import { useStorify } from 'src/hooks/useStorify'
 import { navigateToBlockCache } from 'src/obsidian/file/navigate'
 import { DocumentMessage } from 'src/obsidian/plugin/TLDataDocumentMessages'
 import { MainDataMessages } from 'src/obsidian/plugin/TLDataDocumentStoreManager'
-import { ButtonComponent, Modal } from 'src/obsidian/react-components'
+import { ButtonComponent, Modal } from 'src/obsidian/react'
 
 export function DocumentMessagesModal({
 	messages,
