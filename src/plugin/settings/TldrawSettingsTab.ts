@@ -1,12 +1,12 @@
 import { ReactPluginSettingTab } from '@obsidian-plugin-toolkit/react/utils'
 import { App } from 'obsidian'
 import { createElement } from 'react'
-import TldrawSettingsTabView from 'src/components/settings/TldrawSettingsTabView'
-import { FontOverrides, IconOverrides } from 'src/types/tldraw'
+import TldrawSettingsTabView from 'src/plugin/settings/ui/TldrawSettingsTabView'
+import { FontOverrides, IconOverrides } from 'src/plugin/settings/overrides-types'
 import { VIEW_TYPE_TLDRAW, ViewType } from 'src/utils/constants'
 import { TLCameraOptions, TldrawOptions } from 'tldraw'
 import TldrawPlugin from '../main'
-import { destinationMethods, themePreferenceRecord } from './settings/constants'
+import { destinationMethods, themePreferenceRecord } from './constants'
 
 export type ThemePreference = keyof typeof themePreferenceRecord
 

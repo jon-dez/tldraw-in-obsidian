@@ -3,7 +3,7 @@ import TldrawPlugin from 'src/main'
 import { TLDRAW_ICON_NAME } from 'src/utils/constants'
 import { getAttachmentsFolder, validateFolderPath } from '../helpers/app'
 import { getColocationDestination } from '../plugin/file-destination'
-import { destinationMethods, destinationMethodsRecord } from '../settings/constants'
+import { destinationMethods, destinationMethodsRecord } from 'src/plugin/settings/constants'
 import { FileSearchCanceled, FileSearchModal } from './FileSearchModal'
 
 type Result = {

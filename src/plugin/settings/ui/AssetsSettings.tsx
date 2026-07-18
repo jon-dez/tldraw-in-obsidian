@@ -20,11 +20,11 @@ import {
 	FontGroupMatcher,
 	iconExtensions,
 	iconTypes,
-} from 'src/obsidian/settings/constants'
-import FontsSettingsManager from 'src/obsidian/settings/FontsSettingsManager'
-import IconsSettingsManager from 'src/obsidian/settings/IconsSettingsManager'
-import { tldrawNpmAssetsBrowseUrl } from 'src/obsidian/settings/tldrawNpmAssets'
-import { FontTypes, IconNames } from 'src/types/tldraw'
+} from 'src/plugin/settings/constants'
+import FontsSettingsManager from 'src/plugin/settings/FontsSettingsManager'
+import IconsSettingsManager from 'src/plugin/settings/IconsSettingsManager'
+import { tldrawNpmAssetsBrowseUrl } from 'src/plugin/settings/tldrawNpmAssets'
+import { FontTypes, IconNames } from 'src/plugin/settings/overrides-types'
 import { DownloadInfo } from 'src/obsidian/download/download'
 
 function AssetsSettingsGroup({ downloadAll }: { downloadAll: () => void }) {

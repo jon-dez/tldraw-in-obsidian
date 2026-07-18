@@ -22,7 +22,7 @@ import {
 	DEFAULT_SETTINGS,
 	TldrawPluginSettings,
 	TldrawSettingsTab,
-} from './obsidian/TldrawSettingsTab'
+} from 'src/plugin/settings/TldrawSettingsTab'
 import { EditableTldrawView } from 'src/plugin/views/TldrawView'
 import { createEmbedTldraw } from 'src/plugin/embed/markdown-render-child'
 import { formatFilePrefix } from './obsidian/file/new'
@@ -33,8 +33,8 @@ import { registerCommands } from './obsidian/plugin/commands'
 import { getTldrawFileDestination } from './obsidian/plugin/file-destination'
 import TldrawInObsidianPluginInstance from './obsidian/plugin/instance'
 import { markdownPostProcessor } from 'src/plugin/embed/markdown-post-processor'
-import { processFontOverrides, processIconOverrides } from './obsidian/plugin/settings'
-import UserSettingsManager from './obsidian/settings/UserSettingsManager'
+import { processFontOverrides, processIconOverrides } from 'src/plugin/settings/process-overrides'
+import UserSettingsManager from 'src/plugin/settings/UserSettingsManager'
 import {
 	FILE_EXTENSION,
 	FRONTMATTER_KEY,

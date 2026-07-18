@@ -1,4 +1,4 @@
-import { defaultFonts, iconTypes } from 'src/obsidian/settings/constants'
+import { defaultFonts, iconTypes } from 'src/plugin/settings/constants'
 import { TldrawProps } from 'tldraw'
 
 export type FontTypes = keyof typeof defaultFonts

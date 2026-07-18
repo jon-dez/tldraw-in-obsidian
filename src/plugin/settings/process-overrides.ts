@@ -1,6 +1,6 @@
-import { IconNames } from 'src/types/tldraw'
-import { TldrawPluginSettings } from '../TldrawSettingsTab'
-import { defaultFonts, iconTypes } from '../settings/constants'
+import { IconNames } from 'src/plugin/settings/overrides-types'
+import { TldrawPluginSettings } from './TldrawSettingsTab'
+import { defaultFonts, iconTypes } from './constants'
 
 type FontOverridesSettings = NonNullable<TldrawPluginSettings['fonts']>['overrides']
 type IconOverridesSettings = NonNullable<TldrawPluginSettings['icons']>['overrides']

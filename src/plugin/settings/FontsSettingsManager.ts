@@ -1,8 +1,8 @@
 import { Notice } from 'obsidian'
 import TldrawPlugin from 'src/main'
-import { FontTypes } from 'src/types/tldraw'
+import { FontTypes } from 'src/plugin/settings/overrides-types'
 import { DownloadInfo } from 'src/obsidian/download/download'
-import { updateFontOverrides } from '../plugin/settings'
+import { updateFontOverrides } from './process-overrides'
 import { defaultFonts } from './constants'
 import { TLDRAW_NPM_ASSETS_BASE_URL } from './tldrawNpmAssets'
 

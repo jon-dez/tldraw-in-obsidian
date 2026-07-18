@@ -4,7 +4,7 @@ import {
 	FileDestinationsSettings,
 	TldrawPluginSettings,
 	UserTLCameraOptions,
-} from '../TldrawSettingsTab'
+} from './TldrawSettingsTab'
 
 type UserTldrawOptions = NonNullable<TldrawPluginSettings['tldrawOptions']>
 

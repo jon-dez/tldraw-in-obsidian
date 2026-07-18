@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react'
 import useSettingsManager from 'src/hooks/useSettingsManager'
 import useUserPluginSettings from 'src/hooks/useUserPluginSettings'
-import { DEFAULT_SETTINGS, TldrawPluginSettings } from 'src/obsidian/TldrawSettingsTab'
+import { DEFAULT_SETTINGS, TldrawPluginSettings } from 'src/plugin/settings/TldrawSettingsTab'
 import { Group, Setting } from '@obsidian-plugin-toolkit/react/components/setting/group'
 import { Toggle, Dropdown } from '@obsidian-plugin-toolkit/react/components'
 

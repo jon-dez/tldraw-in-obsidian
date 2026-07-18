@@ -1,8 +1,8 @@
 import { Notice } from 'obsidian'
 import TldrawPlugin from 'src/main'
-import { IconNames } from 'src/types/tldraw'
+import { IconNames } from 'src/plugin/settings/overrides-types'
 import { DownloadInfo } from 'src/obsidian/download/download'
-import { updateIconOverrides } from '../plugin/settings'
+import { updateIconOverrides } from './process-overrides'
 import { iconTypes } from './constants'
 import { TLDRAW_NPM_ASSETS_BASE_URL } from './tldrawNpmAssets'
 

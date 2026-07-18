@@ -1,5 +1,5 @@
 import { FileManager, Notice, TAbstractFile, TFile, TFolder, Vault, normalizePath } from 'obsidian'
-import { ThemePreference } from 'src/obsidian/TldrawSettingsTab'
+import { ThemePreference } from 'src/plugin/settings/TldrawSettingsTab'
 import { FILE_EXTENSION, VIEW_TYPES, ViewType } from './constants'
 import { pathBasename } from 'src/obsidian/helpers/path'
 

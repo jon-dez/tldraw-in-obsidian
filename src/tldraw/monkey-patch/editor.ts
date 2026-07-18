@@ -1,4 +1,4 @@
-import UserSettingsManager from 'src/obsidian/settings/UserSettingsManager'
+import UserSettingsManager from 'src/plugin/settings/UserSettingsManager'
 import { Editor, ScribbleItem } from 'tldraw'
 
 function isLaserScribbleAndKeepDelayAfterStop(

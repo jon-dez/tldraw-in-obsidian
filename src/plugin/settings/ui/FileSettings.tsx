@@ -12,9 +12,9 @@ import useSettingsManager from 'src/hooks/useSettingsManager'
 import useUserPluginSettings from 'src/hooks/useUserPluginSettings'
 import { validateFolderPath } from 'src/obsidian/helpers/app'
 import { isValidFrontmatterTag } from 'src/obsidian/helpers/front-matter'
-import { destinationMethods, destinationMethodsRecord } from 'src/obsidian/settings/constants'
-import UserSettingsManager from 'src/obsidian/settings/UserSettingsManager'
-import { DEFAULT_SETTINGS, DestinationMethod } from 'src/obsidian/TldrawSettingsTab'
+import { destinationMethods, destinationMethodsRecord } from 'src/plugin/settings/constants'
+import UserSettingsManager from 'src/plugin/settings/UserSettingsManager'
+import { DEFAULT_SETTINGS, DestinationMethod } from 'src/plugin/settings/TldrawSettingsTab'
 import {
 	DEFAULT_SAVE_DELAY,
 	FRONTMATTER_KEY,
