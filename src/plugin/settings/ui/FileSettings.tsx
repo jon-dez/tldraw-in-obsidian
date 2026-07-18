@@ -8,8 +8,8 @@ import React, {
 	useRef,
 	useState,
 } from 'react'
-import useSettingsManager from 'src/hooks/useSettingsManager'
-import useUserPluginSettings from 'src/hooks/useUserPluginSettings'
+import useSettingsManager from 'src/plugin/app/hooks/useSettingsManager'
+import useUserPluginSettings from 'src/plugin/app/hooks/useUserPluginSettings'
 import { validateFolderPath } from 'src/obsidian/helpers/app'
 import { isValidFrontmatterTag } from 'src/obsidian/helpers/front-matter'
 import { destinationMethods, destinationMethodsRecord } from 'src/plugin/settings/constants'

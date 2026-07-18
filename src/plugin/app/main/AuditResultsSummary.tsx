@@ -1,6 +1,6 @@
 import React from 'react'
-import { useTldrawInObsdianPlugin } from 'src/contexts/plugin'
-import { useDocumentAudit } from 'src/hooks/useDocumentAudit'
+import { useTldrawInObsdianPlugin } from 'src/plugin/app/contexts/plugin'
+import { useDocumentAudit } from 'src/plugin/app/hooks/useDocumentAudit'
 import { AuditSessionState } from 'src/obsidian/plugin/AuditSessionManager'
 import { AssetEntry } from 'src/obsidian/plugin/instance'
 import { AuditLayout } from './AuditCommon'

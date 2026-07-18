@@ -1,5 +1,5 @@
 import { useContext } from 'react'
-import { SettingsManagerContext } from 'src/contexts/setting-manager-context'
+import { SettingsManagerContext } from 'src/plugin/app/contexts/setting-manager-context'
 
 export default function useSettingsManager() {
 	const settingsManager = useContext(SettingsManagerContext)

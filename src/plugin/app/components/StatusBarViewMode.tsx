@@ -4,8 +4,8 @@ import {
 	VIEW_TYPE_MARKDOWN,
 	VIEW_TYPE_TLDRAW,
 	VIEW_TYPE_TLDRAW_READ_ONLY,
-} from '../utils/constants'
-import { useStatusBarState } from '../utils/stores'
+} from 'src/utils/constants'
+import { useStatusBarState } from '../status-bar-store'
 
 const StatusBarViewMode = () => {
 	const view = useStatusBarState((state) => state.view)

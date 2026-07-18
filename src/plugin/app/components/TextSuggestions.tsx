@@ -1,7 +1,7 @@
 import { AbstractInputSuggest, App, Notice, TFile } from 'obsidian'
 import React, { ReactPortal, useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { useObsidian } from 'src/contexts/plugin'
+import { useObsidian } from 'src/plugin/app/contexts/plugin'
 import { vaultFileToBlob } from 'src/obsidian/helpers/vault'
 import { ObsidianTLAssetStore } from 'src/plugin/assets/asset-store'
 import { createDataUrlImageAssetFromBlob } from 'src/tldraw/helpers/create-asset'

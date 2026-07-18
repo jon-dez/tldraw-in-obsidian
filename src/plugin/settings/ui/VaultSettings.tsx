@@ -1,7 +1,7 @@
 import { Button } from '@obsidian-plugin-toolkit/react/components'
 import { Group, Setting } from '@obsidian-plugin-toolkit/react/components/setting/group'
 import React, { useSyncExternalStore } from 'react'
-import useSettingsManager from 'src/hooks/useSettingsManager'
+import useSettingsManager from 'src/plugin/app/hooks/useSettingsManager'
 
 export default function VaultSettings() {
 	const settingsManager = useSettingsManager()

@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react'
-import useSettingsManager from 'src/hooks/useSettingsManager'
-import useUserPluginSettings from 'src/hooks/useUserPluginSettings'
+import useSettingsManager from 'src/plugin/app/hooks/useSettingsManager'
+import useUserPluginSettings from 'src/plugin/app/hooks/useUserPluginSettings'
 import { ThemePreference } from 'src/plugin/settings/TldrawSettingsTab'
 import { themePreferenceRecord } from 'src/plugin/settings/constants'
 import { Setting, Group } from '@obsidian-plugin-toolkit/react/components/setting/group'

@@ -1,6 +1,6 @@
 import { ButtonComponent, MetadataCache, Modal, Setting, TextComponent, TFile } from 'obsidian'
 import { Root } from 'react-dom/client'
-import { createRootAndRenderTldrawApp, TldrawAppProps } from 'src/components/TldrawApp'
+import { createRootAndRenderTldrawApp, TldrawAppProps } from 'src/plugin/app/TldrawApp'
 import { tldrawStoreIndexedDBName } from 'src/tldraw/indexeddb-store'
 import { TLDataDocumentStore } from 'src/plugin/document/document'
 import { StoreSnapshot, TLRecord } from 'tldraw'

@@ -1,5 +1,5 @@
 import { FileView, Menu, Notice, TFile, WorkspaceLeaf } from 'obsidian'
-import { TldrawAppProps } from 'src/components/TldrawApp'
+import { TldrawAppProps } from 'src/plugin/app/TldrawApp'
 import TldrawPlugin from 'src/main'
 import {
 	PaneTarget,

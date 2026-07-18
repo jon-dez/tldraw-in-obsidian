@@ -1,7 +1,7 @@
 import {
 	SnapshotPreviewSyncStore,
 	TldrawImageSnapshot,
-} from 'src/components/TldrawImageSnapshotView'
+} from 'src/plugin/app/components/TldrawImageSnapshotView'
 import { ImageViewModeOptions } from '../TldrawAppEmbedViewController'
 import { PreviewImage } from './preview-image'
 

@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo } from 'react'
-import useSettingsManager from 'src/hooks/useSettingsManager'
-import useUserPluginSettings from 'src/hooks/useUserPluginSettings'
+import useSettingsManager from 'src/plugin/app/hooks/useSettingsManager'
+import useUserPluginSettings from 'src/plugin/app/hooks/useUserPluginSettings'
 import { Setting } from '@obsidian-plugin-toolkit/react/components/setting/group'
 import { Dropdown } from '@obsidian-plugin-toolkit/react/components'
 

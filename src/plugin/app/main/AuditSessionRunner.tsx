@@ -1,5 +1,5 @@
 import React, { useState, useSyncExternalStore } from 'react'
-import { useTldrawInObsdianPlugin, useTldrawPlugin } from 'src/contexts/plugin'
+import { useTldrawInObsdianPlugin, useTldrawPlugin } from 'src/plugin/app/contexts/plugin'
 import { ModalWrapper } from 'src/obsidian/react/modal'
 import { AuditResultsSummary } from './AuditResultsSummary'
 import { LooseAssetsScanner } from './LooseAssetsScanner'

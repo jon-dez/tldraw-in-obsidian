@@ -1,5 +1,5 @@
-import { TldrawAppStoreProps } from 'src/components/TldrawApp'
-import { TldrawImageSnapshot } from 'src/components/TldrawImageSnapshotView'
+import { TldrawAppStoreProps } from 'src/plugin/app/TldrawApp'
+import { TldrawImageSnapshot } from 'src/plugin/app/components/TldrawImageSnapshotView'
 import { Store } from 'tldraw'
 import { ImageViewModeOptions } from '../TldrawAppEmbedViewController'
 import TLDataDocumentStoreManager from 'src/plugin/stores/TLDataDocumentStoreManager'

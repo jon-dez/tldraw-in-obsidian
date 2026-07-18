@@ -14,8 +14,8 @@ import {
 } from 'obsidian'
 import { Root } from 'react-dom/client'
 import { Editor, TLDRAW_FILE_EXTENSION, TLStore } from 'tldraw'
-import { createReactStatusBarViewMode } from './components/StatusBarViewMode'
-import createMain from './components/plugin/TldrawInObsidian'
+import { createReactStatusBarViewMode } from 'src/plugin/app/components/StatusBarViewMode'
+import createMain from 'src/plugin/app/main/TldrawInObsidian'
 import { TldrawOfflineFileView } from 'src/plugin/views/TldrawOfflineFileView'
 import { ReadonlyTldrawView } from 'src/plugin/views/TldrawReadonlyView'
 import {
@@ -57,7 +57,7 @@ import {
 	tlFileTemplate,
 } from 'src/plugin/document/document'
 import { migrateTldrawFileDataIfNecessary } from 'src/plugin/document/migrate/tl-data-to-tlstore'
-import { useStatusBarState } from './utils/stores'
+import { useStatusBarState } from 'src/plugin/app/status-bar-store'
 import { createRawTldrawFile } from 'src/plugin/document/tldraw-file'
 import { tldrawFileToJson } from 'src/plugin/document/tldraw-file/tldraw-file-to-json'
 import { checkAndCreateFolder, getNewUniqueFilepath, isValidViewType } from './utils/utils'

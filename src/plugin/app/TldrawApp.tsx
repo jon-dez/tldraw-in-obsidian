@@ -3,9 +3,9 @@ import * as React from 'react'
 import { useEffect, useMemo } from 'react'
 import { createRoot } from 'react-dom/client'
 import { lockZoomIcon } from 'src/assets/data-icons'
-import { TldrawInObsidianPluginProvider } from 'src/contexts/plugin'
-import { useClickAwayListener } from 'src/hooks/useClickAwayListener'
-import { useTldrawAppEffects } from 'src/hooks/useTldrawAppHook'
+import { TldrawInObsidianPluginProvider } from 'src/plugin/app/contexts/plugin'
+import { useClickAwayListener } from 'src/plugin/app/hooks/useClickAwayListener'
+import { useTldrawAppEffects } from 'src/plugin/app/hooks/useTldrawAppHook'
 import TldrawPlugin from 'src/main'
 import { TLDRAW_LICENSE_KEY } from 'src/tldraw/license'
 import { installObsidianLinkHandler } from 'src/tldraw/open-obsidian-link'
@@ -59,8 +59,8 @@ import {
 	ZoomToFitMenuItem,
 	ZoomToSelectionMenuItem,
 } from 'tldraw'
-import PluginKeyboardShortcutsDialog from './PluginKeyboardShortcutsDialog'
-import PluginQuickActions from './PluginQuickActions'
+import PluginKeyboardShortcutsDialog from './components/PluginKeyboardShortcutsDialog'
+import PluginQuickActions from './components/PluginQuickActions'
 
 type TldrawAppOptions = {
 	iconAssetUrls?: TLUiAssetUrlOverrides['icons']

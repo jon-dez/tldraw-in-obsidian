@@ -10,8 +10,8 @@ import React, {
 	useState,
 	useSyncExternalStore,
 } from 'react'
-import useSettingsManager from 'src/hooks/useSettingsManager'
-import useUserPluginSettings from 'src/hooks/useUserPluginSettings'
+import useSettingsManager from 'src/plugin/app/hooks/useSettingsManager'
+import useUserPluginSettings from 'src/plugin/app/hooks/useUserPluginSettings'
 import DownloadManagerModal from 'src/obsidian/download/DownloadManagerModal'
 import { FileSearchModal } from 'src/obsidian/modal/FileSearchModal'
 import {

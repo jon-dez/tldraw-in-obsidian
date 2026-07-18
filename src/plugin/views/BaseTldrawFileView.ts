@@ -1,11 +1,11 @@
 import { FileView, TFile } from 'obsidian'
 import { Root } from 'react-dom/client'
-import InFrontOfTheCanvas from 'src/components/InFrontOfTheCanvas'
+import InFrontOfTheCanvas from 'src/plugin/app/components/InFrontOfTheCanvas'
 import {
 	createRootAndRenderTldrawApp,
 	TldrawAppProps,
 	TldrawAppStoreProps,
-} from 'src/components/TldrawApp'
+} from 'src/plugin/app/TldrawApp'
 import TldrawPlugin from 'src/main'
 import { MARKDOWN_ICON_NAME, VIEW_TYPE_MARKDOWN } from 'src/utils/constants'
 import { TLDataDocumentStore } from 'src/plugin/document/document'

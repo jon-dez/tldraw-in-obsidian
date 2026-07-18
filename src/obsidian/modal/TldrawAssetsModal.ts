@@ -1,5 +1,5 @@
 import { App, ButtonComponent, Modal, TFile } from 'obsidian'
-import { TldrawAppStoreProps } from 'src/components/TldrawApp'
+import { TldrawAppStoreProps } from 'src/plugin/app/TldrawApp'
 import { ObsidianTLAssetStore } from 'src/plugin/assets/asset-store'
 import { Store } from 'tldraw'
 

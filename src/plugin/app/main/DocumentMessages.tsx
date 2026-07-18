@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState, useSyncExternalStore } from 'react'
 import { createPortal } from 'react-dom'
-import { useTldrawInObsdianPlugin } from 'src/contexts/plugin'
+import { useTldrawInObsdianPlugin } from 'src/plugin/app/contexts/plugin'
 import { DocumentMessagesButton } from 'src/obsidian/plugin/instance'
 import { DocumentMessagesModal } from './DocumentMessagesModal'
 

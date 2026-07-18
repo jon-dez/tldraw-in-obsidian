@@ -1,12 +1,12 @@
 import { Component } from 'obsidian'
 import { ComponentProps, createElement, ReactNode } from 'react'
 import { createRoot, Root } from 'react-dom/client'
-import TldrawApp from 'src/components/TldrawApp'
+import TldrawApp from 'src/plugin/app/TldrawApp'
 import {
 	SnapshotPreviewSyncStore,
 	TldrawImageSnapshotView,
-} from 'src/components/TldrawImageSnapshotView'
-import { TldrawInObsidianPluginProvider } from 'src/contexts/plugin'
+} from 'src/plugin/app/components/TldrawImageSnapshotView'
+import { TldrawInObsidianPluginProvider } from 'src/plugin/app/contexts/plugin'
 import { logClass } from 'src/utils/logging'
 
 /**
