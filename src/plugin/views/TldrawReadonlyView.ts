@@ -1,6 +1,6 @@
 import { FileView, Menu, Notice, TFile, WorkspaceLeaf } from 'obsidian'
 import { TldrawAppProps } from 'src/plugin/app/TldrawApp'
-import TldrawPlugin from 'src/main'
+import TldrawPlugin from 'src/plugin/TldrawPlugin'
 import {
 	PaneTarget,
 	TLDRAW_ICON_NAME,
@@ -12,7 +12,7 @@ import { TLDataDocumentStore } from 'src/plugin/document/document'
 import { migrateTldrawFileDataIfNecessary } from 'src/plugin/document/migrate/tl-data-to-tlstore'
 import { TLDRAW_FILE_EXTENSION } from 'tldraw'
 import { BaseTldrawFileView } from './BaseTldrawFileView'
-import { pluginMenuLabel } from 'src/obsidian/menu'
+import { pluginMenuLabel } from 'src/plugin/menu'
 
 export class TldrawReadonlyView extends BaseTldrawFileView {
 	plugin: TldrawPlugin

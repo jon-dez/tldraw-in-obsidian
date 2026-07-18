@@ -1,6 +1,6 @@
 import { BlockCache, debounce, EventRef, Notice, TFile, Workspace } from 'obsidian'
 import { createRecordStore } from 'src/lib/stores'
-import TldrawPlugin from 'src/main'
+import TldrawPlugin from 'src/plugin/TldrawPlugin'
 import {
 	BlockRefAssetId,
 	ObsidianMarkdownFileTLAssetStoreProxy,

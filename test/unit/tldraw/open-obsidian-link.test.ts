@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 import { TFile } from 'obsidian'
-import { normalizeObsidianUri, openObsidianUri } from 'src/tldraw/open-obsidian-link'
+import { normalizeObsidianUri, openObsidianUri } from 'src/plugin/uri/open-obsidian-link'
 
 function makeApp({
 	vaultName = 'MyVault',

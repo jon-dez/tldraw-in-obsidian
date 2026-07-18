@@ -5,7 +5,7 @@ import BoundsToolSelectedShapeIndicator from 'src/plugin/app/components/BoundsTo
 import EmbedTldrawToolBar from 'src/plugin/app/components/EmbedTldrawToolBar'
 import InFrontOfTheCanvas from 'src/plugin/app/components/InFrontOfTheCanvas'
 import TldrawApp from 'src/plugin/app/TldrawApp'
-import TldrawPlugin from 'src/main'
+import TldrawPlugin from 'src/plugin/TldrawPlugin'
 import toPageId from 'src/tldraw/helpers/string-to-page-id'
 import BoundsSelectorTool from 'src/tldraw/tools/bounds-selector-tool'
 import { logClass } from 'src/utils/logging'

@@ -5,7 +5,7 @@ import {
 	VIEW_TYPE_TLDRAW_OFFLINE,
 } from 'src/utils/constants'
 import { appendTldrawOfflineMessage } from 'src/utils/tldraw-offline-message'
-import { pluginMenuLabel } from 'src/obsidian/menu'
+import { pluginMenuLabel } from 'src/plugin/menu'
 
 const OPEN_IN_DEFAULT_APP = 'Open in default app'
 

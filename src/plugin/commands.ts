@@ -1,6 +1,6 @@
 import { Editor, EditorPosition, Notice, TFile } from 'obsidian'
-import TldrawPlugin from 'src/main'
-import { TldrawDocument } from 'src/obsidian/plugin/document'
+import TldrawPlugin from 'src/plugin/TldrawPlugin'
+import { TldrawDocument } from 'src/plugin/audit/document'
 import {
 	FILE_EXTENSION,
 	PANE_TARGETS,
@@ -8,7 +8,7 @@ import {
 	VIEW_TYPE_MARKDOWN,
 	VIEW_TYPE_TLDRAW,
 } from 'src/utils/constants'
-import { importTldrawFile } from 'src/utils/file'
+import { importTldrawFile } from 'src/plugin/actions/file'
 import { TLDRAW_FILE_EXTENSION } from 'tldraw'
 
 async function createTldrawFile(

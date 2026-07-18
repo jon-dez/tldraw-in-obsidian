@@ -13,7 +13,7 @@ import React, {
 import useSettingsManager from 'src/plugin/app/hooks/useSettingsManager'
 import useUserPluginSettings from 'src/plugin/app/hooks/useUserPluginSettings'
 import DownloadManagerModal from 'src/obsidian/download/DownloadManagerModal'
-import { FileSearchModal } from 'src/obsidian/modal/FileSearchModal'
+import { FileSearchModal } from 'src/plugin/modals/FileSearchModal'
 import {
 	defaultFonts,
 	fontExtensions,

@@ -1,6 +1,6 @@
 import { Notice, Platform, TFile } from 'obsidian'
-import TldrawPlugin from 'src/main'
-import { showSaveFileModal } from 'src/obsidian/modal/save-file-modal'
+import TldrawPlugin from 'src/plugin/TldrawPlugin'
+import { showSaveFileModal } from 'src/plugin/modals/save-file-modal'
 import {
 	Editor,
 	TLDRAW_FILE_EXTENSION,
@@ -8,9 +8,9 @@ import {
 	serializeTldrawJsonBlob,
 	useDefaultHelpers,
 } from 'tldraw'
-import { TLDRAW_OFFLINE_FILE_EXTENSION, TLDRAW_OFFLINE_UNSUPPORTED_TITLE } from './constants'
+import { TLDRAW_OFFLINE_FILE_EXTENSION, TLDRAW_OFFLINE_UNSUPPORTED_TITLE } from 'src/utils/constants'
 import { migrateTldrawFileDataIfNecessary } from 'src/plugin/document/migrate/tl-data-to-tlstore'
-import { appendTldrawOfflineMessage } from './tldraw-offline-message'
+import { appendTldrawOfflineMessage } from 'src/utils/tldraw-offline-message'
 // import { shouldOverrideDocument } from "src/components/file-menu/shouldOverrideDocument";
 
 export const SAVE_FILE_COPY_ACTION = 'save-file-copy'

@@ -1,7 +1,7 @@
 import { TFile, TFolder } from 'obsidian'
-import TldrawPlugin from 'src/main'
-import { getAttachmentsFolder, getColocationFolder, validateFolderPath } from '../helpers/app'
-import NewTldrawFileConfirmationModal from '../modal/NewTldrawFileConfirmationModal'
+import TldrawPlugin from 'src/plugin/TldrawPlugin'
+import { getAttachmentsFolder, getColocationFolder, validateFolderPath } from 'src/obsidian/helpers/app'
+import NewTldrawFileConfirmationModal from 'src/plugin/modals/NewTldrawFileConfirmationModal'
 
 /**
  * Get the colocation destination, and add the sub-folder if defined.

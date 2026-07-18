@@ -1,5 +1,5 @@
 import { Notice } from 'obsidian'
-import TldrawPlugin from 'src/main'
+import TldrawPlugin from 'src/plugin/TldrawPlugin'
 import { IconNames } from 'src/plugin/settings/overrides-types'
 import { DownloadInfo } from 'src/obsidian/download/download'
 import { updateIconOverrides } from './process-overrides'

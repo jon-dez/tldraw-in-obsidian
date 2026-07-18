@@ -1,8 +1,8 @@
 import React from 'react'
 import { useTldrawInObsdianPlugin } from 'src/plugin/app/contexts/plugin'
 import { useDocumentAudit } from 'src/plugin/app/hooks/useDocumentAudit'
-import { AuditSessionState } from 'src/obsidian/plugin/AuditSessionManager'
-import { AssetEntry } from 'src/obsidian/plugin/instance'
+import { AuditSessionState } from 'src/plugin/audit/AuditSessionManager'
+import { AssetEntry } from 'src/plugin/instance'
 import { AuditLayout } from './AuditCommon'
 
 export function AuditResultsSummary({ onNavigateToScanner }: { onNavigateToScanner: () => void }) {

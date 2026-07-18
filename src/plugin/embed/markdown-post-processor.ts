@@ -1,5 +1,5 @@
 import { MarkdownPostProcessorContext, TFile } from 'obsidian'
-import TldrawPlugin from 'src/main'
+import TldrawPlugin from 'src/plugin/TldrawPlugin'
 import { ConsoleLogParams, logFn } from 'src/utils/logging'
 import { createEmbedTldraw } from 'src/plugin/embed/markdown-render-child'
 

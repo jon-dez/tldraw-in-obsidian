@@ -5,7 +5,7 @@ import TldrawSettingsTabView from 'src/plugin/settings/ui/TldrawSettingsTabView'
 import { FontOverrides, IconOverrides } from 'src/plugin/settings/overrides-types'
 import { VIEW_TYPE_TLDRAW, ViewType } from 'src/utils/constants'
 import { TLCameraOptions, TldrawOptions } from 'tldraw'
-import TldrawPlugin from '../main'
+import TldrawPlugin from 'src/plugin/TldrawPlugin'
 import { destinationMethods, themePreferenceRecord } from './constants'
 
 export type ThemePreference = keyof typeof themePreferenceRecord

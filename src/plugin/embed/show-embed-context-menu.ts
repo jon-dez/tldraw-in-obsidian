@@ -1,4 +1,4 @@
-import TldrawPlugin from 'src/main'
+import TldrawPlugin from 'src/plugin/TldrawPlugin'
 import { createEmbedMenu, TldrAppControllerForMenu } from './create-embed-menu'
 
 export function showEmbedContextMenu(

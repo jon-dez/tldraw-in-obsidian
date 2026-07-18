@@ -3,7 +3,7 @@ import * as React from 'react'
 import * as ReactDOM from 'react-dom'
 import * as tldraw from 'tldraw'
 import { createSetStore } from 'src/lib/stores'
-import { AuditSessionManager } from './AuditSessionManager'
+import { AuditSessionManager } from './audit/AuditSessionManager'
 import { MainDataMessages } from 'src/plugin/stores/TLDataDocumentStoreManager'
 
 export interface DocumentMessagesButton {

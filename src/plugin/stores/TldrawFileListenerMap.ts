@@ -1,5 +1,5 @@
 import { TFile } from 'obsidian'
-import TldrawPlugin from 'src/main'
+import TldrawPlugin from 'src/plugin/TldrawPlugin'
 
 export type TldrawFileListener = {
 	/**

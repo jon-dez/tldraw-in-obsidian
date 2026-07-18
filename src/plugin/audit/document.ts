@@ -1,5 +1,5 @@
 import { BlockCache, TFile } from 'obsidian'
-import TldrawPlugin from 'src/main'
+import TldrawPlugin from 'src/plugin/TldrawPlugin'
 import { TLDataDocumentStore } from 'src/plugin/document/document'
 import { TLStore } from 'tldraw'
 

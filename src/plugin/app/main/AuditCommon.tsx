@@ -3,9 +3,9 @@ import React, { useCallback, useRef } from 'react'
 import { useTldrawPlugin } from 'src/plugin/app/contexts/plugin'
 import { useDocumentAudit } from 'src/plugin/app/hooks/useDocumentAudit'
 import TldrawViewComponent from 'src/plugin/views/tldraw-view-component'
-import { navigateToBlockCache } from 'src/obsidian/file/navigate'
-import { TldrawDocument } from 'src/obsidian/plugin/document'
-import { AssetEntry } from 'src/obsidian/plugin/instance'
+import { navigateToBlockCache } from 'src/plugin/file/navigate'
+import { TldrawDocument } from 'src/plugin/audit/document'
+import { AssetEntry } from 'src/plugin/instance'
 
 export function AuditLayout({
 	slots,

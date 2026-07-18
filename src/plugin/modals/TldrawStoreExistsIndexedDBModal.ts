@@ -4,7 +4,7 @@ import { createRootAndRenderTldrawApp, TldrawAppProps } from 'src/plugin/app/Tld
 import { tldrawStoreIndexedDBName } from 'src/tldraw/indexeddb-store'
 import { TLDataDocumentStore } from 'src/plugin/document/document'
 import { StoreSnapshot, TLRecord } from 'tldraw'
-import { getFrontMatterList } from '../helpers/front-matter'
+import { getFrontMatterList } from 'src/obsidian/helpers/front-matter'
 import { TldrawView } from 'src/plugin/views/TldrawView'
 
 export class TldrawStoreConflictResolveFileUnloaded extends Error {}

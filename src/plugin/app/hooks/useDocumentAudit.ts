@@ -1,7 +1,7 @@
 import { BlockCache } from 'obsidian'
 import { useSyncExternalStore } from 'react'
-import { TldrawDocument } from 'src/obsidian/plugin/document'
-import TldrawInObsdianPluginInstance from 'src/obsidian/plugin/instance'
+import { TldrawDocument } from 'src/plugin/audit/document'
+import TldrawInObsdianPluginInstance from 'src/plugin/instance'
 
 export function useDocumentAudit(pluginInstance: TldrawInObsdianPluginInstance) {
 	const manager = pluginInstance.auditSessionManager

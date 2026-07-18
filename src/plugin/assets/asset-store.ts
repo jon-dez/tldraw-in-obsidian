@@ -1,5 +1,5 @@
 import { BlockCache, CachedMetadata, ReferenceCache, TFile } from 'obsidian'
-import TldrawPlugin from 'src/main'
+import TldrawPlugin from 'src/plugin/TldrawPlugin'
 import { vaultFileToBlob } from 'src/obsidian/helpers/vault'
 import { TldrawFileListener } from 'src/plugin/stores/TldrawFileListenerMap'
 import { deleteRangesFromText } from 'src/utils/text'

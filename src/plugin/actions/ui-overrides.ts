@@ -1,5 +1,5 @@
 import { Platform } from 'obsidian'
-import TldrawPlugin from 'src/main'
+import TldrawPlugin from 'src/plugin/TldrawPlugin'
 import {
 	downloadBlob,
 	getSaveFileCopyAction,
@@ -8,7 +8,7 @@ import {
 	OPEN_FILE_ACTION,
 	SAVE_FILE_COPY_ACTION,
 	SAVE_FILE_COPY_IN_VAULT_ACTION,
-} from 'src/utils/file'
+} from 'src/plugin/actions/file'
 import {
 	Editor,
 	PageRecordType,

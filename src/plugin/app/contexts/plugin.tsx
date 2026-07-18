@@ -1,6 +1,6 @@
 import React, { createContext, ReactNode, useContext, useMemo } from 'react'
-import TldrawPlugin from 'src/main'
-import TldrawInObsidianPluginInstance from 'src/obsidian/plugin/instance'
+import TldrawPlugin from 'src/plugin/TldrawPlugin'
+import TldrawInObsidianPluginInstance from 'src/plugin/instance'
 
 interface PluginContextValue {
 	instance: TldrawInObsidianPluginInstance

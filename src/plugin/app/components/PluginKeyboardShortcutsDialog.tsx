@@ -1,5 +1,5 @@
 import React from 'react'
-import { PLUGIN_ACTION_TOGGLE_ZOOM_LOCK } from 'src/tldraw/ui-overrides'
+import { PLUGIN_ACTION_TOGGLE_ZOOM_LOCK } from 'src/plugin/actions/ui-overrides'
 import {
 	DefaultKeyboardShortcutsDialog,
 	DefaultKeyboardShortcutsDialogContent,

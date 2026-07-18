@@ -1,7 +1,7 @@
 import React from 'react'
 import { createRoot } from 'react-dom/client'
 import { TldrawInObsidianPluginProvider } from 'src/plugin/app/contexts/plugin'
-import TldrawPlugin from 'src/main'
+import TldrawPlugin from 'src/plugin/TldrawPlugin'
 import AuditSessionRunner from './AuditSessionRunner'
 import DocumentMessages from './DocumentMessages'
 

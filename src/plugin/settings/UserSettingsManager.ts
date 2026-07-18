@@ -1,4 +1,4 @@
-import TldrawPlugin from 'src/main'
+import TldrawPlugin from 'src/plugin/TldrawPlugin'
 import {
 	DEFAULT_SETTINGS,
 	FileDestinationsSettings,

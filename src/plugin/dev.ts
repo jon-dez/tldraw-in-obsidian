@@ -1,5 +1,5 @@
-import TldrawPlugin from 'src/main'
-import { logClass } from '../logging'
+import TldrawPlugin from 'src/plugin/TldrawPlugin'
+import { logClass } from 'src/utils/logging'
 
 type ObsidianPluginConstructor = new (
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any

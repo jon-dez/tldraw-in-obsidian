@@ -6,21 +6,21 @@ import { lockZoomIcon } from 'src/assets/data-icons'
 import { TldrawInObsidianPluginProvider } from 'src/plugin/app/contexts/plugin'
 import { useClickAwayListener } from 'src/plugin/app/hooks/useClickAwayListener'
 import { useTldrawAppEffects } from 'src/plugin/app/hooks/useTldrawAppHook'
-import TldrawPlugin from 'src/main'
+import TldrawPlugin from 'src/plugin/TldrawPlugin'
 import { TLDRAW_LICENSE_KEY } from 'src/tldraw/license'
-import { installObsidianLinkHandler } from 'src/tldraw/open-obsidian-link'
+import { installObsidianLinkHandler } from 'src/plugin/uri/open-obsidian-link'
 import {
 	CREATE_PAGE_ACTION,
 	PLUGIN_ACTION_TOGGLE_ZOOM_LOCK,
 	uiOverrides,
-} from 'src/tldraw/ui-overrides'
+} from 'src/plugin/actions/ui-overrides'
 import { TLDataDocumentStore } from 'src/plugin/document/document'
 import { PTLEditorBlockBlur } from 'src/utils/dom-attributes'
 import {
 	OPEN_FILE_ACTION,
 	SAVE_FILE_COPY_ACTION,
 	SAVE_FILE_COPY_IN_VAULT_ACTION,
-} from 'src/utils/file'
+} from 'src/plugin/actions/file'
 import { getIsDarkMode } from 'src/utils/utils'
 import { getViewport, saveViewport } from 'src/utils/viewport-storage'
 import {
