@@ -3,7 +3,7 @@ import React, { ReactPortal, useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useObsidian } from 'src/contexts/plugin'
 import { vaultFileToBlob } from 'src/obsidian/helpers/vault'
-import { ObsidianTLAssetStore } from 'src/tldraw/asset-store'
+import { ObsidianTLAssetStore } from 'src/plugin/assets/asset-store'
 import { createDataUrlImageAssetFromBlob } from 'src/tldraw/helpers/create-asset'
 import { PTLEditorBlockBlur } from 'src/utils/dom-attributes'
 import {

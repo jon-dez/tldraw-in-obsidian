@@ -2,7 +2,7 @@ import { TldrawAppStoreProps } from 'src/components/TldrawApp'
 import { TldrawImageSnapshot } from 'src/components/TldrawImageSnapshotView'
 import { Store } from 'tldraw'
 import { ImageViewModeOptions } from '../../helpers/TldrawAppEmbedViewController'
-import TLDataDocumentStoreManager from '../../plugin/TLDataDocumentStoreManager'
+import TLDataDocumentStoreManager from 'src/plugin/stores/TLDataDocumentStoreManager'
 
 type Timeout = number
 

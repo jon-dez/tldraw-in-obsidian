@@ -9,7 +9,7 @@ import {
 	useDefaultHelpers,
 } from 'tldraw'
 import { TLDRAW_OFFLINE_FILE_EXTENSION, TLDRAW_OFFLINE_UNSUPPORTED_TITLE } from './constants'
-import { migrateTldrawFileDataIfNecessary } from './migrate/tl-data-to-tlstore'
+import { migrateTldrawFileDataIfNecessary } from 'src/plugin/document/migrate/tl-data-to-tlstore'
 import { appendTldrawOfflineMessage } from './tldraw-offline-message'
 // import { shouldOverrideDocument } from "src/components/file-menu/shouldOverrideDocument";
 

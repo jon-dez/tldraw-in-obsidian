@@ -1,6 +1,6 @@
 import { BlockCache, TFile } from 'obsidian'
 import TldrawPlugin from 'src/main'
-import { TLDataDocumentStore } from 'src/utils/document'
+import { TLDataDocumentStore } from 'src/plugin/document/document'
 import { TLStore } from 'tldraw'
 
 type Tail<T> = T extends [unknown, ...infer U] ? U : never

@@ -14,7 +14,7 @@ import {
 	PLUGIN_ACTION_TOGGLE_ZOOM_LOCK,
 	uiOverrides,
 } from 'src/tldraw/ui-overrides'
-import { TLDataDocumentStore } from 'src/utils/document'
+import { TLDataDocumentStore } from 'src/plugin/document/document'
 import { PTLEditorBlockBlur } from 'src/utils/dom-attributes'
 import {
 	OPEN_FILE_ACTION,

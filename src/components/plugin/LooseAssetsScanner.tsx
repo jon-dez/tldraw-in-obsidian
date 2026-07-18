@@ -4,7 +4,7 @@ import { useTldrawInObsdianPlugin, useTldrawPlugin } from 'src/contexts/plugin'
 import { useDocumentAudit } from 'src/hooks/useDocumentAudit'
 import { TldrawDocument } from 'src/obsidian/plugin/document'
 import { ModalWrapper } from 'src/obsidian/react/modal'
-import { ObsidianMarkdownFileTLAssetStoreProxy } from 'src/tldraw/asset-store'
+import { ObsidianMarkdownFileTLAssetStoreProxy } from 'src/plugin/assets/asset-store'
 import { TLAsset, TLImageAsset, TLImageShape, TLUnknownShape } from 'tldraw'
 import { AssetListItem, AuditLayout, ErrorMessage, TldrawDocumentView } from './AuditCommon'
 

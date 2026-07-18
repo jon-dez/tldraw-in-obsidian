@@ -1,10 +1,10 @@
 import { PluginManifest } from 'obsidian'
 import { isValidFrontmatterTag } from 'src/obsidian/helpers/front-matter'
 import { JsonObject, SerializedStore, TldrawFile, TLRecord, TLStore } from 'tldraw'
-import { TLDATA_DELIMITER_END, TLDATA_DELIMITER_START } from './constants'
+import { TLDATA_DELIMITER_END, TLDATA_DELIMITER_START } from 'src/utils/constants'
 import { createRawTldrawFile } from './tldraw-file'
 import { tldrawFileToJson } from './tldraw-file/tldraw-file-to-json'
-import { hasKewords, replaceBetweenKeywords } from './utils'
+import { hasKewords, replaceBetweenKeywords } from 'src/utils/utils'
 
 export type TldrawPluginMetaData = {
 	'plugin-version': string

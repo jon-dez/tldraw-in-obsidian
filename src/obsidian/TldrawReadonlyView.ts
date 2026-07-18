@@ -8,8 +8,8 @@ import {
 	VIEW_TYPE_TLDRAW_READ_ONLY,
 	ViewType,
 } from 'src/utils/constants'
-import { TLDataDocumentStore } from 'src/utils/document'
-import { migrateTldrawFileDataIfNecessary } from 'src/utils/migrate/tl-data-to-tlstore'
+import { TLDataDocumentStore } from 'src/plugin/document/document'
+import { migrateTldrawFileDataIfNecessary } from 'src/plugin/document/migrate/tl-data-to-tlstore'
 import { TLDRAW_FILE_EXTENSION } from 'tldraw'
 import { BaseTldrawFileView } from './BaseTldrawFileView'
 import { pluginMenuLabel } from './menu'

@@ -1,7 +1,7 @@
 import { BlockCache, CachedMetadata, ReferenceCache, TFile } from 'obsidian'
 import TldrawPlugin from 'src/main'
 import { vaultFileToBlob } from 'src/obsidian/helpers/vault'
-import { TldrawFileListener } from 'src/obsidian/plugin/TldrawFileListenerMap'
+import { TldrawFileListener } from 'src/plugin/stores/TldrawFileListenerMap'
 import { deleteRangesFromText } from 'src/utils/text'
 import { createAttachmentFilepath } from 'src/utils/utils'
 import {
@@ -12,8 +12,8 @@ import {
 	TLAssetStore,
 	TLImageAsset,
 } from 'tldraw'
-import { createImageAsset } from './helpers/create-asset'
-import { TldrawStoreIndexedDB } from './indexeddb-store'
+import { createImageAsset } from 'src/tldraw/helpers/create-asset'
+import { TldrawStoreIndexedDB } from 'src/tldraw/indexeddb-store'
 
 const blockRefAssetPrefix = 'obsidian.blockref.'
 export type BlockRefAssetId = `${typeof blockRefAssetPrefix}${string}`

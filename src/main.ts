@@ -27,8 +27,8 @@ import { EditableTldrawView } from './obsidian/TldrawView'
 import { createEmbedTldraw } from './obsidian/components/markdown-render-child'
 import { formatFilePrefix } from './obsidian/file/new'
 import { pluginMenuLabel } from './obsidian/menu'
-import TLDataDocumentStoreManager from './obsidian/plugin/TLDataDocumentStoreManager'
-import { TldrawFileListenerMap } from './obsidian/plugin/TldrawFileListenerMap'
+import TLDataDocumentStoreManager from 'src/plugin/stores/TLDataDocumentStoreManager'
+import { TldrawFileListenerMap } from 'src/plugin/stores/TldrawFileListenerMap'
 import { registerCommands } from './obsidian/plugin/commands'
 import { getTldrawFileDestination } from './obsidian/plugin/file-destination'
 import TldrawInObsidianPluginInstance from './obsidian/plugin/instance'
@@ -55,11 +55,11 @@ import {
 	frontmatterTemplate,
 	getTLDataTemplate,
 	tlFileTemplate,
-} from './utils/document'
-import { migrateTldrawFileDataIfNecessary } from './utils/migrate/tl-data-to-tlstore'
+} from 'src/plugin/document/document'
+import { migrateTldrawFileDataIfNecessary } from 'src/plugin/document/migrate/tl-data-to-tlstore'
 import { useStatusBarState } from './utils/stores'
-import { createRawTldrawFile } from './utils/tldraw-file'
-import { tldrawFileToJson } from './utils/tldraw-file/tldraw-file-to-json'
+import { createRawTldrawFile } from 'src/plugin/document/tldraw-file'
+import { tldrawFileToJson } from 'src/plugin/document/tldraw-file/tldraw-file-to-json'
 import { checkAndCreateFolder, getNewUniqueFilepath, isValidViewType } from './utils/utils'
 import { installObsidianLinkHandler } from './tldraw/open-obsidian-link'
 

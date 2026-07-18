@@ -1,4 +1,4 @@
-import { TLDataDocument, TLDataDocumentStore, TldrawPluginMetaData } from 'src/utils/document'
+import { TLDataDocument, TLDataDocumentStore, TldrawPluginMetaData } from 'src/plugin/document/document'
 import { TLStore, createTLStore, defaultShapeUtils } from 'tldraw'
 
 export function processInitialData(initialData: TLDataDocument): TLDataDocumentStore {

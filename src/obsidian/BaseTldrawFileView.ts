@@ -8,7 +8,7 @@ import {
 } from 'src/components/TldrawApp'
 import TldrawPlugin from 'src/main'
 import { MARKDOWN_ICON_NAME, VIEW_TYPE_MARKDOWN } from 'src/utils/constants'
-import { TLDataDocumentStore } from 'src/utils/document'
+import { TLDataDocumentStore } from 'src/plugin/document/document'
 import { createDeepLinkString, parseDeepLinkString, TLDeepLink } from 'tldraw'
 import { getViewport } from 'src/utils/viewport-storage'
 import { intercept, Interceptor, MethodKeys } from '../utils/decorators/methods'

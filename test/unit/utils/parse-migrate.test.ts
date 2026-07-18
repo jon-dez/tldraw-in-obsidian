@@ -4,11 +4,11 @@ import {
 	frontmatterTemplate,
 	getTLDataTemplate,
 	tlFileTemplate,
-} from 'src/utils/document'
-import { migrateTldrawFileDataIfNecessary } from 'src/utils/migrate/tl-data-to-tlstore'
-import { parseTLDataDocument } from 'src/utils/parse'
-import { createRawTldrawFile } from 'src/utils/tldraw-file'
-import { tldrawFileToJson } from 'src/utils/tldraw-file/tldraw-file-to-json'
+} from 'src/plugin/document/document'
+import { migrateTldrawFileDataIfNecessary } from 'src/plugin/document/migrate/tl-data-to-tlstore'
+import { parseTLDataDocument } from 'src/plugin/document/parse'
+import { createRawTldrawFile } from 'src/plugin/document/tldraw-file'
+import { tldrawFileToJson } from 'src/plugin/document/tldraw-file/tldraw-file-to-json'
 
 const PLUGIN_VERSION = '1.29.0'
 

@@ -7,8 +7,8 @@ import {
 	getTLMetaTemplate,
 	tlFileTemplate,
 	updateFileData,
-} from 'src/utils/document'
-import { createRawTldrawFile } from 'src/utils/tldraw-file'
+} from 'src/plugin/document/document'
+import { createRawTldrawFile } from 'src/plugin/document/tldraw-file'
 import { extractDataBetweenKeywords } from 'src/utils/utils'
 
 const PLUGIN_VERSION = '1.29.0'

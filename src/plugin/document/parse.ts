@@ -1,8 +1,8 @@
 import { JsonObject, JsonValue, OptionalKeys } from 'tldraw'
-import { TLDATA_DELIMITER_END, TLDATA_DELIMITER_START } from './constants'
+import { TLDATA_DELIMITER_END, TLDATA_DELIMITER_START } from 'src/utils/constants'
 import { TLData, TLExistingDataDocument, TldrawPluginMetaData, getTLMetaTemplate } from './document'
 import { migrateIfNecessary } from './migrate'
-import { extractDataBetweenKeywords } from './utils'
+import { extractDataBetweenKeywords } from 'src/utils/utils'
 
 type NestedPartial<T> = {
 	[K in keyof T]?: T[K] extends object ? NestedPartial<T[K]> : T[K]

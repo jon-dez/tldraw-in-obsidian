@@ -2,7 +2,7 @@ import { ButtonComponent, MetadataCache, Modal, Setting, TextComponent, TFile } 
 import { Root } from 'react-dom/client'
 import { createRootAndRenderTldrawApp, TldrawAppProps } from 'src/components/TldrawApp'
 import { tldrawStoreIndexedDBName } from 'src/tldraw/indexeddb-store'
-import { TLDataDocumentStore } from 'src/utils/document'
+import { TLDataDocumentStore } from 'src/plugin/document/document'
 import { StoreSnapshot, TLRecord } from 'tldraw'
 import { getFrontMatterList } from '../helpers/front-matter'
 import { TldrawView } from '../TldrawView'

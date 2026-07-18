@@ -3,8 +3,8 @@ import React from 'react'
 import { useTldrawPlugin } from 'src/contexts/plugin'
 import { useStorify } from 'src/hooks/useStorify'
 import { navigateToBlockCache } from 'src/obsidian/file/navigate'
-import { DocumentMessage } from 'src/obsidian/plugin/TLDataDocumentMessages'
-import { MainDataMessages } from 'src/obsidian/plugin/TLDataDocumentStoreManager'
+import { DocumentMessage } from 'src/plugin/stores/TLDataDocumentMessages'
+import { MainDataMessages } from 'src/plugin/stores/TLDataDocumentStoreManager'
 import { ButtonComponent, Modal } from 'src/obsidian/react'
 
 export function DocumentMessagesModal({

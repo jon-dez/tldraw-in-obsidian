@@ -4,7 +4,7 @@ import * as ReactDOM from 'react-dom'
 import * as tldraw from 'tldraw'
 import { createSetStore } from 'src/lib/stores'
 import { AuditSessionManager } from './AuditSessionManager'
-import { MainDataMessages } from './TLDataDocumentStoreManager'
+import { MainDataMessages } from 'src/plugin/stores/TLDataDocumentStoreManager'
 
 export interface DocumentMessagesButton {
 	key: string

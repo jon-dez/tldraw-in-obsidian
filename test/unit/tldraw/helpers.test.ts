@@ -3,9 +3,9 @@ import { createTLStore } from 'tldraw'
 import { processInitialData } from 'src/tldraw/helpers/process-initial-data'
 import toPageId from 'src/tldraw/helpers/string-to-page-id'
 import { createImageAsset } from 'src/tldraw/helpers/create-asset'
-import { getTLMetaTemplate } from 'src/utils/document'
-import { migrateTldrawFileDataIfNecessary } from 'src/utils/migrate/tl-data-to-tlstore'
-import { createRawTldrawFile } from 'src/utils/tldraw-file'
+import { getTLMetaTemplate } from 'src/plugin/document/document'
+import { migrateTldrawFileDataIfNecessary } from 'src/plugin/document/migrate/tl-data-to-tlstore'
+import { createRawTldrawFile } from 'src/plugin/document/tldraw-file'
 
 describe('toPageId', () => {
 	it('prefixes valid page names with page:', () => {

@@ -1,6 +1,6 @@
 import * as React from 'react'
 import TldrawPlugin from 'src/main'
-import { TldrawPluginMetaData } from 'src/utils/document'
+import { TldrawPluginMetaData } from 'src/plugin/document/document'
 import { Editor, TldrawFile } from 'tldraw'
 import useUserPluginSettings from './useUserPluginSettings'
 

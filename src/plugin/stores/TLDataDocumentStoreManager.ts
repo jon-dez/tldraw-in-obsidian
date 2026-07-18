@@ -5,7 +5,7 @@ import {
 	BlockRefAssetId,
 	ObsidianMarkdownFileTLAssetStoreProxy,
 	ObsidianTLAssetStore,
-} from 'src/tldraw/asset-store'
+} from 'src/plugin/assets/asset-store'
 import { processInitialData } from 'src/tldraw/helpers/process-initial-data'
 import TldrawStoresManager, {
 	MainStore,
@@ -18,9 +18,9 @@ import {
 	makeFileDataTldr,
 	TLDataDocumentStore,
 	updateFileData,
-} from 'src/utils/document'
-import { migrateTldrawFileDataIfNecessary } from 'src/utils/migrate/tl-data-to-tlstore'
-import { parseTLDataDocument } from 'src/utils/parse'
+} from 'src/plugin/document/document'
+import { migrateTldrawFileDataIfNecessary } from 'src/plugin/document/migrate/tl-data-to-tlstore'
+import { parseTLDataDocument } from 'src/plugin/document/parse'
 import { safeSecondsToMs } from 'src/utils/utils'
 import {
 	loadSnapshot,

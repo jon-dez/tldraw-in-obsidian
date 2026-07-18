@@ -1,6 +1,6 @@
 import { EditableFileView, TFile, WorkspaceLeaf } from 'obsidian'
 import { TldrawStoreIndexedDB } from 'src/tldraw/indexeddb-store'
-import { TLDataDocumentStore } from 'src/utils/document'
+import { TLDataDocumentStore } from 'src/plugin/document/document'
 import { loadSnapshot } from 'tldraw'
 import TldrawPlugin from '../main'
 import { VIEW_TYPE_TLDRAW } from '../utils/constants'
