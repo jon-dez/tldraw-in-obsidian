@@ -6,13 +6,13 @@ import {
 	ObsidianMarkdownFileTLAssetStoreProxy,
 	ObsidianTLAssetStore,
 } from 'src/tldraw/asset-store'
-import { processInitialData } from 'src/tldraw/helpers'
+import { processInitialData } from 'src/tldraw/helpers/process-initial-data'
 import TldrawStoresManager, {
 	MainStore,
 	StoreGroup,
 	StoreInstanceInfo,
 	StoreListenerContext,
-} from 'src/tldraw/TldrawStoresManager'
+} from 'src/tldraw/stores-manager'
 import {
 	getTLMetaTemplate,
 	makeFileDataTldr,
