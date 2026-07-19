@@ -144,7 +144,7 @@ export default class UserSettingsManager {
 			tldrawOptions.laserDelayMs = delayMs
 		}
 		this.#plugin.settings.tldrawOptions = Object.assign({}, tldrawOptions)
-		this.updateSettings(this.#plugin.settings)
+		await this.updateSettings(this.#plugin.settings)
 	}
 
 	async updateLaserKeepDelayAfterStop(keepDelay: UserTldrawOptions['laserKeepDelayAfterStop']) {
@@ -157,7 +157,7 @@ export default class UserSettingsManager {
 			tldrawOptions.laserKeepDelayAfterStop = keepDelay
 		}
 		this.#plugin.settings.tldrawOptions = Object.assign({}, tldrawOptions)
-		this.updateSettings(this.#plugin.settings)
+		await this.updateSettings(this.#plugin.settings)
 	}
 
 	async updateEditorWheelBehavior(wheelBehavior: UserTLCameraOptions['wheelBehavior']) {
@@ -170,7 +170,7 @@ export default class UserSettingsManager {
 			options.wheelBehavior = wheelBehavior
 		}
 		this.#plugin.settings.cameraOptions = Object.assign({}, options)
-		this.updateSettings(this.#plugin.settings)
+		await this.updateSettings(this.#plugin.settings)
 	}
 
 	async updatePasteAtCursor(
@@ -185,6 +185,6 @@ export default class UserSettingsManager {
 			options.pasteAtCursor = pasteAtCursor
 		}
 		this.#plugin.settings.clipboard = Object.assign({}, options)
-		this.updateSettings(this.#plugin.settings)
+		await this.updateSettings(this.#plugin.settings)
 	}
 }

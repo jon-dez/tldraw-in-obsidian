@@ -63,12 +63,7 @@ describe('UserSettingsManager.loadSettings', () => {
 })
 
 describe('UserSettingsManager update methods', () => {
-	/**
-	 * BUG (refactor-bugs #5): the update* helpers call `this.updateSettings(...)`
-	 * without awaiting it, so callers resolve before the settings were actually
-	 * persisted, racing save against anything that follows.
-	 */
-	it.fails('updateLaserDelayMs resolves only after the settings were saved', async () => {
+	it('updateLaserDelayMs resolves only after the settings were saved', async () => {
 		const plugin = createFakePlugin({})
 		const manager = new UserSettingsManager(plugin)
 		await manager.loadSettings()
@@ -83,7 +78,7 @@ describe('UserSettingsManager update methods', () => {
 		expect(saved).toBe(true)
 	})
 
-	it.fails('updatePasteAtCursor resolves only after the settings were saved', async () => {
+	it('updatePasteAtCursor resolves only after the settings were saved', async () => {
 		const plugin = createFakePlugin({})
 		const manager = new UserSettingsManager(plugin)
 		await manager.loadSettings()
