@@ -403,9 +403,9 @@ export class ObsidianTLAssetStore implements TLAssetStore {
 	}
 
 	async tryOpenDb() {
-		if (this.db === null) {
-			// Already tried
-			return null
+		if (this.db !== undefined) {
+			// Already tried, whether it succeeded (cached db) or failed (null)
+			return this.db
 		}
 		return (this.db = await TldrawStoreIndexedDB.open(this.persistenceKey))
 	}

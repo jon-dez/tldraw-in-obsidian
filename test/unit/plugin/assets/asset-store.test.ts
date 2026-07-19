@@ -85,12 +85,7 @@ describe('ObsidianTLAssetStore.tryOpenDb', () => {
 	const createStore = () =>
 		new ObsidianTLAssetStore('test-key', {} as ObsidianMarkdownFileTLAssetStoreProxy)
 
-	/**
-	 * BUG (refactor-bugs #4): tryOpenDb only short-circuits when a previous
-	 * open FAILED (`db === null`); with a successfully opened db it opens the
-	 * IndexedDB again on every call and overwrites the cached instance.
-	 */
-	it.fails('opens the IndexedDB once and caches the instance', async () => {
+	it('opens the IndexedDB once and caches the instance', async () => {
 		const db = {} as NonNullable<Awaited<ReturnType<typeof TldrawStoreIndexedDB.open>>>
 		const openSpy = vi.spyOn(TldrawStoreIndexedDB, 'open').mockResolvedValue(db)
 		const store = createStore()
