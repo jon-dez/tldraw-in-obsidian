@@ -61,7 +61,7 @@ export default class UserSettingsManager {
 			fileDestinationsDefault,
 			(() => {
 				// Do not migrate if the the old file destination settings were already migrated.
-				if (fileDestinations === undefined) return {}
+				if (fileDestinations !== undefined) return {}
 				// Migrate old settings
 				const migrated: Partial<FileDestinationsSettings> = {}
 
@@ -76,6 +76,8 @@ export default class UserSettingsManager {
 				if (rest.useAttachmentsFolder !== undefined && rest.useAttachmentsFolder) {
 					migrated.destinationMethod = 'attachments-folder'
 				}
+
+				return migrated
 			})(),
 			fileDestinations
 		)

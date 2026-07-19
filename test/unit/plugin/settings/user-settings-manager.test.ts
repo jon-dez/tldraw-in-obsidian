@@ -48,14 +48,7 @@ describe('UserSettingsManager.loadSettings', () => {
 		expect(plugin.settings.useAttachmentsFolder).toBeUndefined()
 	})
 
-	/**
-	 * BUG (refactor-bugs #1): the migration IIFE builds a `migrated` object from
-	 * the deprecated `folder` / `assetsFolder` / `useAttachmentsFolder` settings
-	 * but never returns it, and its guard skips migration exactly when
-	 * `fileDestinations` is absent — i.e. exactly when a legacy vault needs it.
-	 * Legacy destinations are silently reset to the defaults.
-	 */
-	it.fails('migrates the deprecated file destination settings', async () => {
+	it('migrates the deprecated file destination settings', async () => {
 		const plugin = createFakePlugin({
 			folder: 'legacy/drawings',
 			assetsFolder: 'legacy/assets',
