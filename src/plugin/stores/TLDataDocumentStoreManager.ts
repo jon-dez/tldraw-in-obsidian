@@ -459,7 +459,7 @@ function isAssetOfType<T extends TLAsset>(asset: TLAsset, type: T['type']): asse
 	return asset.type === type
 }
 
-function listenAssetChanges(store: TLStore) {
+export function listenAssetChanges(store: TLStore) {
 	const assets = store.props.assets
 	if (!(assets instanceof ObsidianTLAssetStore)) return
 	const deleteStore = createRecordStore<BlockRefAssetId, TLImageAsset>()

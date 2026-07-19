@@ -82,6 +82,23 @@ describe('replaceBetweenKeywords', () => {
 		expect(result).not.toBe(doc('$&'))
 		expect(result).toContain('old')
 	})
+
+	/**
+	 * BUG (refactor-bugs #6b): the intended behavior — the replacement must be
+	 * inserted literally, since drawing data is arbitrary JSON that may contain
+	 * `$&`, `$'`, `$1`… When this is fixed, the characterization test above
+	 * becomes obsolete and should be removed.
+	 */
+	it.fails('inserts $-patterns in the replacement literally', () => {
+		const replacement = `{"text":"costs $& more than $'"}`
+		const result = replaceBetweenKeywords(
+			doc('old'),
+			TLDATA_DELIMITER_START,
+			TLDATA_DELIMITER_END,
+			replacement
+		)
+		expect(result).toBe(doc(replacement))
+	})
 })
 
 describe('numeric helpers', () => {
