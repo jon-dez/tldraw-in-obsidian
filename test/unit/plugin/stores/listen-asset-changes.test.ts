@@ -87,13 +87,7 @@ describe('listenAssetChanges', () => {
 		expect(removeBlockRef).not.toHaveBeenCalled()
 	})
 
-	/**
-	 * BUG (refactor-bugs #2): the prune loop uses `return` instead of
-	 * `continue` when it finds a queued asset that is still referenced, so one
-	 * still-referenced asset stops every asset queued after it from ever being
-	 * pruned.
-	 */
-	it.fails('still prunes unreferenced assets queued behind a referenced one', async () => {
+	it('still prunes unreferenced assets queued behind a referenced one', async () => {
 		const keeper = imageShape('shape:keeper', 'asset:one')
 		const { removeBlockRef, addImageAsset, deleteShape } = setup({ liveShapes: [keeper] })
 		addImageAsset('asset:one', 'obsidian.blockref.one')

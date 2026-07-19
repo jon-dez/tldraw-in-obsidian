@@ -492,7 +492,7 @@ export function listenAssetChanges(store: TLStore) {
 				.get()
 				.some((e) => isShapeOfType<TLImageShape>(e, 'image') && e.props.assetId === asset.id)
 
-			if (someMatching) return
+			if (someMatching) continue
 
 			assets.proxy
 				.removeBlockRef(id)
