@@ -16,5 +16,8 @@ export const replaceBetweenKeywords = (
 	replacement: string
 ) => {
 	const regex = new RegExp(`${keyword1}[\\s\\S]*?${keyword2}`, 'g')
-	return input.replace(regex, `${keyword1}\n${replacement}\n${keyword2}`)
+	// A replacer function inserts the replacement literally; a replacement
+	// string would interpret $-patterns ($&, $', $1…) that can occur in
+	// arbitrary drawing data and corrupt the output.
+	return input.replace(regex, () => `${keyword1}\n${replacement}\n${keyword2}`)
 }

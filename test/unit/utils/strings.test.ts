@@ -71,25 +71,11 @@ describe('replaceBetweenKeywords', () => {
 	})
 
 	/**
-	 * Characterization of current (buggy) behavior: the replacement string is
-	 * passed straight to String.replace, so `$`-patterns are interpreted as
-	 * replacement templates. Drawing data containing e.g. `$&` would corrupt
-	 * the saved file. Documented here; fix deferred (see refactor-bugs memory).
+	 * Drawing data is arbitrary JSON that may contain `$&`, `$'`, `$1`… — the
+	 * replacement must always be inserted literally, never treated as a
+	 * String.replace $-pattern template.
 	 */
-	it('currently interprets $-patterns in the replacement (known quirk)', () => {
-		const result = replaceBetweenKeywords(doc('old'), TLDATA_DELIMITER_START, TLDATA_DELIMITER_END, '$&')
-		// '$&' expands to the whole match instead of the literal characters.
-		expect(result).not.toBe(doc('$&'))
-		expect(result).toContain('old')
-	})
-
-	/**
-	 * BUG (refactor-bugs #6b): the intended behavior — the replacement must be
-	 * inserted literally, since drawing data is arbitrary JSON that may contain
-	 * `$&`, `$'`, `$1`… When this is fixed, the characterization test above
-	 * becomes obsolete and should be removed.
-	 */
-	it.fails('inserts $-patterns in the replacement literally', () => {
+	it('inserts $-patterns in the replacement literally', () => {
 		const replacement = `{"text":"costs $& more than $'"}`
 		const result = replaceBetweenKeywords(
 			doc('old'),
