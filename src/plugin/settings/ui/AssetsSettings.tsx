@@ -226,7 +226,6 @@ const fontOverrideSettingProps = [
 	appearsAs: string
 }[]
 
-// eslint-disable-next-line react/display-name
 const MemoFontAssetsSettingsGroup = memo(
 	({
 		downloadFont,

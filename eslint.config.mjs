@@ -4,8 +4,8 @@ import { FlatCompat } from '@eslint/eslintrc'
 import js from '@eslint/js'
 import typescriptEslint from '@typescript-eslint/eslint-plugin'
 import tsParser from '@typescript-eslint/parser'
+import eslintReact from '@eslint-react/eslint-plugin'
 import boundaries from 'eslint-plugin-boundaries'
-import react from 'eslint-plugin-react'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -22,26 +22,16 @@ export default [
 		// When we have a use case for ignores, we can add them here.
 		ignores: [],
 	},
-	...compat.extends(
-		'prettier',
-		'eslint:recommended',
-		'plugin:@typescript-eslint/recommended',
-		'plugin:react/recommended'
-	),
+	...compat.extends('prettier', 'eslint:recommended', 'plugin:@typescript-eslint/recommended'),
+	eslintReact.configs['recommended-typescript'],
 	{
 		plugins: {
 			'@typescript-eslint': typescriptEslint,
-			react,
 		},
 		languageOptions: {
 			parser: tsParser,
 			parserOptions: {
 				project: true,
-			},
-		},
-		settings: {
-			react: {
-				version: 'detect',
 			},
 		},
 		rules: {
