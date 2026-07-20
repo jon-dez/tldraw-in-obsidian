@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { createTLStore } from 'tldraw'
-import { processInitialData } from 'src/tldraw/helpers/process-initial-data'
+import { processInitialData } from 'src/plugin/document/process-initial-data'
 import toPageId from 'src/tldraw/helpers/string-to-page-id'
 import { createImageAsset } from 'src/tldraw/helpers/create-asset'
 import { getTLMetaTemplate } from 'src/plugin/document/document'

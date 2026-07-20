@@ -1,7 +1,7 @@
 import { unstable_batchedUpdates } from 'react-dom'
 import { create } from 'zustand'
 import { subscribeWithSelector } from 'zustand/middleware'
-import { VIEW_TYPE_TLDRAW, ViewType } from 'src/utils/constants'
+import { VIEW_TYPE_TLDRAW, ViewType } from 'src/plugin/constants'
 
 export type StatusBarUpdateType = 'react' | 'plugin'
 

@@ -1,34 +1,32 @@
 import { describe, expect, it } from 'vitest'
-import { TLDATA_DELIMITER_END, TLDATA_DELIMITER_START } from 'src/utils/constants'
+import { TLDATA_DELIMITER_END, TLDATA_DELIMITER_START } from 'src/plugin/document/constants'
 import {
-	clamp,
 	extractDataBetweenKeywords,
-	hasKewords,
-	msToSeconds,
+	hasKeywords,
 	replaceBetweenKeywords,
-	safeSecondsToMs,
-} from 'src/utils/utils'
+} from 'src/utils/strings'
+import { clamp, msToSeconds, safeSecondsToMs } from 'src/utils/numbers'
 
 const doc = (payload: string) =>
 	`prefix\n${TLDATA_DELIMITER_START}\n${payload}\n${TLDATA_DELIMITER_END}\nsuffix`
 
-describe('hasKewords', () => {
+describe('hasKeywords', () => {
 	it('detects the tldraw data delimiters', () => {
-		expect(hasKewords(doc('{}'), TLDATA_DELIMITER_START, TLDATA_DELIMITER_END)).toBe(true)
+		expect(hasKeywords(doc('{}'), TLDATA_DELIMITER_START, TLDATA_DELIMITER_END)).toBe(true)
 	})
 
 	it('is false when either delimiter is missing', () => {
-		expect(hasKewords('no delimiters here', TLDATA_DELIMITER_START, TLDATA_DELIMITER_END)).toBe(
+		expect(hasKeywords('no delimiters here', TLDATA_DELIMITER_START, TLDATA_DELIMITER_END)).toBe(
 			false
 		)
 		expect(
-			hasKewords(`${TLDATA_DELIMITER_START} only start`, TLDATA_DELIMITER_START, TLDATA_DELIMITER_END)
+			hasKeywords(`${TLDATA_DELIMITER_START} only start`, TLDATA_DELIMITER_START, TLDATA_DELIMITER_END)
 		).toBe(false)
 	})
 
 	it('matches across newlines (dotall)', () => {
 		expect(
-			hasKewords(doc('line1\nline2\nline3'), TLDATA_DELIMITER_START, TLDATA_DELIMITER_END)
+			hasKeywords(doc('line1\nline2\nline3'), TLDATA_DELIMITER_START, TLDATA_DELIMITER_END)
 		).toBe(true)
 	})
 })

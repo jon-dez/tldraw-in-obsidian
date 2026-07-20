@@ -128,7 +128,8 @@ export default class TldrawStoresManager<MainData, InstanceData> {
 			source: info,
 			store: sourceStore,
 			unregister: () => {
-				storeGroup.instances.remove(instance)
+				const instanceIndex = storeGroup.instances.indexOf(instance)
+				if (instanceIndex !== -1) storeGroup.instances.splice(instanceIndex, 1)
 				instance.syncToMain(false)
 				instance.store.dispose()
 				if (storeGroup.instances.length === 0) {

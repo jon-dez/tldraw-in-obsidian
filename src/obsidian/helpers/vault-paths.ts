@@ -1,34 +1,5 @@
 import { FileManager, Notice, TAbstractFile, TFile, TFolder, Vault, normalizePath } from 'obsidian'
-import { ThemePreference } from 'src/plugin/settings/TldrawSettingsTab'
-import { FILE_EXTENSION, VIEW_TYPES, ViewType } from './constants'
-import { pathBasename } from 'src/obsidian/helpers/path'
-
-export const removeAllChildNodes = (parent: HTMLElement) => {
-	while (parent.firstChild) {
-		parent.removeChild(parent.firstChild)
-	}
-}
-
-export const hasKewords = (input: string, keyword1: string, keyword2: string) => {
-	const pattern = new RegExp(`${keyword1}(.*?)${keyword2}`, 's')
-	return pattern.test(input)
-}
-
-export const extractDataBetweenKeywords = (input: string, keyword1: string, keyword2: string) => {
-	const pattern = new RegExp(`${keyword1}(.*?)${keyword2}`, 's')
-	const match = input.match(pattern)
-	return match ? match[1] : null
-}
-
-export const replaceBetweenKeywords = (
-	input: string,
-	keyword1: string,
-	keyword2: string,
-	replacement: string
-) => {
-	const regex = new RegExp(`${keyword1}[\\s\\S]*?${keyword2}`, 'g')
-	return input.replace(regex, `${keyword1}\n${replacement}\n${keyword2}`)
-}
+import { pathBasename } from './path'
 
 /**
  * Open or create a folderpath if it does not exist
@@ -58,9 +29,7 @@ export function getNewUniqueFilepath(vault: Vault, filename: string, folderpath:
 	let file: TAbstractFile | null = vault.getAbstractFileByPath(fname)
 	let i = 0
 
-	const extension = filename.endsWith(FILE_EXTENSION)
-		? FILE_EXTENSION
-		: filename.slice(filename.lastIndexOf('.'))
+	const extension = filename.slice(filename.lastIndexOf('.'))
 	while (file) {
 		fname = normalizePath(
 			`${folderpath}/${filename.slice(0, filename.lastIndexOf(extension))} (${i})${extension}`
@@ -69,20 +38,6 @@ export function getNewUniqueFilepath(vault: Vault, filename: string, folderpath:
 		file = vault.getAbstractFileByPath(fname)
 	}
 	return fname
-}
-
-export const isObsidianThemeDark = () => document.body.classList.contains('theme-dark')
-export const getIsDarkMode = (themeMode: ThemePreference) => {
-	return themeMode === 'match-theme' ? isObsidianThemeDark() : themeMode === 'dark'
-}
-
-export const clamp = (num: number, min: number, max: number) => Math.max(min, Math.min(num, max))
-
-export const msToSeconds = (ms: number) => ms / 1000
-export const safeSecondsToMs = (s: number) => Math.round(s * 1000)
-
-export const isValidViewType = (str: string): str is ViewType => {
-	return (VIEW_TYPES as readonly string[]).includes(str)
 }
 
 /**

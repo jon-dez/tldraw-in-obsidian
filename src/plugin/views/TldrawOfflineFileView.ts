@@ -1,9 +1,6 @@
 import { FileView, Menu, WorkspaceLeaf } from 'obsidian'
-import {
-	TLDRAW_ICON_NAME,
-	TLDRAW_OFFLINE_UNSUPPORTED_TITLE,
-	VIEW_TYPE_TLDRAW_OFFLINE,
-} from 'src/utils/constants'
+import { TLDRAW_ICON_NAME, VIEW_TYPE_TLDRAW_OFFLINE } from 'src/plugin/constants'
+import { TLDRAW_OFFLINE_UNSUPPORTED_TITLE } from 'src/plugin/document/constants'
 import { appendTldrawOfflineMessage } from 'src/utils/tldraw-offline-message'
 import { pluginMenuLabel } from 'src/plugin/menu'
 

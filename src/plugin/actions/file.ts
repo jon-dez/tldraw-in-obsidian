@@ -8,7 +8,7 @@ import {
 	serializeTldrawJsonBlob,
 	useDefaultHelpers,
 } from 'tldraw'
-import { TLDRAW_OFFLINE_FILE_EXTENSION, TLDRAW_OFFLINE_UNSUPPORTED_TITLE } from 'src/utils/constants'
+import { TLDRAW_OFFLINE_FILE_EXTENSION, TLDRAW_OFFLINE_UNSUPPORTED_TITLE } from 'src/plugin/document/constants'
 import { migrateTldrawFileDataIfNecessary } from 'src/plugin/document/migrate/tl-data-to-tlstore'
 import { appendTldrawOfflineMessage } from 'src/utils/tldraw-offline-message'
 // import { shouldOverrideDocument } from "src/components/file-menu/shouldOverrideDocument";

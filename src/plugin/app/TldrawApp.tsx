@@ -21,7 +21,7 @@ import {
 	SAVE_FILE_COPY_ACTION,
 	SAVE_FILE_COPY_IN_VAULT_ACTION,
 } from 'src/plugin/actions/file'
-import { getIsDarkMode } from 'src/utils/utils'
+import { getIsDarkMode } from 'src/plugin/theme'
 import { getViewport, saveViewport } from 'src/utils/viewport-storage'
 import {
 	DefaultMainMenu,

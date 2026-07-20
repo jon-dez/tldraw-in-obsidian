@@ -1,6 +1,6 @@
 import { Notice, setIcon, SuggestModal, TFolder } from 'obsidian'
 import TldrawPlugin from 'src/plugin/TldrawPlugin'
-import { TLDRAW_ICON_NAME } from 'src/utils/constants'
+import { TLDRAW_ICON_NAME } from 'src/plugin/constants'
 import { getAttachmentsFolder, validateFolderPath } from 'src/obsidian/helpers/app'
 import { getColocationDestination } from 'src/plugin/file/file-destination'
 import { destinationMethods, destinationMethodsRecord } from 'src/plugin/settings/constants'

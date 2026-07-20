@@ -3,7 +3,7 @@ import { TldrawStoreIndexedDB } from 'src/tldraw/indexeddb-store'
 import { TLDataDocumentStore } from 'src/plugin/document/document'
 import { loadSnapshot } from 'tldraw'
 import TldrawPlugin from 'src/plugin/TldrawPlugin'
-import { VIEW_TYPE_TLDRAW } from 'src/utils/constants'
+import { VIEW_TYPE_TLDRAW } from 'src/plugin/constants'
 import { BaseTldrawFileView, DataUpdate } from './BaseTldrawFileView'
 import TldrawStoreExistsIndexedDBModal, {
 	TldrawStoreConflictResolveCanceled,
@@ -25,7 +25,8 @@ export class TldrawView extends BaseTldrawFileView {
 		})
 	}
 
-	isReadOnly() {
+	syncToMain() {
+		// Editable views persist their changes to the file via the main store.
 		return true
 	}
 

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { Vault } from 'obsidian'
-import { getNewUniqueFilepath, isValidViewType } from 'src/utils/utils'
+import { getNewUniqueFilepath } from 'src/obsidian/helpers/vault-paths'
+import { isValidViewType } from 'src/plugin/constants'
 
 function makeVault(existingPaths: string[]) {
 	const existing = new Set(existingPaths)

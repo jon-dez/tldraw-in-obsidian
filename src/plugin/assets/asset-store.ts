@@ -3,7 +3,7 @@ import TldrawPlugin from 'src/plugin/TldrawPlugin'
 import { vaultFileToBlob } from 'src/obsidian/helpers/vault'
 import { TldrawFileListener } from 'src/plugin/stores/TldrawFileListenerMap'
 import { deleteRangesFromText } from 'src/utils/text'
-import { createAttachmentFilepath } from 'src/utils/utils'
+import { createAttachmentFilepath } from 'src/obsidian/helpers/vault-paths'
 import {
 	DEFAULT_SUPPORTED_IMAGE_TYPES,
 	TLAsset,
@@ -279,16 +279,6 @@ export class ObsidianMarkdownFileTLAssetStoreProxy {
 		} = {}
 	): Promise<TLImageAsset> {
 		const assetBlob = await vaultFileToBlob(assetFile)
-
-		if (!(DEFAULT_SUPPORTED_IMAGE_TYPES as readonly string[]).includes(assetBlob.type)) {
-			throw new Error(`Expected an image mime-type, got ${assetBlob.type}`, {
-				cause: {
-					message: 'The provided file is not an image type.',
-					assetFile,
-					type: assetBlob.type,
-				},
-			})
-		}
 
 		if (!(DEFAULT_SUPPORTED_IMAGE_TYPES as readonly string[]).includes(assetBlob.type)) {
 			throw new Error(`Expected an image mime-type, got ${assetBlob.type}`, {

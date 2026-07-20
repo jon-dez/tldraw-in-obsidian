@@ -69,7 +69,7 @@ export default class DownloadManagerModal extends Modal {
 	}: DownloadContext & { error: unknown; onRetrySuccess: (tFile: TFile) => Promise<void> }) {
 		container.createEl('p', {
 			cls: 'ptl-download-error',
-			text: error instanceof Error ? error.message : 'Uknown error',
+			text: error instanceof Error ? error.message : 'Unknown error',
 		})
 
 		if (error instanceof DownloadErrorTAbstractFileExists) {

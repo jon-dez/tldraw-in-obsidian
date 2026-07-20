@@ -1,5 +1,5 @@
 import { MenuItem } from 'obsidian'
-import { TLDRAW_ICON_NAME } from 'src/utils/constants'
+import { TLDRAW_ICON_NAME } from 'src/plugin/constants'
 
 export function pluginMenuLabel(
 	menuItem: MenuItem,

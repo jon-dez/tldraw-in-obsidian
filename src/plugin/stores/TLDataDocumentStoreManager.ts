@@ -6,7 +6,7 @@ import {
 	ObsidianMarkdownFileTLAssetStoreProxy,
 	ObsidianTLAssetStore,
 } from 'src/plugin/assets/asset-store'
-import { processInitialData } from 'src/tldraw/helpers/process-initial-data'
+import { processInitialData } from 'src/plugin/document/process-initial-data'
 import TldrawStoresManager, {
 	MainStore,
 	StoreGroup,
@@ -21,7 +21,7 @@ import {
 } from 'src/plugin/document/document'
 import { migrateTldrawFileDataIfNecessary } from 'src/plugin/document/migrate/tl-data-to-tlstore'
 import { parseTLDataDocument } from 'src/plugin/document/parse'
-import { safeSecondsToMs } from 'src/utils/utils'
+import { safeSecondsToMs } from 'src/utils/numbers'
 import {
 	loadSnapshot,
 	TLAsset,
@@ -461,13 +461,10 @@ function isAssetOfType<T extends TLAsset>(asset: TLAsset, type: T['type']): asse
 
 function listenAssetChanges(store: TLStore) {
 	const assets = store.props.assets
-	console.log({ assets })
 	if (!(assets instanceof ObsidianTLAssetStore)) return
 	const deleteStore = createRecordStore<BlockRefAssetId, TLImageAsset>()
 	const removeAfterDelete = store.sideEffects.registerAfterDeleteHandler('shape', (shape) => {
 		if (!isShapeOfType<TLImageShape>(shape, 'image')) return
-
-		console.log({ shape })
 
 		const { assetId } = shape.props
 

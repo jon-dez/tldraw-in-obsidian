@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { TLDATA_DELIMITER_END, TLDATA_DELIMITER_START } from 'src/utils/constants'
+import { TLDATA_DELIMITER_END, TLDATA_DELIMITER_START } from 'src/plugin/document/constants'
 import {
 	codeBlockTemplate,
 	frontmatterTemplate,
@@ -9,7 +9,7 @@ import {
 	updateFileData,
 } from 'src/plugin/document/document'
 import { createRawTldrawFile } from 'src/plugin/document/tldraw-file'
-import { extractDataBetweenKeywords } from 'src/utils/utils'
+import { extractDataBetweenKeywords } from 'src/utils/strings'
 
 const PLUGIN_VERSION = '1.29.0'
 

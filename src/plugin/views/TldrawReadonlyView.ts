@@ -7,7 +7,7 @@ import {
 	VIEW_TYPE_TLDRAW,
 	VIEW_TYPE_TLDRAW_READ_ONLY,
 	ViewType,
-} from 'src/utils/constants'
+} from 'src/plugin/constants'
 import { TLDataDocumentStore } from 'src/plugin/document/document'
 import { migrateTldrawFileDataIfNecessary } from 'src/plugin/document/migrate/tl-data-to-tlstore'
 import { TLDRAW_FILE_EXTENSION } from 'tldraw'
@@ -22,7 +22,7 @@ export class TldrawReadonlyView extends BaseTldrawFileView {
 		this.plugin = plugin
 	}
 
-	isReadOnly() {
+	syncToMain() {
 		// We don't want to sync to the main store because we don't want to accidentally modify the file.
 		return false
 	}

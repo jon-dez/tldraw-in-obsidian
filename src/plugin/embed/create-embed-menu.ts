@@ -1,5 +1,5 @@
 import { Menu, MenuItem } from 'obsidian'
-import { MARKDOWN_ICON_NAME, PaneTarget, ViewType } from 'src/utils/constants'
+import { MARKDOWN_ICON_NAME, PaneTarget, ViewType } from 'src/plugin/constants'
 import { PTLEditorBlockBlur } from 'src/utils/dom-attributes'
 import { BoxLike } from 'tldraw'
 import { pluginMenuLabel } from 'src/plugin/menu'

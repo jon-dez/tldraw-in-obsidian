@@ -1,6 +1,6 @@
 import { BlockCache, MarkdownView, Notice, TFile } from 'obsidian'
 import TldrawPlugin from 'src/plugin/TldrawPlugin'
-import { VIEW_TYPE_MARKDOWN } from 'src/utils/constants'
+import { VIEW_TYPE_MARKDOWN } from 'src/plugin/constants'
 
 export async function navigateToBlockCache(
 	plugin: TldrawPlugin,

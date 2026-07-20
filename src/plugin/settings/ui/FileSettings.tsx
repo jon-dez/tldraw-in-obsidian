@@ -14,15 +14,11 @@ import { validateFolderPath } from 'src/obsidian/helpers/app'
 import { isValidFrontmatterTag } from 'src/obsidian/helpers/front-matter'
 import { destinationMethods, destinationMethodsRecord } from 'src/plugin/settings/constants'
 import UserSettingsManager from 'src/plugin/settings/UserSettingsManager'
-import { DEFAULT_SETTINGS, DestinationMethod } from 'src/plugin/settings/TldrawSettingsTab'
-import {
-	DEFAULT_SAVE_DELAY,
-	FRONTMATTER_KEY,
-	MAX_SAVE_DELAY,
-	MIN_SAVE_DELAY,
-} from 'src/utils/constants'
+import { DEFAULT_SETTINGS, DestinationMethod } from 'src/plugin/settings/settings-types'
+import { FRONTMATTER_KEY } from 'src/plugin/document/constants'
+import { DEFAULT_SAVE_DELAY, MAX_SAVE_DELAY, MIN_SAVE_DELAY } from 'src/plugin/constants'
 import { pathBasenameNoExt } from 'src/obsidian/helpers/path'
-import { clamp, msToSeconds } from 'src/utils/utils'
+import { clamp, msToSeconds } from 'src/utils/numbers'
 import { Dropdown, Text, Toggle, ExtraButton, MomentFormat } from '@obsidian-plugin-toolkit/react/components'
 import { Setting, Group } from '@obsidian-plugin-toolkit/react/components/setting/group'
 

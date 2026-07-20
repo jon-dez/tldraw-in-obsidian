@@ -3,44 +3,34 @@ import {
 	addIcon,
 	getIcon,
 	MarkdownView,
-	moment,
-	normalizePath,
 	Notice,
-	OpenViewState,
 	Plugin,
 	TFile,
 	ViewState,
 	WorkspaceLeaf,
 } from 'obsidian'
 import { Root } from 'react-dom/client'
-import { Editor, TLDRAW_FILE_EXTENSION, TLStore } from 'tldraw'
+import { Editor, TLDRAW_FILE_EXTENSION } from 'tldraw'
 import { createReactStatusBarViewMode } from 'src/plugin/app/components/StatusBarViewMode'
 import createMain from 'src/plugin/app/main/TldrawInObsidian'
 import { TldrawOfflineFileView } from 'src/plugin/views/TldrawOfflineFileView'
 import { ReadonlyTldrawView } from 'src/plugin/views/TldrawReadonlyView'
-import {
-	DEFAULT_SETTINGS,
-	TldrawPluginSettings,
-	TldrawSettingsTab,
-} from 'src/plugin/settings/TldrawSettingsTab'
+import { TldrawPluginSettings } from 'src/plugin/settings/settings-types'
+import { TldrawSettingsTab } from 'src/plugin/settings/TldrawSettingsTab'
 import { EditableTldrawView } from 'src/plugin/views/TldrawView'
 import { createEmbedTldraw } from 'src/plugin/embed/markdown-render-child'
-import { formatFilePrefix } from 'src/plugin/file/new'
 import { pluginMenuLabel } from 'src/plugin/menu'
 import TLDataDocumentStoreManager from 'src/plugin/stores/TLDataDocumentStoreManager'
 import { TldrawFileListenerMap } from 'src/plugin/stores/TldrawFileListenerMap'
 import { registerCommands } from 'src/plugin/commands'
-import { getTldrawFileDestination } from 'src/plugin/file/file-destination'
 import TldrawInObsidianPluginInstance from 'src/plugin/instance'
 import { markdownPostProcessor } from 'src/plugin/embed/markdown-post-processor'
 import { processFontOverrides, processIconOverrides } from 'src/plugin/settings/process-overrides'
 import UserSettingsManager from 'src/plugin/settings/UserSettingsManager'
 import {
-	FILE_EXTENSION,
-	FRONTMATTER_KEY,
+	isValidViewType,
 	MARKDOWN_ICON,
 	MARKDOWN_ICON_NAME,
-	PaneTarget,
 	RIBBON_NEW_FILE,
 	TLDRAW_ICON,
 	TLDRAW_ICON_NAME,
@@ -49,19 +39,13 @@ import {
 	VIEW_TYPE_TLDRAW_OFFLINE,
 	VIEW_TYPE_TLDRAW_READ_ONLY,
 	ViewType,
-} from 'src/utils/constants'
-import {
-	codeBlockTemplate,
-	frontmatterTemplate,
-	getTLDataTemplate,
-	tlFileTemplate,
-} from 'src/plugin/document/document'
+} from 'src/plugin/constants'
 import { migrateTldrawFileDataIfNecessary } from 'src/plugin/document/migrate/tl-data-to-tlstore'
 import { useStatusBarState } from 'src/plugin/app/status-bar-store'
-import { createRawTldrawFile } from 'src/plugin/document/tldraw-file'
-import { tldrawFileToJson } from 'src/plugin/document/tldraw-file/tldraw-file-to-json'
-import { checkAndCreateFolder, getNewUniqueFilepath, isValidViewType } from 'src/utils/utils'
 import { installObsidianLinkHandler } from 'src/plugin/uri/open-obsidian-link'
+import { hasTldrawFrontMatterKey, isTldrawFile } from 'src/plugin/document/detect'
+import TldrawFileCreator from 'src/plugin/file/creator'
+import ViewModeManager from 'src/plugin/view-mode-manager'
 
 export default class TldrawPlugin extends Plugin {
 	#instance?: TldrawInObsidianPluginInstance
@@ -71,9 +55,9 @@ export default class TldrawPlugin extends Plugin {
 	unsubscribeToViewModeState?: () => void
 	transientUpdate: boolean = false
 
-	// keeps track of what view mode each tab-file combo should be in:
-	leafFileViewModes: { [leafFileId: string]: ViewType } = {}
 	readonly settingsManager = new UserSettingsManager(this)
+	readonly viewModeManager = new ViewModeManager(this)
+	readonly fileCreator = new TldrawFileCreator(this)
 	readonly tldrawFileListeners = new TldrawFileListenerMap(this)
 	readonly tldrawFileMetadataListeners = new TldrawFileListenerMap(this)
 	readonly tlDataDocumentStoreManager = new TLDataDocumentStoreManager(this)
@@ -360,231 +344,69 @@ export default class TldrawPlugin extends Plugin {
 	private registerCommands = () => registerCommands(this)
 
 	public setStatusBarViewModeVisibility(visible: boolean) {
-		if (visible) this.statusBarRoot?.removeClass('ptl-hide-statusbar-viewmode')
-		else this.statusBarRoot?.addClass('ptl-hide-statusbar-viewmode')
+		this.viewModeManager.setStatusBarViewModeVisibility(visible)
 	}
 
 	public updateStatusBarViewMode(view: ViewType) {
-		useStatusBarState.setState({ view: { mode: view, source: 'plugin' } })
+		this.viewModeManager.updateStatusBarViewMode(view)
 	}
 
-	public setMarkdownView = async (leaf: WorkspaceLeaf, eState?: unknown) => {
-		await leaf.setViewState(
-			{
-				type: VIEW_TYPE_MARKDOWN,
-				state: { ...leaf.view.getState(), manuallyTriggered: true },
-			} as ViewState,
-			eState
-		)
-	}
+	public setMarkdownView = (leaf: WorkspaceLeaf, eState?: unknown) =>
+		this.viewModeManager.setMarkdownView(leaf, eState)
 
-	public setTldrawView = async (leaf: WorkspaceLeaf, eState?: unknown) => {
-		await leaf.setViewState(
-			{
-				type: VIEW_TYPE_TLDRAW,
-				state: { ...leaf.view.getState(), manuallyTriggered: true },
-			} as ViewState,
-			eState
-		)
-	}
+	public setTldrawView = (leaf: WorkspaceLeaf, eState?: unknown) =>
+		this.viewModeManager.setTldrawView(leaf, eState)
 
-	public setTldrawViewPreview = async (leaf: WorkspaceLeaf, eState?: unknown) => {
-		await leaf.setViewState(
-			{
-				type: VIEW_TYPE_TLDRAW_READ_ONLY,
-				state: { ...leaf.view.getState(), manuallyTriggered: true },
-			} as ViewState,
-			eState
-		)
-	}
+	public setTldrawViewPreview = (leaf: WorkspaceLeaf, eState?: unknown) =>
+		this.viewModeManager.setTldrawViewPreview(leaf, eState)
 
-	/**
-	 * the leafFileViewMode ID is a combination of the leaf (or tab) id and the file in that tab's path. This is how we can look up what view mode each leaf-file combo has been set.
-	 * @param leaf
-	 * @param file
-	 * @returns
-	 */
 	public getLeafFileId(leaf?: WorkspaceLeaf, file?: TFile | null) {
-		leaf ??= this.app.workspace.getLeaf(false)
-		file ??= this.app.workspace.getActiveFile()
-
-		// @ts-ignore: leaf.id exists but the typescript declarations don't say so
-		const leafId = leaf.id as string
-		const filePath = file?.path ?? ''
-
-		return `${leafId}-${filePath}`
+		return this.viewModeManager.getLeafFileId(leaf, file)
 	}
 
 	public getLeafFileViewMode(leaf?: WorkspaceLeaf, file?: TFile) {
-		const id = this.getLeafFileId(leaf, file)
-		const viewMode = this.leafFileViewModes[id]
-		return viewMode
+		return this.viewModeManager.getLeafFileViewMode(leaf, file)
 	}
 
 	public setLeafFileViewMode(viewMode: ViewType, leaf?: WorkspaceLeaf, file?: TFile) {
-		const id = this.getLeafFileId(leaf, file)
-		this.leafFileViewModes[id] = viewMode
+		this.viewModeManager.setLeafFileViewMode(viewMode, leaf, file)
 	}
 
-	public async updateViewMode(view: ViewType, leaf?: WorkspaceLeaf, eState?: unknown) {
-		view ??= VIEW_TYPE_TLDRAW
-		leaf ??= this.app.workspace.getLeaf(false)
-
-		// guard clause to prevent changing the view if the view is already correct:
-		const { type } = leaf.getViewState()
-		if (type === view) return
-
-		// these functions will actually change the view mode:
-		switch (view) {
-			case VIEW_TYPE_TLDRAW:
-				await this.setTldrawView(leaf, eState)
-				break
-			case VIEW_TYPE_TLDRAW_READ_ONLY:
-				await this.setTldrawViewPreview(leaf, eState)
-				break
-			default:
-				console.warn('Uknown tldraw plugin view: ', view)
-				await this.setMarkdownView(leaf, eState)
-		}
+	public updateViewMode(view: ViewType, leaf?: WorkspaceLeaf, eState?: unknown) {
+		return this.viewModeManager.updateViewMode(view, leaf, eState)
 	}
 
-	public async createFile(filename: string, foldername: string, data?: string): Promise<TFile> {
-		const folderpath = normalizePath(foldername)
-		await checkAndCreateFolder(folderpath, this.app.vault) //create folder if it does not exist
-		const fname = getNewUniqueFilepath(this.app.vault, filename, folderpath)
-
-		return await this.app.vault.create(fname, data ?? '')
+	public createFile(filename: string, foldername: string, data?: string): Promise<TFile> {
+		return this.fileCreator.createFile(filename, foldername, data)
 	}
 
-	public createTldrFile = async (
-		filename: string,
-		{
-			foldername,
-			inMarkdown,
-			tlStore,
-		}: { foldername: string; inMarkdown: boolean; tlStore?: TLStore }
-	) => {
-		const extension = inMarkdown ? FILE_EXTENSION : TLDRAW_FILE_EXTENSION
-		// adds the extension if the filename does not already include it:
-		filename = filename.endsWith(extension) ? filename : filename + extension
+	public createTldrFile = (...args: Parameters<TldrawFileCreator['createTldrFile']>) =>
+		this.fileCreator.createTldrFile(...args)
 
-		const tldrawFile = createRawTldrawFile(tlStore)
-		const fileData = !inMarkdown
-			? JSON.stringify(tldrawFileToJson(tldrawFile))
-			: (() => {
-					// constructs the markdown content thats a template:
-					const tlData = getTLDataTemplate(
-						this.manifest.version,
-						tldrawFile,
-						window.crypto.randomUUID()
-					)
-					const frontmatter = frontmatterTemplate(
-						`${this.settings.file?.altFrontmatterKey ?? FRONTMATTER_KEY}: true`,
-						this.settingsManager.markdownFileTags
-					)
-					const codeblock = codeBlockTemplate(tlData)
-					return tlFileTemplate(frontmatter, codeblock)
-				})()
-
-		return await this.createFile(filename, foldername, fileData)
+	public createDefaultFilename(options: { currentFile?: Pick<TFile, 'basename'> }) {
+		return this.fileCreator.createDefaultFilename(options)
 	}
 
-	public createDefaultFilename({ currentFile }: { currentFile?: Pick<TFile, 'basename'> }) {
-		const { newFilePrefix, newFileTimeFormat } = this.settings
+	public createUntitledTldrFile = (
+		...args: Parameters<TldrawFileCreator['createUntitledTldrFile']>
+	) => this.fileCreator.createUntitledTldrFile(...args)
 
-		const date = newFileTimeFormat.trim() !== '' ? moment().format(newFileTimeFormat) : ''
-
-		// if both the prefix and the date is empty as contentation
-		// then we have to use the defaults to name the file
-		let filename =
-			formatFilePrefix(newFilePrefix, {
-				currentFileBasename: currentFile?.basename,
-			}) + date
-		if (filename.trim() === '')
-			filename =
-				DEFAULT_SETTINGS.newFilePrefix + moment().format(DEFAULT_SETTINGS.newFileTimeFormat)
-
-		return filename
-	}
-
-	/**
-	 *
-	 * @param attachTo The file that is considered as the "parent" of this new file. If this is not undefined then the new untitled tldr file will be considered as an attachment.
-	 * @returns
-	 */
-	public createUntitledTldrFile = async ({
-		attachTo,
-		tlStore,
-		inMarkdown = true,
-	}: {
-		attachTo?: TFile
-		tlStore?: TLStore
-		/**
-		 * @default true
-		 */
-		inMarkdown?: boolean
-	} = {}) => {
-		const filename = this.createDefaultFilename({ currentFile: attachTo })
-		const res = await getTldrawFileDestination(this, filename, attachTo)
-		return this.createTldrFile(res.filename, {
-			tlStore,
-			inMarkdown,
-			foldername: res.folder,
-		})
-	}
-
-	public openTldrFile = async (
-		file: TFile,
-		location: PaneTarget,
-		viewType: ViewType = VIEW_TYPE_TLDRAW,
-		openState?: OpenViewState
-	) => {
-		let leaf: WorkspaceLeaf
-
-		if (location === 'current-tab') leaf = this.app.workspace.getLeaf(false)
-		else if (location === 'new-tab') leaf = this.app.workspace.getLeaf(true)
-		else if (location === 'new-window') leaf = this.app.workspace.getLeaf('window')
-		else if (location === 'split-tab') leaf = this.app.workspace.getLeaf('split')
-		else leaf = this.app.workspace.getLeaf(false)
-
-		await leaf.openFile(file, openState)
-		await this.updateViewMode(viewType, leaf, openState?.eState)
-		return leaf
-	}
+	public openTldrFile = (...args: Parameters<TldrawFileCreator['openTldrFile']>) =>
+		this.fileCreator.openTldrFile(...args)
 
 	/**
 	 * Check if {@linkcode file} is a markdown file for tldraw documents.
 	 */
 	public isTldrawFile(file: TFile) {
-		if (!file) return false
-		return this.hasTldrawFrontMatterKey(file)
+		return isTldrawFile(this.app, this.settings, file)
 	}
 
 	public hasTldrawFrontMatterKey(file: TFile) {
-		const fcache = file ? this.app.metadataCache.getFileCache(file) : null
-		const frontmatter = fcache?.frontmatter
-		if (!frontmatter) return false
-
-		const altFrontmatterKey = this.settings.file?.altFrontmatterKey
-
-		return (
-			Object.hasOwn(frontmatter, FRONTMATTER_KEY) ||
-			(!!altFrontmatterKey && Object.hasOwn(frontmatter, altFrontmatterKey))
-		)
+		return hasTldrawFrontMatterKey(this.app, this.settings, file)
 	}
 
 	private switchToTldrawViewAfterLoad() {
-		this.app.workspace.onLayoutReady(() => {
-			for (const leaf of this.app.workspace.getLeavesOfType('markdown')) {
-				if (
-					leaf.view instanceof MarkdownView &&
-					leaf.view.file &&
-					this.isTldrawFile(leaf.view.file)
-				) {
-					this.updateViewMode(VIEW_TYPE_TLDRAW, leaf)
-				}
-			}
-		})
+		this.viewModeManager.switchToTldrawViewAfterLoad()
 	}
 
 	async saveSettings() {

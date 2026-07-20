@@ -1,10 +1,10 @@
 import { PluginManifest } from 'obsidian'
 import { isValidFrontmatterTag } from 'src/obsidian/helpers/front-matter'
 import { JsonObject, SerializedStore, TldrawFile, TLRecord, TLStore } from 'tldraw'
-import { TLDATA_DELIMITER_END, TLDATA_DELIMITER_START } from 'src/utils/constants'
+import { TLDATA_DELIMITER_END, TLDATA_DELIMITER_START } from 'src/plugin/document/constants'
 import { createRawTldrawFile } from './tldraw-file'
 import { tldrawFileToJson } from './tldraw-file/tldraw-file-to-json'
-import { hasKewords, replaceBetweenKeywords } from 'src/utils/utils'
+import { hasKeywords, replaceBetweenKeywords } from 'src/utils/strings'
 
 export type TldrawPluginMetaData = {
 	'plugin-version': string
@@ -130,7 +130,7 @@ export async function updateFileData(
 		documentStore.meta.uuid
 	)
 
-	if (!hasKewords(data, TLDATA_DELIMITER_START, TLDATA_DELIMITER_END)) {
+	if (!hasKeywords(data, TLDATA_DELIMITER_START, TLDATA_DELIMITER_END)) {
 		return `${data}\n${codeBlockTemplate(tldrawData)}`
 	}
 

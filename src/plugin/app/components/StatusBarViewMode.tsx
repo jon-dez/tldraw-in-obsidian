@@ -4,7 +4,7 @@ import {
 	VIEW_TYPE_MARKDOWN,
 	VIEW_TYPE_TLDRAW,
 	VIEW_TYPE_TLDRAW_READ_ONLY,
-} from 'src/utils/constants'
+} from 'src/plugin/constants'
 import { useStatusBarState } from '../status-bar-store'
 
 const StatusBarViewMode = () => {

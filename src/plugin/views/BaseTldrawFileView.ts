@@ -7,11 +7,10 @@ import {
 	TldrawAppStoreProps,
 } from 'src/plugin/app/TldrawApp'
 import TldrawPlugin from 'src/plugin/TldrawPlugin'
-import { MARKDOWN_ICON_NAME, VIEW_TYPE_MARKDOWN } from 'src/utils/constants'
+import { MARKDOWN_ICON_NAME, VIEW_TYPE_MARKDOWN } from 'src/plugin/constants'
 import { TLDataDocumentStore } from 'src/plugin/document/document'
 import { createDeepLinkString, parseDeepLinkString, TLDeepLink } from 'tldraw'
 import { getViewport } from 'src/utils/viewport-storage'
-import { intercept, Interceptor, MethodKeys } from 'src/utils/decorators/methods'
 import TldrawAssetsModal from 'src/plugin/modals/TldrawAssetsModal'
 
 export interface DataUpdate {
@@ -19,13 +18,6 @@ export interface DataUpdate {
 	saveFile(): Promise<void>
 }
 
-export function interceptFileViewMethod<
-	TMethod extends MethodKeys<FileView>,
-	TMethodArgs extends any[],
-	TMethodReturn,
->(method: TMethod, interceptor: Interceptor<BaseTldrawFileView, FileView, TMethod, TMethodArgs, TMethodReturn>) {
-	return intercept((instance: BaseTldrawFileView) => instance.fileView, method, interceptor)
-}
 
 /**
  * Implements overrides for {@linkcode FileView} by intercepting its methods.
@@ -60,25 +52,17 @@ export abstract class BaseTldrawFileView<View extends FileView = FileView> {
 		return this.fileView.contentEl
 	}
 
-	protected abstract isReadOnly(): boolean
+	/**
+	 * Whether store instances created for this view should synchronize their
+	 * changes to the shared main store (which persists to the file).
+	 */
+	protected abstract syncToMain(): boolean
 	/**
 	 *
 	 * @param update An object to manage the update.
 	 */
 	protected abstract onUpdated(update: DataUpdate): void
 
-	// /**
-	//  * Adds the entry point `tldraw-view-content` for the {@linkcode #reactRoot},
-	//  * and the "View as markdown" action button.
-	//  */
-	// @interceptFileViewMethod('onload', function (this: BaseTldrawFileView, original, thisMethod) {
-	// 	console.log('intercept onload', original, thisMethod)
-	// 	return function (...args) {
-	// 		console.log('intercepted onload', this.fileView, original, thisMethod)
-	// 		original(...args)
-	// 		thisMethod(...args)
-	// 	}
-	// })
 	onload(): void {
 		this.fileView.contentEl.addClass('tldraw-view-content')
 
@@ -95,31 +79,12 @@ export abstract class BaseTldrawFileView<View extends FileView = FileView> {
 		)
 	}
 
-	// /**
-	//  * Removes the previously added entry point `tldraw-view-content`, and unmounts {@linkcode #reactRoot}.
-	//  */
-	// @interceptFileViewMethod('onunload', (original, thisMethod) => {
-	// 	return (...args) => {
-	// 		original(...args)
-	// 		thisMethod()
-	// 	}
-	// })
 	onunload(): void {
 		this.#unregisterOnWindowMigrated?.()
 		this.fileView.contentEl.removeClass('tldraw-view-content')
 		this.unmountReactRoot()
 	}
 
-	// /**
-	//  * Intercepts the {@linkcode FileView.onLoadFile} method to add the ability to load the file and initialize the store.
-	//  * @returns
-	//  */
-	// @interceptFileViewMethod('onLoadFile', (original, thisMethod) => {
-	// 	return async (...args) => {
-	// 		await thisMethod(...args)
-	// 		return original(...args)
-	// 	}
-	// })
 	async onLoadFile(file: TFile): Promise<void> {
 		const fileData = await this.fileView.app.vault.read(file)
 
@@ -138,7 +103,7 @@ export abstract class BaseTldrawFileView<View extends FileView = FileView> {
 					},
 				})
 			},
-			this.isReadOnly()
+			this.syncToMain()
 		)
 
 		this.registerOnUnloadFile(() => storeInstance.unregister())
@@ -179,12 +144,6 @@ export abstract class BaseTldrawFileView<View extends FileView = FileView> {
 		documentStore: TLDataDocumentStore
 	): Promise<TLDataDocumentStore | null>
 
-	// @interceptFileViewMethod('onUnloadFile', (original, thisMethod) => {
-	// 	return async (...args) => {
-	// 		await thisMethod()
-	// 		return original(...args)
-	// 	}
-	// })
 	async onUnloadFile(): Promise<void> {
 		const callbacks = [...this.#onUnloadCallbacks]
 		this.#onUnloadCallbacks = []
@@ -195,12 +154,6 @@ export abstract class BaseTldrawFileView<View extends FileView = FileView> {
 		this.#onUnloadCallbacks.push(cb)
 	}
 
-	// @interceptFileViewMethod('setEphemeralState', (original, thisMethod) => {
-	// 	return (...args) => {
-	// 		original(...args)
-	// 		thisMethod(...args)
-	// 	}
-	// })
 	setEphemeralState(state: unknown): void {
 		// If a deep link is present when the document is opened, set the deeplink variable so the editor is opened at the deep link.
 		if (
@@ -282,7 +235,8 @@ export abstract class BaseTldrawFileView<View extends FileView = FileView> {
 		}
 		this.registerOnUnloadFile(removeCb)
 		this.#unregisterViewAssetsActionCallback = () => {
-			this.#onUnloadCallbacks.remove(removeCb)
+			const cbIndex = this.#onUnloadCallbacks.indexOf(removeCb)
+			if (cbIndex !== -1) this.#onUnloadCallbacks.splice(cbIndex, 1)
 			removeCb()
 		}
 	}
