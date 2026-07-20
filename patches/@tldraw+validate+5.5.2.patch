@@ -1,5 +1,5 @@
 diff --git a/node_modules/@tldraw/validate/dist-cjs/index.d.ts b/node_modules/@tldraw/validate/dist-cjs/index.d.ts
-index 03c5ada..9e90022 100644
+index 8a9b5ea..f1d3823 100644
 --- a/node_modules/@tldraw/validate/dist-cjs/index.d.ts
 +++ b/node_modules/@tldraw/validate/dist-cjs/index.d.ts
 @@ -247,13 +247,14 @@ declare function jsonDict(): DictValidator<string, JsonValue>;
@@ -46,7 +46,7 @@ index dd0fe29..f926b2a 100644
    "names": ["object", "key", "value"]
  }
 diff --git a/node_modules/@tldraw/validate/dist-esm/index.d.mts b/node_modules/@tldraw/validate/dist-esm/index.d.mts
-index 03c5ada..9e90022 100644
+index 8a9b5ea..f1d3823 100644
 --- a/node_modules/@tldraw/validate/dist-esm/index.d.mts
 +++ b/node_modules/@tldraw/validate/dist-esm/index.d.mts
 @@ -247,13 +247,14 @@ declare function jsonDict(): DictValidator<string, JsonValue>;

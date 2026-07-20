@@ -2,7 +2,9 @@ import path from 'path';
 import { defineConfig } from 'vite';
 import obsidian from '@obsidian-plugin-toolkit/vite';
 import react from '@vitejs/plugin-react';
-import { version } from './node_modules/tldraw/package.json';
+import tldrawPackageJson from './node_modules/tldraw/package.json' with { type: 'json' };
+
+const { version } = tldrawPackageJson;
 
 const NODE_ENV = process.env.NODE_ENV
 const prod = NODE_ENV === 'production'
