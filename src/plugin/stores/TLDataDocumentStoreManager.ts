@@ -351,7 +351,7 @@ export default class TLDataDocumentStoreManager {
 				this.propagateData(this.plugin.app.workspace, context.storeGroup, data)
 				await this.plugin.app.vault.modify(tFile, data)
 			},
-			safeSecondsToMs(this.plugin.settings.saveFileDelay),
+			safeSecondsToMs(this.plugin.settingsManager.settings.saveFileDelay),
 			true
 		)
 	}

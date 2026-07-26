@@ -4,12 +4,11 @@ import { DEFAULT_SETTINGS, TldrawPluginSettings } from 'src/plugin/settings/sett
 import type TldrawPlugin from 'src/plugin/TldrawPlugin'
 
 /**
- * UserSettingsManager only touches `loadData`, `saveSettings` and the
- * `settings` property of the plugin, so a minimal fake is enough.
+ * UserSettingsManager owns the settings state itself; it only touches
+ * `loadData` and `saveSettings` on the plugin, so a minimal fake is enough.
  */
 function createFakePlugin(data: unknown) {
 	const plugin = {
-		settings: undefined as unknown as TldrawPluginSettings,
 		loadData: async () => data,
 		saveSettings: vi.fn(async () => {}),
 	}
@@ -21,7 +20,7 @@ describe('UserSettingsManager.loadSettings', () => {
 		const plugin = createFakePlugin(null)
 		const manager = new UserSettingsManager(plugin)
 		await manager.loadSettings()
-		expect(plugin.settings.fileDestinations).toEqual(DEFAULT_SETTINGS.fileDestinations)
+		expect(manager.settings.fileDestinations).toEqual(DEFAULT_SETTINGS.fileDestinations)
 	})
 
 	it('preserves already-migrated fileDestinations', async () => {
@@ -33,7 +32,7 @@ describe('UserSettingsManager.loadSettings', () => {
 		const plugin = createFakePlugin({ fileDestinations })
 		const manager = new UserSettingsManager(plugin)
 		await manager.loadSettings()
-		expect(plugin.settings.fileDestinations).toEqual(fileDestinations)
+		expect(manager.settings.fileDestinations).toEqual(fileDestinations)
 	})
 
 	it('strips the deprecated file destination keys from the loaded settings', async () => {
@@ -44,8 +43,8 @@ describe('UserSettingsManager.loadSettings', () => {
 		})
 		const manager = new UserSettingsManager(plugin)
 		await manager.loadSettings()
-		expect(plugin.settings.folder).toBeUndefined()
-		expect(plugin.settings.useAttachmentsFolder).toBeUndefined()
+		expect(manager.settings.folder).toBeUndefined()
+		expect(manager.settings.useAttachmentsFolder).toBeUndefined()
 	})
 
 	it('migrates the deprecated file destination settings', async () => {
@@ -56,9 +55,9 @@ describe('UserSettingsManager.loadSettings', () => {
 		})
 		const manager = new UserSettingsManager(plugin)
 		await manager.loadSettings()
-		expect(plugin.settings.fileDestinations.defaultFolder).toBe('legacy/drawings')
-		expect(plugin.settings.fileDestinations.assetsFolder).toBe('legacy/assets')
-		expect(plugin.settings.fileDestinations.destinationMethod).toBe('attachments-folder')
+		expect(manager.settings.fileDestinations.defaultFolder).toBe('legacy/drawings')
+		expect(manager.settings.fileDestinations.assetsFolder).toBe('legacy/assets')
+		expect(manager.settings.fileDestinations.destinationMethod).toBe('attachments-folder')
 	})
 })
 
@@ -104,7 +103,7 @@ describe('UserSettingsManager update methods', () => {
 		})
 		manager.store.subscribe(() => order.push('notify'))
 
-		await manager.updateSettings(plugin.settings)
+		await manager.updateSettings(manager.settings)
 		expect(order).toEqual(['save', 'notify'])
 	})
 })

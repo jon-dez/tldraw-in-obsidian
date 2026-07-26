@@ -18,7 +18,7 @@ export default class FontsSettingsManager {
 	}
 
 	get overrides() {
-		return this.plugin.settings.fonts?.overrides ?? {}
+		return this.plugin.settingsManager.settings.fonts?.overrides ?? {}
 	}
 
 	onChanged(font: FontTypes, callback: () => void) {
@@ -33,7 +33,7 @@ export default class FontsSettingsManager {
 	getDownloadConfig(font: FontTypes): DownloadInfo {
 		return {
 			url: FontsSettingsManager.getFontUrl(font),
-			destination: `${this.plugin.settings.fileDestinations.assetsFolder}/fonts/${defaultFonts[font]}`,
+			destination: `${this.plugin.settingsManager.settings.fileDestinations.assetsFolder}/fonts/${defaultFonts[font]}`,
 		}
 	}
 
@@ -56,11 +56,11 @@ export default class FontsSettingsManager {
 			  }
 			| null
 	) {
-		this.plugin.settings.fonts =
+		this.plugin.settingsManager.settings.fonts =
 			updates === null
 				? undefined
 				: {
-						overrides: updateFontOverrides(this.plugin.settings.fonts?.overrides, updates),
+						overrides: updateFontOverrides(this.plugin.settingsManager.settings.fonts?.overrides, updates),
 					}
 		await this.plugin.saveSettings()
 

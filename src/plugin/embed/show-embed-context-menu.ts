@@ -20,12 +20,20 @@ export function showEmbedContextMenu(
 		title,
 		controller,
 		selectEmbedLinkText: (ev) => {
+			// KeyboardEvent (menu item chosen via keyboard) has no pointer position; fall back to
+			// the container's center instead of silently defaulting to (0, 0).
+			const { clientX, clientY } = ev.instanceOf(MouseEvent)
+				? ev
+				: (() => {
+						const rect = focusContainer.getBoundingClientRect()
+						return { clientX: rect.left + rect.width / 2, clientY: rect.top + rect.height / 2 }
+					})()
 			focusContainer.dispatchEvent(
 				new MouseEvent('click', {
 					bubbles: ev.bubbles,
 					cancelable: ev.cancelable,
-					clientX: ev.clientX,
-					clientY: ev.clientY,
+					clientX,
+					clientY,
 				})
 			)
 		},

@@ -1,0 +1,16 @@
+{
+	"extends": "./tsconfig.json",
+	"compilerOptions": {
+		"types": ["node"],
+		"module": "NodeNext",
+		"moduleResolution": "NodeNext"
+	},
+	"include": [
+		"scripts",
+		"eslint.config.mjs",
+		"vite.config.mts",
+		"vitest.config.mts",
+		"obsidian-plugin-toolkit.config.mts",
+		"wdio.conf.mts"
+	]
+}

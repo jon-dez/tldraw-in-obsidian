@@ -1,6 +1,6 @@
 import { Notifier } from './notifier'
 
-export interface AddListener<Callback extends (...args: unknown[]) => void = () => void> {
+export interface AddListener<Callback extends (...args: any[]) => void = () => void> {
 	(listener: Callback): () => void
 }
 

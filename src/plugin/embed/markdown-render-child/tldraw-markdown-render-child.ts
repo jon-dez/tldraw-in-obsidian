@@ -55,7 +55,7 @@ export class TldrawMarkdownRenderChild extends MarkdownRenderChild {
 		}
 	) {
 		super(embed.containerEl)
-		const initialEmbedValues = embed.parseEmbedValues(plugin.settings.embeds.showBg)
+		const initialEmbedValues = embed.parseEmbedValues(plugin.settingsManager.settings.embeds.showBg)
 		const pageId = toPageId(initialEmbedValues.page)
 		if (pageId) {
 			this.#embedPagesOptions = {
@@ -74,14 +74,13 @@ export class TldrawMarkdownRenderChild extends MarkdownRenderChild {
 					pageId,
 					background: initialEmbedValues.showBg,
 					bounds: initialEmbedValues.bounds,
-					padding: plugin.settings.embeds.padding,
+					padding: plugin.settingsManager.settings.embeds.padding,
 					darkMode: (() => {
-						const { themeMode } = plugin.settings
+						const { themeMode } = plugin.settingsManager.settings
 						if (themeMode === 'dark') return true
 						else if (themeMode === 'light') return false
 						else return isObsidianThemeDark()
 					})(),
-					targetDocument: embed.containerEl.ownerDocument,
 				},
 			},
 			{
@@ -287,7 +286,7 @@ export class TldrawMarkdownRenderChild extends MarkdownRenderChild {
 				}
 			},
 			plugin: this.plugin,
-			showBgDots: this.plugin.settings.embeds.showBgDots,
+			showBgDots: this.plugin.settingsManager.settings.embeds.showBgDots,
 		}).tldrawEmbedViewContent
 	}
 
@@ -586,7 +585,7 @@ export class TldrawMarkdownRenderChild extends MarkdownRenderChild {
 						})
 					this.updateEmbedValues(values)
 				},
-				() => this.plugin.settings.embeds.showBg
+				() => this.plugin.settingsManager.settings.embeds.showBg
 			))
 		this.register(() => embedValuesObserverDisconnect?.())
 	}

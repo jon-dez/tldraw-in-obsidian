@@ -77,6 +77,14 @@ declare module 'obsidian' {
 		}
 	}
 
+	interface DataAdapter {
+		/**
+		 * The vault's absolute filesystem path. Present on both desktop and mobile at runtime,
+		 * but not declared in Obsidian's public types.
+		 */
+		basePath: string
+	}
+
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	interface SuggestModal<T = unknown> {
 		/**

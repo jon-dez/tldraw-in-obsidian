@@ -19,7 +19,7 @@ describe('Embedding a drawing in a note', () => {
 				.plugins.tldraw
 
 			// Otherwise creating a drawing opens the destination picker and blocks the test.
-			plugin.settings.fileDestinations.confirmDestination = false
+			plugin.settingsManager.settings.fileDestinations.confirmDestination = false
 
 			// Embeds are registered for `.tldr`, so this one isn't stored in markdown.
 			const drawing = await plugin.createUntitledTldrFile({ inMarkdown: false })

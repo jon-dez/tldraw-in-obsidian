@@ -9,7 +9,7 @@ import NewTldrawFileConfirmationModal from 'src/plugin/modals/NewTldrawFileConfi
  * @returns
  */
 export function getColocationDestination(plugin: TldrawPlugin) {
-	const subfolder = plugin.settings.fileDestinations.colocationSubfolder
+	const subfolder = plugin.settingsManager.settings.fileDestinations.colocationSubfolder
 	const colocationFolder = getColocationFolder(plugin.app)
 	if (subfolder === '') {
 		return colocationFolder
@@ -35,7 +35,7 @@ export async function getTldrawFileDestination(
 ) {
 	const {
 		fileDestinations: { confirmDestination, destinationMethod, defaultFolder },
-	} = plugin.settings
+	} = plugin.settingsManager.settings
 
 	const defaultRes = (() => {
 		switch (destinationMethod) {

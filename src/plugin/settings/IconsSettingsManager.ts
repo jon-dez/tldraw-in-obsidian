@@ -19,7 +19,7 @@ export default class IconsSettingsManager {
 	getDownloadConfig(icon: IconNames): DownloadInfo {
 		return {
 			url: IconsSettingsManager.getIconUrl(icon),
-			destination: `${this.plugin.settings.fileDestinations.assetsFolder}/icons/${icon}.svg`,
+			destination: `${this.plugin.settingsManager.settings.fileDestinations.assetsFolder}/icons/${icon}.svg`,
 		}
 	}
 
@@ -30,7 +30,7 @@ export default class IconsSettingsManager {
 	}
 
 	get overrides() {
-		return this.plugin.settings.icons?.overrides ?? {}
+		return this.plugin.settingsManager.settings.icons?.overrides ?? {}
 	}
 
 	onChanged(icon: IconNames, callback: () => void) {
@@ -49,11 +49,11 @@ export default class IconsSettingsManager {
 			  }
 			| null
 	) {
-		this.plugin.settings.icons =
+		this.plugin.settingsManager.settings.icons =
 			updates === null
 				? undefined
 				: {
-						overrides: updateIconOverrides(this.plugin.settings.icons?.overrides, updates),
+						overrides: updateIconOverrides(this.plugin.settingsManager.settings.icons?.overrides, updates),
 					}
 		await this.plugin.saveSettings()
 

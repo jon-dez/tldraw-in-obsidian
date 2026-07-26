@@ -30,8 +30,8 @@ const dataDocumentFlagsKey = 'tl-data-document-flags'
 const ignoreIndexedDbStoreFlag = 'ignore-indexed-db-store'
 
 export default class TldrawStoreExistsIndexedDBModal extends Modal {
-	private markdownStorePreview: HTMLElement
-	private indexedDBStorePreview: HTMLElement
+	private markdownStorePreview?: HTMLElement
+	private indexedDBStorePreview?: HTMLElement
 	private markdownTldrawRoot?: Root
 	private indexedDBTldrawRoot?: Root
 	private replaceButton?: ButtonComponent
@@ -187,7 +187,7 @@ export default class TldrawStoreExistsIndexedDBModal extends Modal {
 		} satisfies TldrawAppProps['options']
 
 		this.markdownTldrawRoot = createRootAndRenderTldrawApp(
-			this.markdownStorePreview,
+			this.markdownStorePreview!,
 			this.view.plugin,
 			{
 				store: { plugin: this.documentStore },
@@ -195,7 +195,7 @@ export default class TldrawStoreExistsIndexedDBModal extends Modal {
 			}
 		)
 		this.indexedDBTldrawRoot = createRootAndRenderTldrawApp(
-			this.indexedDBStorePreview,
+			this.indexedDBStorePreview!,
 			this.view.plugin,
 			{
 				store: {

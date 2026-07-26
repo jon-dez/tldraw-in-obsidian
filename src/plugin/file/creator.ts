@@ -17,6 +17,14 @@ import { DEFAULT_SETTINGS } from 'src/plugin/settings/settings-types'
 import TldrawPlugin from 'src/plugin/TldrawPlugin'
 
 /**
+ * `moment` is genuinely callable at runtime (Obsidian re-exports the real `moment` package), but
+ * TS6+ treats its namespace-imported type (`obsidian.d.ts`'s `typeof Moment`) as not having a call
+ * signature. `moment.default` does not exist at runtime, unlike this cast to moment's own module
+ * type, which does carry a call signature.
+ */
+const callMoment = moment as unknown as typeof import('moment')
+
+/**
  * Creates and opens tldraw files (markdown-embedded or raw `.tldr`) using the
  * user's file-destination preferences.
  */
@@ -54,7 +62,7 @@ export default class TldrawFileCreator {
 						window.crypto.randomUUID()
 					)
 					const frontmatter = frontmatterTemplate(
-						`${this.plugin.settings.file?.altFrontmatterKey ?? FRONTMATTER_KEY}: true`,
+						`${this.plugin.settingsManager.settings.file?.altFrontmatterKey ?? FRONTMATTER_KEY}: true`,
 						this.plugin.settingsManager.markdownFileTags
 					)
 					const codeblock = codeBlockTemplate(tlData)
@@ -65,9 +73,9 @@ export default class TldrawFileCreator {
 	}
 
 	createDefaultFilename({ currentFile }: { currentFile?: Pick<TFile, 'basename'> }) {
-		const { newFilePrefix, newFileTimeFormat } = this.plugin.settings
+		const { newFilePrefix, newFileTimeFormat } = this.plugin.settingsManager.settings
 
-		const date = newFileTimeFormat.trim() !== '' ? moment().format(newFileTimeFormat) : ''
+		const date = newFileTimeFormat.trim() !== '' ? callMoment().format(newFileTimeFormat) : ''
 
 		// if both the prefix and the date is empty as contentation
 		// then we have to use the defaults to name the file
@@ -77,7 +85,7 @@ export default class TldrawFileCreator {
 			}) + date
 		if (filename.trim() === '')
 			filename =
-				DEFAULT_SETTINGS.newFilePrefix + moment().format(DEFAULT_SETTINGS.newFileTimeFormat)
+				DEFAULT_SETTINGS.newFilePrefix + callMoment().format(DEFAULT_SETTINGS.newFileTimeFormat)
 
 		return filename
 	}

@@ -97,7 +97,7 @@ function IconAssetsSettingsGroup({
 						<>
 							{'Download all icons for offline use'}
 							<code className="ptl-default-code">
-								{`Vault folder: ${manager.plugin.settings.fileDestinations.assetsFolder}/icons`}
+								{`Vault folder: ${manager.plugin.settingsManager.settings.fileDestinations.assetsFolder}/icons`}
 							</code>
 						</>
 					),

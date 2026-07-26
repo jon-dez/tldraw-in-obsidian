@@ -4,8 +4,6 @@ import { Store } from 'tldraw'
 import { ImageViewModeOptions } from '../TldrawAppEmbedViewController'
 import TLDataDocumentStoreManager from 'src/plugin/stores/TLDataDocumentStoreManager'
 
-type Timeout = number
-
 type Callback = () => void
 
 export interface PreviewImage {

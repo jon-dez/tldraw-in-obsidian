@@ -61,7 +61,7 @@ export function createEmbedMenu({
 	openFile,
 }: {
 	controller: TldrAppControllerForMenu
-	selectEmbedLinkText: (ev: MouseEvent) => void
+	selectEmbedLinkText: Parameters<MenuItem['onClick']>[0]
 	title: string
 	openFile: (location: PaneTarget, viewType: ViewType) => void
 }) {

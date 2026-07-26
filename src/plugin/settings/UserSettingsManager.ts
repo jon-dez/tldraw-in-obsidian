@@ -10,13 +10,14 @@ type UserTldrawOptions = NonNullable<TldrawPluginSettings['tldrawOptions']>
 
 export default class UserSettingsManager {
 	#plugin: TldrawPlugin
+	#settings: TldrawPluginSettings = DEFAULT_SETTINGS
 	#subscribers = new Set<() => void>()
 	#store = {
 		subscribe: (cb: () => void) => {
 			this.#subscribers.add(cb)
 			return () => this.#subscribers.delete(cb)
 		},
-		get: (): TldrawPluginSettings => this.#plugin.settings,
+		get: (): TldrawPluginSettings => this.#settings,
 	}
 
 	constructor(plugin: TldrawPlugin) {
@@ -24,7 +25,7 @@ export default class UserSettingsManager {
 	}
 
 	get settings() {
-		return this.#plugin.settings
+		return this.#settings
 	}
 	get store() {
 		return Object.assign({}, this.#store)
@@ -123,19 +124,19 @@ export default class UserSettingsManager {
 			delete settings.fonts.overrides?.serif
 		}
 
-		this.#plugin.settings = settings
+		this.#settings = settings
 
 		this.#notifyStoreSubscribers()
 	}
 
 	async updateSettings(settings: TldrawPluginSettings) {
-		this.#plugin.settings = Object.assign({}, settings)
+		this.#settings = Object.assign({}, settings)
 		await this.#plugin.saveSettings()
 		this.#notifyStoreSubscribers()
 	}
 
 	async updateLaserDelayMs(delayMs: UserTldrawOptions['laserDelayMs']) {
-		let tldrawOptions = this.#plugin.settings.tldrawOptions
+		let tldrawOptions = this.#settings.tldrawOptions
 		if (delayMs === tldrawOptions?.laserDelayMs) return
 		if (delayMs === undefined) {
 			delete tldrawOptions?.laserDelayMs
@@ -143,12 +144,12 @@ export default class UserSettingsManager {
 			if (!tldrawOptions) tldrawOptions = {}
 			tldrawOptions.laserDelayMs = delayMs
 		}
-		this.#plugin.settings.tldrawOptions = Object.assign({}, tldrawOptions)
-		await this.updateSettings(this.#plugin.settings)
+		this.#settings.tldrawOptions = Object.assign({}, tldrawOptions)
+		await this.updateSettings(this.#settings)
 	}
 
 	async updateLaserKeepDelayAfterStop(keepDelay: UserTldrawOptions['laserKeepDelayAfterStop']) {
-		let tldrawOptions = this.#plugin.settings.tldrawOptions
+		let tldrawOptions = this.#settings.tldrawOptions
 		if (keepDelay === tldrawOptions?.laserKeepDelayAfterStop) return
 		if (keepDelay === undefined) {
 			delete tldrawOptions?.laserKeepDelayAfterStop
@@ -156,12 +157,12 @@ export default class UserSettingsManager {
 			if (!tldrawOptions) tldrawOptions = {}
 			tldrawOptions.laserKeepDelayAfterStop = keepDelay
 		}
-		this.#plugin.settings.tldrawOptions = Object.assign({}, tldrawOptions)
-		await this.updateSettings(this.#plugin.settings)
+		this.#settings.tldrawOptions = Object.assign({}, tldrawOptions)
+		await this.updateSettings(this.#settings)
 	}
 
 	async updateEditorWheelBehavior(wheelBehavior: UserTLCameraOptions['wheelBehavior']) {
-		let options = this.#plugin.settings.cameraOptions
+		let options = this.#settings.cameraOptions
 		if (wheelBehavior === options?.wheelBehavior) return
 		if (wheelBehavior === undefined) {
 			delete options?.wheelBehavior
@@ -169,14 +170,14 @@ export default class UserSettingsManager {
 			if (!options) options = {}
 			options.wheelBehavior = wheelBehavior
 		}
-		this.#plugin.settings.cameraOptions = Object.assign({}, options)
-		await this.updateSettings(this.#plugin.settings)
+		this.#settings.cameraOptions = Object.assign({}, options)
+		await this.updateSettings(this.#settings)
 	}
 
 	async updatePasteAtCursor(
 		pasteAtCursor: NonNullable<TldrawPluginSettings['clipboard']>['pasteAtCursor']
 	) {
-		let options = this.#plugin.settings.clipboard
+		let options = this.#settings.clipboard
 		if (pasteAtCursor === options?.pasteAtCursor) return
 		if (pasteAtCursor === undefined) {
 			delete options?.pasteAtCursor
@@ -184,7 +185,7 @@ export default class UserSettingsManager {
 			if (!options) options = {}
 			options.pasteAtCursor = pasteAtCursor
 		}
-		this.#plugin.settings.clipboard = Object.assign({}, options)
-		await this.updateSettings(this.#plugin.settings)
+		this.#settings.clipboard = Object.assign({}, options)
+		await this.updateSettings(this.#settings)
 	}
 }

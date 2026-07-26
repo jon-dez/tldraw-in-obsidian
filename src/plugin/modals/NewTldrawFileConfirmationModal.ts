@@ -104,7 +104,7 @@ export default class NewTldrawFileConfirmationModal extends SuggestModal<Suggest
 					break
 				case 'default-folder':
 					{
-						const { defaultFolder } = this.plugin.settings.fileDestinations
+						const { defaultFolder } = this.plugin.settingsManager.settings.fileDestinations
 						suggestions.push({
 							choice: 'default-folder',
 							folder: {

@@ -15,7 +15,6 @@ import { createReactStatusBarViewMode } from 'src/plugin/app/components/StatusBa
 import createMain from 'src/plugin/app/main/TldrawInObsidian'
 import { TldrawOfflineFileView } from 'src/plugin/views/TldrawOfflineFileView'
 import { ReadonlyTldrawView } from 'src/plugin/views/TldrawReadonlyView'
-import { TldrawPluginSettings } from 'src/plugin/settings/settings-types'
 import { TldrawSettingsTab } from 'src/plugin/settings/TldrawSettingsTab'
 import { EditableTldrawView } from 'src/plugin/views/TldrawView'
 import { createEmbedTldraw } from 'src/plugin/embed/markdown-render-child'
@@ -64,8 +63,7 @@ export default class TldrawPlugin extends Plugin {
 	currTldrawEditor?: Editor
 
 	// misc:
-	embedBoundsSelectorIcon: string
-	settings: TldrawPluginSettings
+	embedBoundsSelectorIcon?: string
 
 	get instance() {
 		return (
@@ -173,7 +171,7 @@ export default class TldrawPlugin extends Plugin {
 		this.tlDataDocumentStoreManager.dispose()
 		this.unsubscribeToViewModeState?.()
 		this.statusBarViewModeReactRoot?.unmount()
-		URL.revokeObjectURL(this.embedBoundsSelectorIcon)
+		if (this.embedBoundsSelectorIcon) URL.revokeObjectURL(this.embedBoundsSelectorIcon)
 		this.#instance = undefined
 		super.onunload()
 	}
@@ -186,28 +184,28 @@ export default class TldrawPlugin extends Plugin {
 		this.register(
 			around(WorkspaceLeaf.prototype, {
 				setViewState(next) {
-					return function (this: WorkspaceLeaf, state: ViewState, ...rest: unknown[]) {
+					return function (this: WorkspaceLeaf, state: ViewState, eState?: unknown) {
 						const rstate = state.state // "real" state
 						const filePath = rstate?.file as string
 						const viewType = state.type
 						const validViewType = isValidViewType(viewType)
 
-						if (plugin.settings.workspace.switchMarkdownView && validViewType && filePath) {
+						if (plugin.settingsManager.settings.workspace.switchMarkdownView && validViewType && filePath) {
 							const matr = Boolean(rstate?.manuallyTriggered)
 
 							const file = plugin.app.vault.getAbstractFileByPath(filePath)
 
 							if (file instanceof TFile && plugin.hasTldrawFrontMatterKey(file)) {
-								const view = matr ? viewType : plugin.settings.workspace.tldrMarkdownViewType
+								const view = matr ? viewType : plugin.settingsManager.settings.workspace.tldrMarkdownViewType
 								const newState = { ...state, type: view }
 
 								plugin.setLeafFileViewMode(view, this, file)
 								plugin.updateStatusBarViewMode(view)
 
-								return next.apply(this, [newState, ...rest])
+								return next.call(this, newState, eState)
 							}
 						}
-						return next.apply(this, [state, ...rest])
+						return next.call(this, state, eState)
 					}
 				},
 			})
@@ -398,11 +396,11 @@ export default class TldrawPlugin extends Plugin {
 	 * Check if {@linkcode file} is a markdown file for tldraw documents.
 	 */
 	public isTldrawFile(file: TFile) {
-		return isTldrawFile(this.app, this.settings, file)
+		return isTldrawFile(this.app, this.settingsManager.settings, file)
 	}
 
 	public hasTldrawFrontMatterKey(file: TFile) {
-		return hasTldrawFrontMatterKey(this.app, this.settings, file)
+		return hasTldrawFrontMatterKey(this.app, this.settingsManager.settings, file)
 	}
 
 	private switchToTldrawViewAfterLoad() {
@@ -410,7 +408,7 @@ export default class TldrawPlugin extends Plugin {
 	}
 
 	async saveSettings() {
-		await this.saveData(this.settings)
+		await this.saveData(this.settingsManager.settings)
 	}
 
 	getEmbedBoundsSelectorIcon() {
@@ -418,13 +416,13 @@ export default class TldrawPlugin extends Plugin {
 	}
 
 	getFontOverrides() {
-		return processFontOverrides(this.settings.fonts?.overrides, (font) => {
+		return processFontOverrides(this.settingsManager.settings.fonts?.overrides, (font) => {
 			return this.app.vault.adapter.getResourcePath(font).split('?')[0]
 		})
 	}
 
 	getIconOverrides() {
-		return processIconOverrides(this.settings.icons?.overrides, (icon) => {
+		return processIconOverrides(this.settingsManager.settings.icons?.overrides, (icon) => {
 			return this.app.vault.adapter.getResourcePath(icon).split('?')[0]
 		})
 	}

@@ -22,7 +22,7 @@ describe('Editing a drawing', () => {
 				.plugins.tldraw
 
 			// Otherwise creating a drawing opens the destination picker and blocks the test.
-			plugin.settings.fileDestinations.confirmDestination = false
+			plugin.settingsManager.settings.fileDestinations.confirmDestination = false
 
 			const waitForEditor = async () => {
 				const deadline = Date.now() + 15_000

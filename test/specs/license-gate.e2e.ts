@@ -17,7 +17,7 @@ describe('License', () => {
 		await browser.executeObsidian(async ({ app }) => {
 			const plugin = (app as unknown as { plugins: { plugins: Record<string, any> } }).plugins
 				.plugins.tldraw
-			plugin.settings.fileDestinations.confirmDestination = false
+			plugin.settingsManager.settings.fileDestinations.confirmDestination = false
 			const file = await plugin.createUntitledTldrFile({})
 			await plugin.openTldrFile(file, 'new-tab')
 		})

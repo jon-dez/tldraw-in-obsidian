@@ -316,7 +316,7 @@ export class FileSearchModal extends SuggestModal<Suggestion> {
 		}
 	}
 
-	onChooseSuggestion(suggestion: Suggestion, evt: MouseEvent | KeyboardEvent) {
+	onChooseSuggestion(suggestion: Suggestion, _evt: MouseEvent | KeyboardEvent) {
 		switch (suggestion.type) {
 			case 'navigate':
 				{
@@ -370,7 +370,7 @@ function debounce<T extends [unknown, ...unknown[]]>(
 	/** callback to debounce */ cb: (...args: T) => void,
 	/** milliseconds */ wait: number
 ) {
-	let timeout: undefined | NodeJS.Timeout
+	let timeout: undefined | Timer
 	return function (...args: T) {
 		clearTimeout(timeout)
 		timeout = setTimeout(() => cb(...args), wait)

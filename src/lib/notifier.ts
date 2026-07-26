@@ -1,7 +1,7 @@
-export class Notifier<Listener extends (...args: unknown[]) => unknown = () => void> {
+export class Notifier<Listener extends (...args: any[]) => unknown = () => void> {
 	readonly #listeners = new Set<Listener>()
 
-	#timeout: Timer
+	#timeout?: Timer
 
 	notifyListeners(...args: Parameters<Listener>) {
 		// We only want to notify the listeners once per event loop so we utilize a timeout
