@@ -42,6 +42,7 @@ import {
 	TldrawUiMenuGroup,
 	TldrawUiMenuItem,
 	TldrawUiMenuSubmenu,
+	TLAnyOverlayUtilConstructor,
 	TLStateNodeConstructor,
 	TLStoreSnapshot,
 	TLUiAssetUrlOverrides,
@@ -77,6 +78,7 @@ type TldrawAppOptions = {
 	 */
 	selectNone?: boolean
 	tools?: readonly TLStateNodeConstructor[]
+	overlayUtils?: readonly TLAnyOverlayUtilConstructor[]
 	uiOverrides?: TLUiOverrides
 	components?: TLComponents
 	/**
@@ -241,6 +243,7 @@ const TldrawApp = ({
 		onUiEvent: _onUiEvent,
 		selectNone = false,
 		tools,
+		overlayUtils,
 		uiOverrides: otherUiOverrides,
 	},
 	targetDocument: _ownerDocument,
@@ -440,6 +443,7 @@ const TldrawApp = ({
 				autoFocus={false}
 				onMount={setAppState}
 				tools={tools}
+				overlayUtils={overlayUtils}
 				licenseKey={TLDRAW_LICENSE_KEY}
 			/>
 		</div>

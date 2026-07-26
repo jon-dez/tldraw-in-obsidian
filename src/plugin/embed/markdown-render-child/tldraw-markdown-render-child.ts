@@ -1,13 +1,14 @@
 import { MarkdownRenderChild, TFile } from 'obsidian'
 import { ComponentProps, createElement } from 'react'
 import BoundsTool from 'src/plugin/app/components/BoundsTool'
-import BoundsToolSelectedShapeIndicator from 'src/plugin/app/components/BoundsToolSelectedShapesIndicator'
 import EmbedTldrawToolBar from 'src/plugin/app/components/EmbedTldrawToolBar'
 import InFrontOfTheCanvas from 'src/plugin/app/components/InFrontOfTheCanvas'
 import TldrawApp from 'src/plugin/app/TldrawApp'
 import TldrawPlugin from 'src/plugin/TldrawPlugin'
 import toPageId from 'src/tldraw/helpers/string-to-page-id'
-import BoundsSelectorTool from 'src/tldraw/tools/bounds-selector-tool'
+import BoundsSelectorTool, {
+	BoundsSelectorIndicatorOverlayUtil,
+} from 'src/tldraw/tools/bounds-selector-tool'
 import { logClass } from 'src/utils/logging'
 import { isObsidianThemeDark } from 'src/obsidian/helpers/theme'
 import { BoxLike, createDeepLinkString, Editor, TLDeepLink, TLPageId } from 'tldraw'
@@ -144,9 +145,9 @@ export class TldrawMarkdownRenderChild extends MarkdownRenderChild {
 						createElement(InFrontOfTheCanvas, {
 							children: createElement(BoundsTool),
 						}),
-					OnTheCanvas: BoundsToolSelectedShapeIndicator,
 					Toolbar: EmbedTldrawToolBar,
 				},
+				overlayUtils: [BoundsSelectorIndicatorOverlayUtil],
 				selectNone: true,
 				iconAssetUrls: {
 					[boundsSelectorToolIconName]: boundsSelectorIcon,

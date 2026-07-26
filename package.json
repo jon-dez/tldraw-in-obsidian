@@ -25,6 +25,7 @@
 		"e2e:debug:link": "E2E_DEBUG=1 npm run e2e:link",
 		"e2e:inspect:link": "E2E_PAUSE=1 npm run build && wdio run ./wdio.conf.mts --spec test/specs/link-to-obsidian.e2e.ts",
 		"e2e:wdio-debug:link": "E2E_WDIO_DEBUG=1 npm run build && wdio run ./wdio.conf.mts --spec test/specs/link-to-obsidian.e2e.ts",
+		"e2e:inspect:bounds-indicator": "npm run build && TEST_INTERACTIVE=true wdio run ./wdio.conf.mts --spec test/specs/bounds-tool-shape-indicator.e2e.ts",
 		"test:unit": "vitest run"
 	},
 	"keywords": [
