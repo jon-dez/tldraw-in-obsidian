@@ -1,6 +1,7 @@
 import { App, BlockCache } from 'obsidian'
 import * as React from 'react'
 import * as ReactDOM from 'react-dom'
+import * as ReactDOMClient from 'react-dom/client'
 import * as tldraw from 'tldraw'
 import { createSetStore } from 'src/lib/stores'
 import { AuditSessionManager } from './audit/AuditSessionManager'
@@ -27,7 +28,8 @@ export default class TldrawInObsidianPluginInstance {
 	/** Exposed for other plugins that need the same `react`, `react-dom`, and `tldraw` references as this plugin. */
 	readonly packages = Object.freeze({
 		react: React,
-		reactDom: ReactDOM,
+		// `createRoot`/`hydrateRoot` live on 'react-dom/client', not the top-level 'react-dom' export.
+		reactDom: Object.freeze({ ...ReactDOM, ...ReactDOMClient }),
 		tldraw,
 	})
 
