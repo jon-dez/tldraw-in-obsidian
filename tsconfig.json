@@ -1,6 +1,6 @@
 {
 	"compilerOptions": {
-		"baseUrl": ".",
+		"paths": { "*": ["./*"] },
 		"inlineSourceMap": true,
 		"inlineSources": true,
 		"module": "ESNext",
@@ -17,17 +17,9 @@
 		"types": [],
 		"lib": ["DOM", "ESNext"],
 		"jsx": "react",
-		"composite": true,
 		"skipLibCheck": true,
 		"skipDefaultLibCheck": true,
 		"noEmit": true
 	},
-	"include": [
-		"src",
-		"scripts",
-		"test",
-		"eslint.config.mjs",
-		"vite.config.mts",
-		"wdio.conf.mts"
-	]
+	"include": ["src"]
 }

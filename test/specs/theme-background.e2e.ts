@@ -21,7 +21,7 @@ describe('Canvas background', () => {
 				.plugins.tldraw
 
 			// Otherwise creating a drawing opens the destination picker and blocks the test.
-			plugin.settings.fileDestinations.confirmDestination = false
+			plugin.settingsManager.settings.fileDestinations.confirmDestination = false
 
 			const file = await plugin.createUntitledTldrFile({})
 			const leaf = await plugin.openTldrFile(file, 'new-tab')
@@ -66,7 +66,7 @@ describe('Canvas background', () => {
 			const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 			const plugin = (app as unknown as { plugins: { plugins: Record<string, any> } }).plugins
 				.plugins.tldraw
-			plugin.settings.fileDestinations.confirmDestination = false
+			plugin.settingsManager.settings.fileDestinations.confirmDestination = false
 
 			const file = await plugin.createUntitledTldrFile({})
 			const leaf = await plugin.openTldrFile(file, 'new-tab')

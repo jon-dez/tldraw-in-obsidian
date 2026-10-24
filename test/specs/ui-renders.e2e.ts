@@ -16,7 +16,7 @@ describe('Plugin UI', () => {
 			const plugin = (app as unknown as { plugins: { plugins: Record<string, any> } }).plugins
 				.plugins.tldraw
 			// Otherwise creating a drawing opens the destination picker and blocks the test.
-			plugin.settings.fileDestinations.confirmDestination = false
+			plugin.settingsManager.settings.fileDestinations.confirmDestination = false
 			const file = await plugin.createUntitledTldrFile({})
 			await plugin.openTldrFile(file, 'new-tab')
 		})

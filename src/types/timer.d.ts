@@ -1,5 +1,5 @@
 declare global {
-  type Timer = number
+  type Timer = ReturnType<typeof setTimeout>
 }
 
 export {}

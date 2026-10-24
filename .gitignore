@@ -39,6 +39,8 @@ data.json
 
 # testing
 /.wdio/
+# Regenerate with: npm run e2e
+test/screenshots/e2e/*.png
 
 # Exclude macOS Finder (System Explorer) View States
 .DS_Store

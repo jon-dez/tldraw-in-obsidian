@@ -5,11 +5,13 @@ import {
 	atom,
 	Box,
 	BoxLike,
+	ShapeIndicatorOverlayUtil,
 	StateNode,
 	TLCancelEventInfo,
 	TLPageId,
 	TLPointerEventInfo,
 	TLShape,
+	TLShapeIndicatorOverlay,
 	TLStateNodeConstructor,
 } from 'tldraw'
 
@@ -281,5 +283,59 @@ export default class BoundsSelectorTool extends StateNode {
 		} else {
 			this.editor.zoomToFit()
 		}
+	}
+}
+
+/**
+ * Draws indicators for shapes currently enclosed by an in-progress {@linkcode BoundsDraggingState}
+ * drag, in addition to tldraw's normal selection/hover indicators.
+ *
+ * tldraw removed the old `useEditorComponents().ShapeIndicator` React-component slot in favor of
+ * this canvas-based overlay system. Keeps `ShapeIndicatorOverlayUtil`'s own `static type` (so it
+ * replaces, rather than duplicates, the built-in shape-indicator overlay when passed via
+ * `overlayUtils`) and only extends `getOverlays()`, merging in the drag-selected shape ids so the
+ * default selection/hover indicators keep working unchanged.
+ */
+export class BoundsSelectorIndicatorOverlayUtil extends ShapeIndicatorOverlayUtil {
+	private getDraggedSelectedShapeIds() {
+		if (this.editor.getPath() !== BoundsSelectorTool.draggingStatePath) return []
+		const draggingState = this.editor.getStateDescendant<BoundsDraggingState>(
+			BoundsSelectorTool.draggingStatePath
+		)
+		return draggingState?.selectedShapes.get().map((shape) => shape.id) ?? []
+	}
+
+	override isActive(): boolean {
+		return super.isActive() || this.getDraggedSelectedShapeIds().length > 0
+	}
+
+	override getOverlays(): TLShapeIndicatorOverlay[] {
+		const base = super.getOverlays()
+		const draggedSelectedShapeIds = this.getDraggedSelectedShapeIds()
+		if (!draggedSelectedShapeIds.length) return base
+
+		const [primary, ...rest] = base
+		if (!primary) {
+			return [
+				{
+					id: BoundsSelectorIndicatorOverlayUtil.type,
+					type: BoundsSelectorIndicatorOverlayUtil.type,
+					props: { idsToDisplay: draggedSelectedShapeIds, hintingShapeIds: [] },
+				},
+			]
+		}
+
+		return [
+			{
+				...primary,
+				props: {
+					...primary.props,
+					idsToDisplay: [
+						...new Set([...primary.props.idsToDisplay, ...draggedSelectedShapeIds]),
+					],
+				},
+			},
+			...rest,
+		]
 	}
 }

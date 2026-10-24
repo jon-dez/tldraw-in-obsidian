@@ -1,7 +1,7 @@
 export type ConsoleLogParams = Parameters<typeof console.log>
 
 export function logClass<
-	T extends new (...args: unknown[]) => unknown,
+	T extends new (...args: any[]) => unknown,
 	U extends (this: T, ...args: never) => unknown,
 >(targetClass: T, target: U, ...args: ConsoleLogParams) {
 	console.log(`${targetClass.name}.${target.name}:`, ...args)
