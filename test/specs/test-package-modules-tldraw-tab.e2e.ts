@@ -52,21 +52,41 @@ describe('Test package modules tab (shared packages + Tldraw)', () => {
 	})
 
 	it('shows helper plugin in Community plugins tab and saves screenshot', async () => {
+		const mainWindow = await browser.getWindowHandle()
+		const handlesBefore = await browser.getWindowHandles()
+
 		await browser.executeObsidianCommand('app:open-settings')
 
-		const settingsModal = await browser.$('.modal.mod-settings')
-		await settingsModal.waitForExist({ timeout: 30000 })
-
-		const communityPluginsTab = await browser.$(
-			"//div[contains(@class,'vertical-tab-nav-item')][contains(., 'Community plugins')]"
+		// Newer Obsidian versions open settings in a window of its own, older ones in a modal in the
+		// main window. Wait for whichever happens, then look wherever the settings ended up.
+		await browser.waitUntil(
+			async () =>
+				(await browser.getWindowHandles()).length > handlesBefore.length ||
+				(await browser.$('.modal.mod-settings').isExisting()),
+			{ timeout: 30000, timeoutMsg: 'Settings did not open in a window or a modal' }
 		)
-		await communityPluginsTab.waitForExist({ timeout: 30000 })
-		await communityPluginsTab.click()
+		const settingsWindow = (await browser.getWindowHandles()).find(
+			(handle) => !handlesBefore.includes(handle)
+		)
+		if (settingsWindow) await browser.switchToWindow(settingsWindow)
 
-		const helperPluginCard = await browser.$("//*[contains(., 'Test package modules')]")
-		await helperPluginCard.waitForExist({ timeout: 30000 })
-		await expect(helperPluginCard).toBeDisplayed()
+		try {
+			const settingsModal = await browser.$('.modal.mod-settings')
+			await settingsModal.waitForExist({ timeout: 30000 })
 
-		await browser.saveScreenshot(communityPluginsScreenshotPath)
+			const communityPluginsTab = await browser.$(
+				"//div[contains(@class,'vertical-tab-nav-item')][contains(., 'Community plugins')]"
+			)
+			await communityPluginsTab.waitForExist({ timeout: 30000 })
+			await communityPluginsTab.click()
+
+			const helperPluginCard = await browser.$("//*[contains(., 'Test package modules')]")
+			await helperPluginCard.waitForExist({ timeout: 30000 })
+			await expect(helperPluginCard).toBeDisplayed()
+
+			await browser.saveScreenshot(communityPluginsScreenshotPath)
+		} finally {
+			await browser.switchToWindow(mainWindow)
+		}
 	})
 })
