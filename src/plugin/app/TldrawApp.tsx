@@ -249,7 +249,7 @@ const TldrawApp = ({
 	targetDocument: _ownerDocument,
 	filePath,
 }: TldrawAppProps) => {
-	const assetUrls = React.useRef({
+	const assetUrlsRef = React.useRef({
 		fonts: plugin.getFontOverrides(),
 		icons: {
 			...plugin.getIconOverrides(),
@@ -257,11 +257,13 @@ const TldrawApp = ({
 			[PLUGIN_ACTION_TOGGLE_ZOOM_LOCK]: lockZoomIcon,
 		},
 	})
-	const overridesUi = React.useRef({
-		...uiOverrides(plugin),
+	// The overrides are created once, so route UI events through a ref to reach the latest handler.
+	const onUiEventRef = React.useRef<TLUiEventHandler>(() => {})
+	const overridesUiRef = React.useRef({
+		...uiOverrides(plugin, (...args) => onUiEventRef.current(...args)),
 		...otherUiOverrides,
 	})
-	const overridesUiComponents = React.useRef({
+	const overridesUiComponentsRef = React.useRef({
 		...components,
 		...otherComponents,
 	})
@@ -291,6 +293,9 @@ const TldrawApp = ({
 		},
 		[_onUiEvent, editor]
 	)
+	React.useLayoutEffect(() => {
+		onUiEventRef.current = onUiEvent
+	}, [onUiEvent])
 
 	const [isFocused, setIsFocused] = React.useState(false)
 
@@ -432,13 +437,13 @@ const TldrawApp = ({
 		>
 			<Tldraw
 				{...storeProps}
-				assetUrls={assetUrls.current}
+				assetUrls={assetUrlsRef.current}
 				hideUi={hideUi}
 				onUiEvent={onUiEvent}
-				overrides={overridesUi.current}
+				overrides={overridesUiRef.current}
 				options={tldrawOptions}
 				user={user}
-				components={overridesUiComponents.current}
+				components={overridesUiComponentsRef.current}
 				// Set this flag to false when a tldraw document is embed into markdown to prevent it from gaining focus when it is loaded.
 				autoFocus={false}
 				onMount={setAppState}

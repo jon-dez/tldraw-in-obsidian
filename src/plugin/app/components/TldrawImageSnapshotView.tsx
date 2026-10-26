@@ -128,7 +128,7 @@ function TldrawImageContextProviders({
 
 	const tldrawImageContextValue = useMemo((): ContextType<typeof TldrawImageContext> => {
 		const { bounds, padding, ...rest } = previewOptions
-		TLDRAW_COMPONENT_LOGGING &&
+		if (TLDRAW_COMPONENT_LOGGING)
 			logFn(TldrawImageContextProviders, {
 				bounds,
 				box: !bounds ? undefined : Box.From(bounds),
@@ -145,14 +145,14 @@ function TldrawImageContextProviders({
 	}, [previewOptions])
 
 	return (
-		<PluginTldrawImageContext.Provider value={ptlTldrawImageContextValue}>
-			<TldrawImageContext.Provider
+		<PluginTldrawImageContext value={ptlTldrawImageContextValue}>
+			<TldrawImageContext
 				key={tldrawImageContextValue?.props.pageId}
 				value={tldrawImageContextValue}
 			>
 				{children}
-			</TldrawImageContext.Provider>
-		</PluginTldrawImageContext.Provider>
+			</TldrawImageContext>
+		</PluginTldrawImageContext>
 	)
 }
 

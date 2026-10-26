@@ -24,6 +24,45 @@ import { Setting, Group } from '@obsidian-plugin-toolkit/react/components/settin
 
 const DEFAULT_TAGS = ['tldraw']
 
+const FileDestinationMethodDesc = memo(function FileDestinationMethodDesc({
+	method,
+	settingsManager,
+}: {
+	method: DestinationMethod
+	settingsManager: UserSettingsManager
+}) {
+	const settings = useUserPluginSettings(settingsManager)
+	const { desc, destination } = ((): {
+		desc: string
+		destination: string
+	} => {
+		switch (method) {
+			case 'attachments-folder':
+				return {
+					desc: 'Use the location defined in the "Files and links" options tab for newly created tldraw files if they are embed as an attachment.',
+					destination: settingsManager.plugin.app.vault.config.attachmentFolderPath ?? '/',
+				}
+			case 'colocate':
+				return {
+					desc: 'Place files in the same directory as the active note/file. You can also optionally define a subfolder within that directory below.',
+					destination: './' + settings.fileDestinations.colocationSubfolder,
+				}
+			case 'default-folder':
+				return {
+					desc: 'Use the default folder from below.',
+					destination: settings.fileDestinations.defaultFolder,
+				}
+		}
+	})()
+	return (
+		<>
+			The method to use for all new tldraw files.
+			<div>{desc}</div>
+			<code className="ptl-default-code">Destination: {destination}</code>
+		</>
+	)
+})
+
 function FileSettingsGroup() {
 	const settingsManager = useSettingsManager()
 	const settings = useUserPluginSettings(settingsManager)
@@ -36,46 +75,6 @@ function FileSettingsGroup() {
 				folder instanceof TFolder ? folder.path : folder
 			await settingsManager.updateSettings(settingsManager.settings)
 		},
-		[settingsManager]
-	)
-
-	const FileDestinationMethodDesc = useCallback(
-		memo(function FileDestinationMethodDesc({
-			method,
-		}: {
-			method: typeof settings.fileDestinations.destinationMethod
-		}) {
-			const settings = useUserPluginSettings(settingsManager)
-			const { desc, destination } = ((): {
-				desc: string
-				destination: string
-			} => {
-				switch (method) {
-					case 'attachments-folder':
-						return {
-							desc: 'Use the location defined in the "Files and links" options tab for newly created tldraw files if they are embed as an attachment.',
-							destination: settingsManager.plugin.app.vault.config.attachmentFolderPath ?? '/',
-						}
-					case 'colocate':
-						return {
-							desc: 'Place files in the same directory as the active note/file. You can also optionally define a subfolder within that directory below.',
-							destination: './' + settings.fileDestinations.colocationSubfolder,
-						}
-					case 'default-folder':
-						return {
-							desc: 'Use the default folder from below.',
-							destination: settings.fileDestinations.defaultFolder,
-						}
-				}
-			})()
-			return (
-				<>
-					The method to use for all new tldraw files.
-					<div>{desc}</div>
-					<code className="ptl-default-code">Destination: {destination}</code>
-				</>
-			)
-		}),
 		[settingsManager]
 	)
 
@@ -114,7 +113,12 @@ function FileSettingsGroup() {
 			<Setting
 				slots={{
 					name: 'File destination method',
-					desc: <FileDestinationMethodDesc method={settings.fileDestinations.destinationMethod} />,
+					desc: (
+						<FileDestinationMethodDesc
+							method={settings.fileDestinations.destinationMethod}
+							settingsManager={settingsManager}
+						/>
+					),
 					control: (
 						<>
 							<Dropdown
@@ -190,7 +194,7 @@ function NewFilePrefix({ settingsManager }: { settingsManager: UserSettingsManag
 
 	const [previewWithExampleNote, setPreviewWithExampleNote] = useState(true)
 
-	const exampleNote = useRef(
+	const exampleNoteRef = useRef(
 		(() => {
 			const path = 'Path/To/ExampleNote.md'
 			return {
@@ -202,7 +206,7 @@ function NewFilePrefix({ settingsManager }: { settingsManager: UserSettingsManag
 
 	const previewCreateOptions = useMemo(() => {
 		return {
-			currentFile: previewWithExampleNote ? exampleNote.current : undefined,
+			currentFile: previewWithExampleNote ? exampleNoteRef.current : undefined,
 		}
 	}, [previewWithExampleNote])
 
@@ -244,7 +248,7 @@ function NewFilePrefix({ settingsManager }: { settingsManager: UserSettingsManag
 														checked={previewWithExampleNote}
 														onChange={(e) => setPreviewWithExampleNote(e.currentTarget.checked)}
 													/>
-													<span>Preview with example note ({exampleNote.current.path})</span>
+													<span>Preview with example note ({exampleNoteRef.current.path})</span>
 												</>
 											),
 										},
@@ -426,7 +430,7 @@ function FrontmatterSettingsGroup() {
 				</div>
 			)
 		},
-		[defaultTagsRemove, settings]
+		[defaultTagsRemove, updateFrontmatterTags, settings]
 	)
 
 	return (
@@ -565,7 +569,7 @@ function SaveDelaySettings() {
 			)
 			await settingsManager.updateSettings(settingsManager.settings)
 		},
-		[settingsManager]
+		[settingsManager, defaultDelay, minDelay, maxDelay]
 	)
 
 	return (

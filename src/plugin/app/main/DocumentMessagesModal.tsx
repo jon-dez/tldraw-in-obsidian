@@ -107,7 +107,7 @@ function BlockRefErrorMessageItem({
 			{errors.length === 0 ? (
 				<>Hmm... 🤔 we overlooked something.</>
 			) : (
-				errors.map((e, index) => {
+				errors.map((e) => {
 					const content = (() => {
 						switch (e.type) {
 							case 'asset':
@@ -116,7 +116,6 @@ function BlockRefErrorMessageItem({
 										<BlockRefErrorTypeMessage
 											asset={e.asset}
 											tFile={tFile}
-											blockId={state.blockId}
 										/>
 									</div>
 								)
@@ -125,7 +124,7 @@ function BlockRefErrorMessageItem({
 						}
 					})()
 					return (
-						<div className="ptl-document-message-item-error" data-error-type={e.type} key={index}>
+						<div className="ptl-document-message-item-error" data-error-type={e.type} key={e.type}>
 							{content}
 						</div>
 					)
@@ -139,11 +138,9 @@ function BlockRefErrorMessageItem({
 function BlockRefErrorTypeMessage({
 	asset,
 	tFile,
-	blockId,
 }: {
 	asset: NonNullable<Extract<DocumentMessage, { type: 'blockRefError' }>['state']['asset']>
 	tFile: TFile
-	blockId: string
 }) {
 	const plugin = useTldrawPlugin()
 
