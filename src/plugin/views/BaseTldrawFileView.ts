@@ -10,8 +10,9 @@ import TldrawPlugin from 'src/plugin/TldrawPlugin'
 import { MARKDOWN_ICON_NAME, VIEW_TYPE_MARKDOWN } from 'src/plugin/constants'
 import { TLDataDocumentStore } from 'src/plugin/document/document'
 import { createDeepLinkString, parseDeepLinkString, TLDeepLink } from 'tldraw'
-import { getViewport } from 'src/utils/viewport-storage'
+import { getViewport } from 'src/plugin/viewport-storage'
 import TldrawAssetsModal from 'src/plugin/modals/TldrawAssetsModal'
+import { ErrorHandler } from 'src/plugin/error-handler'
 
 export interface DataUpdate {
 	getData(): string
@@ -178,9 +179,8 @@ export abstract class BaseTldrawFileView<View extends FileView = FileView> {
 			: undefined
 
 		const filePath = this.fileView.file?.path
-		const vaultName = this.plugin.app.vault.getName()
 		const hasSavedViewport = filePath
-			? getViewport(vaultName, filePath) !== null
+			? getViewport(this.plugin.app, filePath) !== null
 			: false
 
 		return {
@@ -216,7 +216,7 @@ export abstract class BaseTldrawFileView<View extends FileView = FileView> {
 	}
 
 	protected viewAsMarkdownClicked() {
-		this.plugin.updateViewMode(VIEW_TYPE_MARKDOWN)
+		this.plugin.updateViewMode(VIEW_TYPE_MARKDOWN).catch(ErrorHandler.notice)
 	}
 
 	private updateViewAssetsAction() {

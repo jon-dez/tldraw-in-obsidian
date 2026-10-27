@@ -60,11 +60,11 @@ type MainData = {
 	 * Messages associated with the main document.
 	 */
 	messages: {
-		getAll(): DocumentMessage[]
-		addListener(listener: () => void): () => void
-		getCount(): number
-		dismissAll(): void
-		getFile(): TFile
+		getAll: () => DocumentMessage[]
+		addListener: (listener: () => void) => () => void
+		getCount: () => number
+		dismissAll: () => void
+		getFile: () => TFile
 	}
 }
 
@@ -499,7 +499,7 @@ export function listenAssetChanges(store: TLStore) {
 				.then(() => {
 					deleteStore.remove(id)
 				})
-				.catch((error) => {
+				.catch((error: unknown) => {
 					console.error('Unable to remove block ref', { error })
 				})
 		}

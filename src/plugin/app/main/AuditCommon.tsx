@@ -6,6 +6,9 @@ import TldrawViewComponent from 'src/plugin/views/tldraw-view-component'
 import { navigateToBlockCache } from 'src/plugin/file/navigate'
 import { TldrawDocument } from 'src/plugin/audit/document'
 import { AssetEntry } from 'src/plugin/instance'
+import { mimeTypeFromExtension } from 'src/utils/mime-type'
+import { ErrorHandler } from 'src/plugin/error-handler'
+import { errorMessage } from 'src/utils/error'
 
 export function AuditLayout({
 	slots,
@@ -118,16 +121,11 @@ export function AssetListItem({
 			if (!assetFile) throw new Error(`Asset file not found for link: ${ref.link}`)
 
 			const url = app.vault.adapter.getResourcePath(assetFile.path)
-
-			// Fetch it to get mime type
-			const response = await fetch(url)
-			if (!response.ok) throw new Error(`Failed to fetch asset: ${response.statusText}`)
-
-			const mimeType = response.headers.get('content-type') || undefined
+			const mimeType = mimeTypeFromExtension(assetFile.extension)
 			setAssetData({ url, mimeType, isLoading: false })
 		} catch (e) {
 			console.error(e)
-			setAssetData({ error: e instanceof Error ? e.message : 'Unknown error', isLoading: false })
+			setAssetData({ error: errorMessage(e), isLoading: false })
 		}
 	}
 
@@ -140,7 +138,7 @@ export function AssetListItem({
 				const snippet = fullText.substring(pos.start.offset, pos.end.offset)
 				setContent(snippet)
 			}
-			loadAsset()
+			await loadAsset()
 		}
 		setShowContent(!showContent)
 	}
@@ -153,7 +151,7 @@ export function AssetListItem({
 		} catch (e) {
 			console.error(e)
 			setAssetData({
-				error: `Pruning failed: ${e instanceof Error ? e.message : 'Unknown error'}`,
+				error: `Pruning failed: ${errorMessage(e)}`,
 				isLoading: false,
 			})
 		}
@@ -162,7 +160,7 @@ export function AssetListItem({
 	const handleOpenInFile = async () => {
 		const file = app.vault.getAbstractFileByPath(document.path)
 		if (file instanceof TFile) {
-			navigateToBlockCache(plugin, file, asset.blockCache)
+			await navigateToBlockCache(plugin, file, asset.blockCache)
 		}
 	}
 
@@ -176,11 +174,16 @@ export function AssetListItem({
 					</span>
 				</div>
 				<div className="ptl-audit-item-actions" style={{ display: 'flex', gap: '4px' }}>
-					<button onClick={toggleView} className="ptl-audit-item-view-btn">
+					<button
+						onClick={() => {
+							toggleView().catch(ErrorHandler.notice)
+						}}
+						className="ptl-audit-item-view-btn"
+					>
 						{showContent ? 'Hide Details' : 'View Details'}
 					</button>
 					<button
-						onClick={handlePrune}
+						onClick={() => void handlePrune()}
 						className="mod-warning"
 						title="Remove block reference from file and prune from store"
 					>
@@ -188,7 +191,9 @@ export function AssetListItem({
 					</button>
 					<button
 						className="mod-cta"
-						onClick={handleOpenInFile}
+						onClick={() => {
+							handleOpenInFile().catch(ErrorHandler.notice)
+						}}
 						title="Navigate to block in the markdown file"
 					>
 						Go to location
@@ -231,7 +236,7 @@ export function TldrawDocumentView({ document }: { document: TldrawDocument }) {
 			if (!node) {
 				// Unmounting
 				if (componentRef.current) {
-					setTimeout(() => {
+					window.setTimeout(() => {
 						componentRef.current?.unload()
 						componentRef.current = null
 					})
@@ -245,7 +250,7 @@ export function TldrawDocumentView({ document }: { document: TldrawDocument }) {
 				componentRef.current = comp
 				comp.load()
 
-				setTimeout(async () => {
+				window.setTimeout(async () => {
 					const instance = await document.getInstance()
 					if (componentRef.current) {
 						componentRef.current.renderInteractive({

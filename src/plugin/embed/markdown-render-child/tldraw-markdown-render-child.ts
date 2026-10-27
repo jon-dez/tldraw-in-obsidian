@@ -21,6 +21,7 @@ import TldrawViewComponent from 'src/plugin/views/tldraw-view-component'
 import deepLinkListener from './deep-link-listener'
 import PreviewImageImpl from './preview-image'
 import SnapshotPreviewSyncStoreImpl from './snapshot-preview-store'
+import { ErrorHandler } from 'src/plugin/error-handler'
 
 const boundsSelectorToolIconName = `tool-${BoundsSelectorTool.id}`
 
@@ -134,7 +135,9 @@ export class TldrawMarkdownRenderChild extends MarkdownRenderChild {
 			options: {
 				// assetStore: documentStore.store.props.assets,
 				onClickAwayBlur: () => {
-					Promise.resolve().then(() => this.setViewMode('image'))
+					Promise.resolve()
+						.then(() => this.setViewMode('image'))
+						.catch(ErrorHandler.log)
 					return true
 				},
 				isReadonly: this.#storeInstance?.isSynchronizingToMain() !== true,
@@ -312,7 +315,7 @@ export class TldrawMarkdownRenderChild extends MarkdownRenderChild {
 		page?: string
 	}) {
 		if (TLDRAW_COMPONENT_LOGGING)
-			logClass(TldrawMarkdownRenderChild, this.updateEmbedValues, { bounds, imageSize })
+			logClass(TldrawMarkdownRenderChild, 'updateEmbedValues', { bounds, imageSize })
 		const { options: currOptions } = this.#previewImage
 		if (
 			imageSize.height !== this.#previewImage.size.height ||
@@ -359,7 +362,7 @@ export class TldrawMarkdownRenderChild extends MarkdownRenderChild {
 	}
 
 	updateBounds(bounds?: BoxLike) {
-		if (TLDRAW_COMPONENT_LOGGING) logClass(TldrawMarkdownRenderChild, this.updateBounds)
+		if (TLDRAW_COMPONENT_LOGGING) logClass(TldrawMarkdownRenderChild, 'updateBounds')
 		this.#previewImage.setOptions({
 			...this.#previewImage.options,
 			bounds,
@@ -403,7 +406,7 @@ export class TldrawMarkdownRenderChild extends MarkdownRenderChild {
 	#awaitInitialLoadViaTimeout(ms: number) {
 		return new Promise<void>((res, rej) => {
 			if (this.isContentLoaded()) return res()
-			setTimeout(() => {
+			window.setTimeout(() => {
 				if (this.isContentLoaded()) {
 					return res()
 				} else {
@@ -437,7 +440,7 @@ export class TldrawMarkdownRenderChild extends MarkdownRenderChild {
 
 	renderRoot() {
 		if (TLDRAW_COMPONENT_LOGGING)
-			logClass(TldrawMarkdownRenderChild, this.renderRoot, {
+			logClass(TldrawMarkdownRenderChild, 'renderRoot', {
 				containerEl: this.containerEl,
 				parentEl: this.containerEl.parentElement,
 			})
@@ -448,7 +451,7 @@ export class TldrawMarkdownRenderChild extends MarkdownRenderChild {
 
 		const component = (this.#viewComponent ??= (() => {
 			if (TLDRAW_COMPONENT_LOGGING)
-				logClass(TldrawMarkdownRenderChild, this.renderRoot, 'component init', {
+				logClass(TldrawMarkdownRenderChild, 'renderRoot', 'component init', {
 					containerEl: this.containerEl,
 					parentEl: this.containerEl.parentElement,
 				})
@@ -459,9 +462,9 @@ export class TldrawMarkdownRenderChild extends MarkdownRenderChild {
 		})())
 
 		// Wait for the component to be ready before rendering
-		setTimeout(() => {
+		window.setTimeout(() => {
 			if (TLDRAW_COMPONENT_LOGGING)
-				logClass(TldrawMarkdownRenderChild, this.renderRoot, 'timeout', {
+				logClass(TldrawMarkdownRenderChild, 'renderRoot', 'timeout', {
 					containerEl: this.containerEl,
 					parentEl: this.containerEl.parentElement,
 				})
@@ -498,7 +501,7 @@ export class TldrawMarkdownRenderChild extends MarkdownRenderChild {
 
 	async loadRoot() {
 		if (TLDRAW_COMPONENT_LOGGING)
-			logClass(TldrawMarkdownRenderChild, this.loadRoot, this, {
+			logClass(TldrawMarkdownRenderChild, 'loadRoot', this, {
 				containerEl: this.containerEl,
 				parentEl: this.containerEl.parentElement,
 			})
@@ -509,19 +512,17 @@ export class TldrawMarkdownRenderChild extends MarkdownRenderChild {
 	}
 
 	unloadRoot() {
-		if (TLDRAW_COMPONENT_LOGGING) logClass(TldrawMarkdownRenderChild, this.unloadRoot, this)
+		if (TLDRAW_COMPONENT_LOGGING) logClass(TldrawMarkdownRenderChild, 'unloadRoot', this)
 		this.#previewImage.clearRefreshTimeout()
 		this.#previewImage.observePreviewImageDisconnect()
 		this.#setPlaceHolderSize()
 	}
 
 	override onload(): void {
-		try {
-			this.loadRoot()
-		} catch (e) {
+		this.loadRoot().catch((e: unknown) => {
 			this.unload()
 			console.error('There was an error while mounting the tldraw app: ', e)
-		}
+		})
 	}
 
 	override onunload(): void {
@@ -534,7 +535,7 @@ export class TldrawMarkdownRenderChild extends MarkdownRenderChild {
 	 * Compatibility with `.tldr` embed factory
 	 */
 	loadFile() {
-		this.lazyLoadStoreInstance()
+		this.lazyLoadStoreInstance().catch(ErrorHandler.notice)
 	}
 
 	async #setUpObservers() {
@@ -631,18 +632,20 @@ function createTldrawEmbedView(
 		viewType
 	) => {
 		const initialTldrawDeepLink = getCurrentDeepLink()
-		plugin.openTldrFile(
-			file,
-			location,
-			viewType,
-			!initialTldrawDeepLink
-				? undefined
-				: {
-						eState: {
-							tldrawDeepLink: createDeepLinkString(initialTldrawDeepLink),
-						},
-					}
-		)
+		plugin
+			.openTldrFile(
+				file,
+				location,
+				viewType,
+				!initialTldrawDeepLink
+					? undefined
+					: {
+							eState: {
+								tldrawDeepLink: createDeepLinkString(initialTldrawDeepLink),
+							},
+						}
+			)
+			.catch(ErrorHandler.notice)
 	}
 
 	tldrawEmbedViewContent.addEventListener('dblclick', (ev) => {
@@ -676,8 +679,8 @@ function createTldrawEmbedView(
 		tldrawEmbedViewContent.addEventListener(
 			'touchstart',
 			(ev) => {
-				clearTimeout(longPressTimer)
-				longPressTimer = setTimeout(() => showMenu(ev, tldrawEmbedView), 500)
+				window.clearTimeout(longPressTimer)
+				longPressTimer = window.setTimeout(() => showMenu(ev, tldrawEmbedView), 500)
 			},
 			{ passive: true }
 		)
@@ -685,7 +688,7 @@ function createTldrawEmbedView(
 		tldrawEmbedViewContent.addEventListener(
 			'touchmove',
 			() => {
-				clearTimeout(longPressTimer)
+				window.clearTimeout(longPressTimer)
 			},
 			{ passive: true }
 		)
@@ -693,7 +696,7 @@ function createTldrawEmbedView(
 		tldrawEmbedViewContent.addEventListener(
 			'touchend',
 			() => {
-				clearTimeout(longPressTimer)
+				window.clearTimeout(longPressTimer)
 			},
 			{ passive: true }
 		)

@@ -2,6 +2,7 @@ import { TFile } from 'obsidian'
 import React from 'react'
 import { useTldrawPlugin } from 'src/plugin/app/contexts/plugin'
 import { useStorify } from 'src/plugin/app/hooks/useStorify'
+import { ErrorHandler } from 'src/plugin/error-handler'
 import { navigateToBlockCache } from 'src/plugin/file/navigate'
 import { DocumentMessage } from 'src/plugin/stores/TLDataDocumentMessages'
 import { MainDataMessages } from 'src/plugin/stores/TLDataDocumentStoreManager'
@@ -78,7 +79,7 @@ function DocumentMessageItem({
 		default:
 			return (
 				<div className="ptl-document-message-item">
-					<p className="ptl-document-message-text">{`Unknown message type: ${message.type}`}</p>
+					<p className="ptl-document-message-text">{`Unknown message type: ${String((message as { type: unknown }).type)}`}</p>
 					<ButtonComponent text="Dismiss" onClick={() => message.dismiss()} />
 				</div>
 			)
@@ -147,7 +148,7 @@ function BlockRefErrorTypeMessage({
 	const navigateToBlock = async () => {
 		if (!asset.item) return
 
-		navigateToBlockCache(plugin, tFile, asset.item)
+		await navigateToBlockCache(plugin, tFile, asset.item)
 	}
 
 	let typeSpecificMessage = ''
@@ -169,7 +170,14 @@ function BlockRefErrorTypeMessage({
 	return (
 		<div className="ptl-message-type-specific">
 			{typeSpecificMessage}
-			{asset.item && <ButtonComponent text="Go to Block" onClick={navigateToBlock} />}
+			{asset.item && (
+				<ButtonComponent
+					text="Go to Block"
+					onClick={() => {
+						navigateToBlock().catch(ErrorHandler.notice)
+					}}
+				/>
+			)}
 		</div>
 	)
 }

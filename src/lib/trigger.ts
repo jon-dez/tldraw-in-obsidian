@@ -1,6 +1,6 @@
 import { Notifier } from './notifier'
 
-export interface AddListener<Callback extends (...args: any[]) => void = () => void> {
+export interface AddListener<Callback extends (...args: never[]) => void = () => void> {
 	(listener: Callback): () => void
 }
 
@@ -19,8 +19,8 @@ export function createTrigger<Params extends unknown[], Return>(
 	return {
 		trigger: (...args: Parameters<typeof fn>) => {
 			// We only want to call the function once per event loop so we utilize a timeout
-			clearTimeout(timeout)
-			timeout = setTimeout(() => {
+			window.clearTimeout(timeout)
+			timeout = window.setTimeout(() => {
 				const res = fn(...args)
 				notifier.notifyListeners(res)
 			})

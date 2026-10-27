@@ -35,7 +35,7 @@ declare module 'obsidian' {
 		 * @param path A vault file path
 		 * @returns
 		 */
-		openWithDefaultApp(path: string): void
+		openWithDefaultApp(path: string): void | Promise<void>
 		embedRegistry: App.EmbedRegistry
 		dom: {
 			statusBarEl: HTMLElement
@@ -72,9 +72,20 @@ declare module 'obsidian' {
 	}
 
 	interface Vault {
+		/**
+		 * Not defined by Obsidian APIs, but exists regardless.
+		 */
+		getAbstractFileByPathInsensitive(path: string): TAbstractFile | null
 		config: {
 			attachmentFolderPath?: '/' | `./${string}` | (string & NonNullable<unknown>)
 		}
+	}
+
+	interface MarkdownPostProcessorContext {
+		/**
+		 * Not defined by Obsidian APIs, but exists regardless.
+		 */
+		containerEl: HTMLElement
 	}
 
 	interface DataAdapter {
@@ -85,7 +96,7 @@ declare module 'obsidian' {
 		basePath: string
 	}
 
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars -- the type parameter must match obsidian's declaration for the interfaces to merge
 	interface SuggestModal<T = unknown> {
 		/**
 		 * This function is present at runtime in the web developer console in Obsidian, but not in the type definition for some reason.

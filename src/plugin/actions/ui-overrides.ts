@@ -9,6 +9,7 @@ import {
 	SAVE_FILE_COPY_ACTION,
 	SAVE_FILE_COPY_IN_VAULT_ACTION,
 } from 'src/plugin/actions/file'
+import { ErrorHandler } from 'src/plugin/error-handler'
 import {
 	Editor,
 	PageRecordType,
@@ -141,7 +142,7 @@ function pasteFromClipboardOverride(
 	{ addToast, msg, paste }: Pick<TLUiOverrideHelpers, 'addToast' | 'msg' | 'paste'>
 ): TLUiActionItem {
 	const pasteClipboard = (source: TLUiEventSource, items: ClipboardItem[]) =>
-		paste(items, source, source === 'context-menu' ? editor.inputs.currentPagePoint : undefined)
+		paste(items, source, source === 'context-menu' ? editor.inputs.getCurrentPagePoint() : undefined)
 	return {
 		id: 'paste',
 		label: 'action.paste',
@@ -151,20 +152,20 @@ function pasteFromClipboardOverride(
 			navigator.clipboard
 				?.read()
 				.then((clipboardItems) => {
-					pasteClipboard(source, clipboardItems)
+					pasteClipboard(source, clipboardItems).catch(ErrorHandler.log)
 				})
-				.catch((e) => {
+				.catch((e: unknown) => {
 					// Fallback to reading the clipboard as plain text.
 					navigator.clipboard
 						?.readText()
-						.then((val) => {
+						.then((val) =>
 							pasteClipboard(source, [
 								new ClipboardItem({
 									'text/plain': new Blob([val], { type: 'text/plain' }),
 								}),
 							])
-						})
-						.catch((ee) => {
+						)
+						.catch((ee: unknown) => {
 							console.error({ e, ee })
 							addToast({
 								title: msg('action.paste-error-title'),

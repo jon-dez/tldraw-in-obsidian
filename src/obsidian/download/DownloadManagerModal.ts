@@ -1,4 +1,5 @@
 import { ButtonComponent, Modal, TFile } from 'obsidian'
+import { errorMessage } from 'src/utils/error'
 import {
 	DownloadErrorTAbstractFileExists,
 	DownloadInfo,
@@ -69,12 +70,12 @@ export default class DownloadManagerModal extends Modal {
 	}: DownloadContext & { error: unknown; onRetrySuccess: (tFile: TFile) => Promise<void> }) {
 		container.createEl('p', {
 			cls: 'ptl-download-error',
-			text: error instanceof Error ? error.message : 'Unknown error',
+			text: errorMessage(error),
 		})
 
 		if (error instanceof DownloadErrorTAbstractFileExists) {
 			new ButtonComponent(container).setButtonText('Replace file').onClick(async () => {
-				await this.app.vault.delete(error.tAbstractFile)
+				await this.app.fileManager.trashFile(error.tAbstractFile)
 				await this.startDownload(info, onRetrySuccess, container)
 			})
 		}

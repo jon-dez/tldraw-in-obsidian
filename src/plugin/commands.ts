@@ -10,6 +10,7 @@ import {
 } from 'src/plugin/constants'
 import { importTldrawFile } from 'src/plugin/actions/file'
 import { TLDRAW_FILE_EXTENSION } from 'tldraw'
+import { ErrorHandler } from 'src/plugin/error-handler'
 
 async function createTldrawFile(
 	plugin: TldrawPlugin,
@@ -128,7 +129,7 @@ export function registerCommands(plugin: TldrawPlugin) {
 			const currentViewMode = plugin.getLeafFileViewMode(leaf, file)
 			const oppositeViewMode =
 				currentViewMode === VIEW_TYPE_MARKDOWN ? VIEW_TYPE_TLDRAW : VIEW_TYPE_MARKDOWN
-			plugin.updateViewMode(oppositeViewMode, leaf)
+			plugin.updateViewMode(oppositeViewMode, leaf).catch(ErrorHandler.notice)
 		},
 	})
 
@@ -164,7 +165,6 @@ export function registerCommands(plugin: TldrawPlugin) {
 		editorCallback: async (editor, ctx) => {
 			const { file } = ctx
 			if (file === null) {
-				console.log(ctx)
 				throw new Error('ctx.file was null')
 			}
 			const from = editor.getCursor('from')
@@ -177,7 +177,7 @@ export function registerCommands(plugin: TldrawPlugin) {
 
 	plugin.addCommand({
 		id: 'open-vault-audit-modal',
-		name: '[Vault] Scan for loose assets',
+		name: 'Scan vault for loose assets',
 		checkCallback: (checking: boolean) => {
 			if (checking) {
 				return true

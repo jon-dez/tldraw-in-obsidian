@@ -1,4 +1,4 @@
-import { MarkdownView, TFile, ViewState, WorkspaceLeaf } from 'obsidian'
+import { MarkdownView, TFile, WorkspaceLeaf } from 'obsidian'
 import { useStatusBarState } from 'src/plugin/app/status-bar-store'
 import {
 	VIEW_TYPE_MARKDOWN,
@@ -6,6 +6,7 @@ import {
 	VIEW_TYPE_TLDRAW_READ_ONLY,
 	ViewType,
 } from 'src/plugin/constants'
+import { ErrorHandler } from 'src/plugin/error-handler'
 import TldrawPlugin from 'src/plugin/TldrawPlugin'
 
 /**
@@ -32,7 +33,7 @@ export default class ViewModeManager {
 			{
 				type: VIEW_TYPE_MARKDOWN,
 				state: { ...leaf.view.getState(), manuallyTriggered: true },
-			} as ViewState,
+			},
 			eState
 		)
 	}
@@ -42,7 +43,7 @@ export default class ViewModeManager {
 			{
 				type: VIEW_TYPE_TLDRAW,
 				state: { ...leaf.view.getState(), manuallyTriggered: true },
-			} as ViewState,
+			},
 			eState
 		)
 	}
@@ -52,7 +53,7 @@ export default class ViewModeManager {
 			{
 				type: VIEW_TYPE_TLDRAW_READ_ONLY,
 				state: { ...leaf.view.getState(), manuallyTriggered: true },
-			} as ViewState,
+			},
 			eState
 		)
 	}
@@ -115,7 +116,7 @@ export default class ViewModeManager {
 					leaf.view.file &&
 					this.plugin.isTldrawFile(leaf.view.file)
 				) {
-					this.updateViewMode(VIEW_TYPE_TLDRAW, leaf)
+					this.updateViewMode(VIEW_TYPE_TLDRAW, leaf).catch(ErrorHandler.notice)
 				}
 			}
 		})

@@ -6,6 +6,7 @@ import { TLDataDocumentStore } from 'src/plugin/document/document'
 import { StoreSnapshot, TLRecord } from 'tldraw'
 import { getFrontMatterList } from 'src/obsidian/helpers/front-matter'
 import { TldrawView } from 'src/plugin/views/TldrawView'
+import { ErrorHandler } from 'src/plugin/error-handler'
 
 export class TldrawStoreConflictResolveFileUnloaded extends Error {}
 export class TldrawStoreConflictResolveCanceled extends Error {
@@ -73,7 +74,7 @@ export default class TldrawStoreExistsIndexedDBModal extends Modal {
 
 		this.contentEl.createEl('p', {
 			cls: 'ptl-conflict-reason',
-			text: "Why are you seeing this? Previous versions of this plugin stored the tldraw document in the markdown file and in Obsidian's IndexedDB. We no longer store drawings in the IndexedDB, so here are a few options:",
+			text: "Why are you seeing this? Previous versions of this plugin stored the tldraw document in the Markdown file and in Obsidian's IndexedDB. We no longer store drawings in the IndexedDB, so here are a few options:",
 		})
 
 		this.contentEl.createDiv(
@@ -93,7 +94,7 @@ export default class TldrawStoreExistsIndexedDBModal extends Modal {
 						)
 						toggle.setValue(ignoreIndexedDbStore)
 						toggle.onChange((ignoreIndexedDbStore) => {
-							this.app.fileManager.processFrontMatter(tFile, (frontMatter) => {
+							this.app.fileManager.processFrontMatter(tFile, (frontMatter: Record<string, unknown>) => {
 								const tlDataDocumentFlags = frontMatter[dataDocumentFlagsKey]
 								if (Array.isArray(tlDataDocumentFlags)) {
 									if (!ignoreIndexedDbStore) {
@@ -106,12 +107,12 @@ export default class TldrawStoreExistsIndexedDBModal extends Modal {
 								} else if (ignoreIndexedDbStore) {
 									frontMatter[dataDocumentFlagsKey] = [ignoreIndexedDbStoreFlag]
 								}
-							})
+							}).catch(ErrorHandler.notice)
 						})
 					})
 				new Setting(div)
-					.setName('Edit markdown version')
-					.setDesc('Uses the tldraw data stored in the markdown file and opens the editor.')
+					.setName('Edit Markdown version')
+					.setDesc('Uses the tldraw data stored in the Markdown file and opens the editor.')
 					.addButton((button) =>
 						button.setButtonText('Edit').onClick(() => {
 							res()
@@ -121,7 +122,7 @@ export default class TldrawStoreExistsIndexedDBModal extends Modal {
 				new Setting(div)
 					.setName('Restore IndexedDB version')
 					.setDesc(
-						'Replaces the data in the markdown file with the data in the IndexedDB and opens the editor.'
+						'Replaces the data in the Markdown file with the data in the IndexedDB and opens the editor.'
 					)
 					.addButton(
 						(button) =>
@@ -155,7 +156,7 @@ export default class TldrawStoreExistsIndexedDBModal extends Modal {
 				cls: 'ptl-compare-tldraw',
 			},
 			(div) => {
-				div.createEl('b', { text: `IndexedDB Store` })
+				div.createEl('b', { text: `IndexedDB store` })
 				new TextComponent(div).setValue(
 					tldrawStoreIndexedDBName(documentStore.meta.uuid)
 				).inputEl.readOnly = true
@@ -175,7 +176,7 @@ export default class TldrawStoreExistsIndexedDBModal extends Modal {
 	}
 
 	onOpen(): void {
-		super.onOpen()
+		void super.onOpen()
 		this.reset()
 
 		const sharedAppProps = {

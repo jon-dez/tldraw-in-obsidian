@@ -45,6 +45,7 @@ import { installObsidianLinkHandler } from 'src/plugin/uri/open-obsidian-link'
 import { hasTldrawFrontMatterKey, isTldrawFile } from 'src/plugin/document/detect'
 import TldrawFileCreator from 'src/plugin/file/creator'
 import ViewModeManager from 'src/plugin/view-mode-manager'
+import { ErrorHandler } from 'src/plugin/error-handler'
 
 export default class TldrawPlugin extends Plugin {
 	#instance?: TldrawInObsidianPluginInstance
@@ -75,7 +76,7 @@ export default class TldrawPlugin extends Plugin {
 	}
 
 	async onload() {
-		super.onload()
+		await super.onload()
 		installObsidianLinkHandler(this.app)
 		const instance = (this.#instance = new TldrawInObsidianPluginInstance(this.app))
 
@@ -122,9 +123,9 @@ export default class TldrawPlugin extends Plugin {
 		// subscribe to status bar state within react via zustand:
 		this.unsubscribeToViewModeState = useStatusBarState.subscribe(
 			(state) => state,
-			async (state, prevState) => {
+			(state, prevState) => {
 				if (state.view.mode !== prevState.view.mode && state.view.source === 'react')
-					await this.updateViewMode(state.view.mode)
+					this.updateViewMode(state.view.mode).catch(ErrorHandler.notice)
 			}
 		)
 
@@ -177,7 +178,7 @@ export default class TldrawPlugin extends Plugin {
 	}
 
 	private registerEvents() {
-		// eslint-disable-next-line @typescript-eslint/no-this-alias
+		// eslint-disable-next-line @typescript-eslint/no-this-alias -- `this` is shadowed inside the patched methods below
 		const plugin = this
 		// Monkey patch WorkspaceLeaf to open Tldraw drawings with TldrawView by default
 		// inspired from https://github.com/zsviczian/obsidian-excalidraw-plugin/blob/f79181c76a9d6ef9f17ecdfd054aa0e6d7564d1f/src/main.ts#L1649C9-L1649C9
@@ -224,7 +225,7 @@ export default class TldrawPlugin extends Plugin {
 					item
 						.setIcon(TLDRAW_ICON_NAME)
 						.setSection('close')
-						.setTitle('View as Tldraw')
+						.setTitle('View as tldraw')
 						.onClick(async () => {
 							await this.updateViewMode(VIEW_TYPE_TLDRAW, leaf)
 						})
@@ -244,7 +245,7 @@ export default class TldrawPlugin extends Plugin {
 							item
 								.setIcon('edit')
 								.setSection('tldraw')
-								.setTitle('Edit as new Note')
+								.setTitle('Edit as new note')
 								.onClick(async () => {
 									const newFile = await this.createUntitledTldrFile({
 										tlStore: migrateTldrawFileDataIfNecessary(await this.app.vault.read(file)),
@@ -266,7 +267,7 @@ export default class TldrawPlugin extends Plugin {
 
 				const view = isMDMode ? VIEW_TYPE_TLDRAW : VIEW_TYPE_MARKDOWN // opposite view mode
 				const icon = isMDMode ? TLDRAW_ICON_NAME : MARKDOWN_ICON_NAME
-				const title = isMDMode ? 'View as Tldraw' : 'View as Markdown'
+				const title = isMDMode ? 'View as tldraw' : 'View as Markdown'
 
 				menu.addItem((item) => {
 					item

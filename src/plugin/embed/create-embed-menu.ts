@@ -4,6 +4,7 @@ import { PTLEditorBlockBlur } from 'src/utils/dom-attributes'
 import { BoxLike } from 'tldraw'
 import { pluginMenuLabel } from 'src/plugin/menu'
 import { TldrawAppViewModeController } from './TldrawAppEmbedViewController'
+import { ErrorHandler } from 'src/plugin/error-handler'
 
 export type TldrAppControllerForMenu = Pick<
 	TldrawAppViewModeController,
@@ -20,13 +21,13 @@ function background(menuItem: MenuItem, controller: TldrAppControllerForMenu) {
 
 function interactiveMode(menuItem: MenuItem, controller: TldrAppControllerForMenu) {
 	return menuItem
-		.setTitle('Interactive Mode')
+		.setTitle('Interactive mode')
 		.setIcon('hand')
 		.setChecked(controller.getViewMode() === 'interactive')
 }
 
 function openMdNewTab(menuItem: MenuItem) {
-	return menuItem.setIcon(MARKDOWN_ICON_NAME).setTitle('Open as markdown (new tab)')
+	return menuItem.setIcon(MARKDOWN_ICON_NAME).setTitle('Open as Markdown (new tab)')
 }
 
 function editInteractive(menuItem: MenuItem) {
@@ -114,7 +115,7 @@ export function createEmbedMenu({
 				.setDisabled(bounds === undefined)
 				.onClick(() => {
 					if (bounds) {
-						window.navigator.clipboard.writeText(boundsText(bounds))
+						window.navigator.clipboard.writeText(boundsText(bounds)).catch(ErrorHandler.notice)
 					}
 				})
 		)

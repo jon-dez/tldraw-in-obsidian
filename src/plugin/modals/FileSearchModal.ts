@@ -1,6 +1,7 @@
 import { normalizePath, setIcon, SuggestModal, TAbstractFile, TFile, TFolder } from 'obsidian'
 import TldrawPlugin from 'src/plugin/TldrawPlugin'
 import { getDir } from 'src/obsidian/helpers/path'
+import { ErrorHandler } from 'src/plugin/error-handler'
 
 type Suggestion = {
 	icon: string
@@ -103,7 +104,7 @@ export class FileSearchModal extends SuggestModal<Suggestion> {
 	}
 
 	onOpen(): void {
-		super.onOpen()
+		void super.onOpen()
 		if (this.currRes) {
 			const currentPath = this.currRes.currentPath
 			this.changeInputValue(
@@ -112,7 +113,7 @@ export class FileSearchModal extends SuggestModal<Suggestion> {
 					: currentPath instanceof TFolder
 						? currentPath.path + '/'
 						: currentPath.path
-			)
+			).catch(ErrorHandler.log)
 		}
 	}
 
@@ -324,7 +325,7 @@ export class FileSearchModal extends SuggestModal<Suggestion> {
 						: suggestion.value.isRoot()
 							? '/'
 							: suggestion.value.path + '/'
-					this.changeInputValue(path)
+					this.changeInputValue(path).catch(ErrorHandler.log)
 				}
 				return
 			case 'selection': {
@@ -371,7 +372,7 @@ function debounce<T extends [unknown, ...unknown[]]>(
 ) {
 	let timeout: undefined | Timer
 	return function (...args: T) {
-		clearTimeout(timeout)
-		timeout = setTimeout(() => cb(...args), wait)
+		window.clearTimeout(timeout)
+		timeout = window.setTimeout(() => cb(...args), wait)
 	}
 }
