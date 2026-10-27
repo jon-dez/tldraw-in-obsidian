@@ -57,6 +57,14 @@ Tldraw in Obsidian is now available on the official community plugins list!
 -   Copy and paste over `main.js`, `styles.css`, `manifest.json` into the newly created `/tldraw-in-obsidian` folder.
 -   Make sure you enable the plugin by going into Settings > Community plugins > Installed plugins > toggle 'Tldraw'.
 
+## Network use
+
+The plugin makes network requests in these cases:
+
+- **tldraw CDN.** By default, the tldraw editor loads its fonts, icons and translations from `https://cdn.tldraw.com` when a drawing is opened. You can avoid this by downloading the assets in the plugin's settings. After that, the editor uses the local copies.
+- **Optional asset downloads.** When you use the download buttons in the plugin's settings, the plugin fetches tldraw's font and icon files from `https://cdn.jsdelivr.net` (the `@tldraw/assets` npm package). Nothing is downloaded unless you ask for it.
+- **tldraw license tracking.** The tldraw library requests a small image from `https://cdn.tldraw.com` to record that the library, under the plugin's license, was used. The request includes the tldraw version, the license type and ID, and Obsidian's app address (`app://obsidian.md/index.html`). It does not include your vault name, file names or note contents.
+
 ## Development
 
 -   Clone this repo or a fork to a local development folder.
