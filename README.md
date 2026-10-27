@@ -1,8 +1,8 @@
-# Tldraw in Obsidian Plugin
+# tldraw in Obsidian Plugin
 
 https://github.com/holxsam/holxsam/assets/41220650/1786cc75-3a15-431f-b13a-e8f51cfde952
 
-This Obsidian plugin allows users to use [Tldraw](https://tldraw.com), which is a tiny little drawing app, inside of Obsidian. Users can draw, plan, and use all of Tldraw's tools to augment their Obsidian experience. The data for each drawing is stored as a regular markdown file similar to the Excalidraw plugin meaning users will always have access to their data in plain markdown. Users have the option to switch between the Tldraw view or the markdown view in case they wish to include backlinks, tags, or any other elements to facilitate linking their drawings with their existing knowledge base.
+This Obsidian plugin allows users to use [tldraw](https://tldraw.com), which is a tiny little drawing app, inside of Obsidian. Users can draw, plan, and use all of tldraw's tools to augment their Obsidian experience. The data for each drawing is stored as a regular markdown file similar to the Excalidraw plugin meaning users will always have access to their data in plain markdown. Users have the option to switch between the tldraw view or the markdown view in case they wish to include backlinks, tags, or any other elements to facilitate linking their drawings with their existing knowledge base.
 
 TIP: You can toggle between the view modes, using the command palette, keyboard shortcuts, status bar toggle at the bottom right, file menu, and context menu. See the plugin settings tab for customization options as well.
 
@@ -11,104 +11,31 @@ TIP: You can toggle between the view modes, using the command palette, keyboard 
 - [Custom icons and fonts](https://github.com/tldraw/obsidian-plugin/issues/58#issue-2571070259)
 - [Customizing embeds](https://github.com/tldraw/obsidian-plugin/issues/59)
 
-## Development Goals
-
-The main goals of this plugin and repo is to keep up to date with the Tldraw's latest version and to add these features:
-
--   Preview the drawing when a tldraw file is referenced in markdown.
--   Add markdown notes into tldraw.
--   Export and import tools.
-
-## Structure
-
-- `src/` - Source code for the Obsidian plugin
-- `dist/` - Compiled output (generated during build)
-  - `development/` - Development build
-  - `production/` - Production build
-- `release/` - Files that are needed for the plugin release
-  - `manifest.json` 
-  - `versions.json`
-- `test/` - End-to-end tests (WebdriverIO) and fixture vaults
-
-`manifest.json` and `versions.json` are updated by `npm run make-release-files` and should be committed if there are any changes.
-
 ## Installation
 
-### Community Plugins (Recommended)
+tldraw in Obsidian is now available on the official community plugins list! 
 
-Tldraw in Obsidian is now available on the official community plugins list! 
-
-- Here's a link that will take you to the plugin page: `obsidian://show-plugin?id=tldraw` (paste in your browser's address bar).
+- [Open the tldraw plugin page in Obsidian](obsidian://show-plugin?id=tldraw)
 - You can also find it by going into `Settings` > `Community plugins` > `Browse` > `Type 'tldraw'` > `Install`.
 
-### Using BRAT
+## Network use
 
-- Download `Obsidian42 - BRAT` from the community plugins.
-- Go into the settings for `Obsidian42 - Brat` and select `Add Beta Plugin`
-- Copy and paste this repo: `https://github.com/tldraw/obsidian-plugin`
-- Go back `Community plugins` and make sure to enable `Tldraw`
-- This is also the only way to get Tldraw in Obsidian on the mobile app as far as I know.
+The plugin makes network requests in these cases:
 
-### Manual
-
--   Head over to [releases](https://github.com/tldraw/obsidian-plugin/releases) and download a release (latest is recommended).
--   Navigate to your plugin folder in your prefered vault: `VaultFolder/.obsidian/plugins/`
--   Create a new folder called `tldraw-in-obsidian`
--   Copy and paste over `main.js`, `styles.css`, `manifest.json` into the newly created `/tldraw-in-obsidian` folder.
--   Make sure you enable the plugin by going into Settings > Community plugins > Installed plugins > toggle 'Tldraw'.
+- **tldraw CDN.** By default, the tldraw editor loads its fonts, icons and translations from `https://cdn.tldraw.com` when a drawing is opened. You can avoid this by downloading the assets in the plugin's settings. After that, the editor uses the local copies.
+- **Optional asset downloads.** When you use the download buttons in the plugin's settings, the plugin fetches tldraw's font and icon files from `https://cdn.jsdelivr.net` (the `@tldraw/assets` npm package). Nothing is downloaded unless you ask for it.
+- **tldraw license tracking.** The tldraw library requests a small image from `https://cdn.tldraw.com` to record that the library, under the plugin's license, was used. The request includes the tldraw version, the license type and ID, and Obsidian's app address (`app://obsidian.md/index.html`). It does not include your vault name, file names or note contents.
 
 ## Development
 
--   Clone this repo or a fork to a local development folder.
--   Place this folder in your `.obsidian/plugins` folder.
--   Install NodeJS, then run `npm i` in the command line under your repo folder.
--   Run `npm run vite:dev` (recommended) to compile your plugin using Vite with fast HMR, or `npm run dev` to use the legacy build script. Changes to `src/` will be automatically compiled to `dist/development/`.
--   Make changes to the files in `/src`. Those changes should be automatically compiled into `main.js` and `styles.css`.
--   To refresh your changes, go to Settings > Community Plugins > disable and enable the plugin. You can also close your vault and then reopen it but that's more bothersome.
--   Do not edit the `styles.css` file at the root of the repo. Edit the one in `/src/styles.css` and the changes will be reflected automatically.
-
-## Building
-
-To build the plugin for production using the existing build pipeline:
-
-```bash
-npm run build
-```
-
-To build the plugin for production using the Vite pipeline:
-
-```bash
-npm run vite:build
-```
-
-## End-to-end testing
-
-E2E tests run [WebdriverIO](https://webdriver.io/) against a real Obsidian instance using [`wdio-obsidian-service`](https://github.com/jesse-r-s-hines/wdio-obsidian-service). Specs live under `test/specs/` (files matching `*.e2e.ts`). The default vault is `test/vaults/default`.
-
-**Prerequisites:** The runner needs a plugin to load. By default it expects a production build at `dist/production/`. Build first, or point to another build with environment variables.
-
-```bash
-npm run build
-npm run e2e
-```
-
-**Plugin location (optional):**
-
-- `TLDRAW_PLUGIN_DIR` — Path to a plugin folder (the directory that contains `manifest.json`, `main.js`, etc.).
-- `TLDRAW_PLUGIN_VERSION` — If set, the test run installs the published plugin with id `tldraw` at this version from the community registry instead of using a local folder.
-
-Configuration is in `wdio.conf.mts` (timeouts, Obsidian installer version, parallel runs, and more are documented in the [sample plugin config](https://github.com/jesse-r-s-hines/wdio-obsidian-service-sample-plugin/blob/main/wdio.conf.mts)).
-
-## Releasing
-
-See [Creating a Release](./release/README.md)
+See [CONTRIBUTING.md](./CONTRIBUTING.md) for how to build and test the plugin.
 
 ## Contributions
 
 This plugin was created by [Sam Alhaqab](https://github.com/szamsolo), the original author whose initial contributions kickstarted the beginning of using tldraw within Obsidian. So a huge shoutout to him!
 
--   This plugin is open to contributions. If you have a feature idea or want to report a bug, you can create an issue. If you are a developer wanting to fix a bug or add a feature to feel free to submit pull requests.!
+-   If you have a feature idea or want to report a bug, please open an [issue](https://github.com/tldraw/obsidian-plugin/issues). See [CONTRIBUTING.md](./CONTRIBUTING.md) for how the plugin is built, tested and released.
 
 ## License and Attribution
 
-All [Tldraw's](https://github.com/tldraw/tldraw) code is theirs, a few patches were made to address issues when using pop-out windows within Obsidian. Also shout out to the [Excalidraw plugin](https://github.com/zsviczian/obsidian-excalidraw-plugin) for inspiration on how I should structure this Tldraw plugin.
+All [tldraw's](https://github.com/tldraw/tldraw) code is theirs. Also shout out to the [Excalidraw plugin](https://github.com/zsviczian/obsidian-excalidraw-plugin) for inspiration on how I should structure this tldraw plugin.
