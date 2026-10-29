@@ -250,6 +250,31 @@ jobs:
           
           echo "✅ Draft release updated with files: $tag"
 
+      # The files in the draft must be what a clean checkout of the tag builds, and must carry a build
+      # attestation. This runs before publishing, so a mismatch leaves an unpublished draft.
+      - name: Verify the draft release files
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          tag="${{ steps.validate_tag.outputs.tag }}"
+          work="$(mktemp -d)"
+
+          gh release download "$tag" --dir "$work/draft" \
+            --pattern main.js --pattern styles.css --pattern manifest.json
+
+          gh repo clone "$GITHUB_REPOSITORY" "$work/source" -- --depth 1 --branch "$tag"
+          (cd "$work/source" && npm ci && npm run make-release-files -- --package-out-dir="$work/rebuilt")
+
+          for file in main.js styles.css manifest.json; do
+            if ! cmp -s "$work/draft/$file" "$work/rebuilt/$file"; then
+              echo "❌ $file in the draft release differs from a clean rebuild of $tag"
+              exit 1
+            fi
+            gh attestation verify "$work/draft/$file" --repo "$GITHUB_REPOSITORY"
+          done
+
+          echo "✅ Draft release files match a clean rebuild and are attested"
+
       - name: Publish release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
